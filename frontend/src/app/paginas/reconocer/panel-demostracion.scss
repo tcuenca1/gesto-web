@@ -1,0 +1,101 @@
+:host { display: block; }
+
+.visor {
+  position: relative;
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--escenario);
+  outline: 4px solid transparent;
+  transition: outline-color 0.25s;
+
+  img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; }
+}
+
+.visor--favorita { outline-color: var(--marcador); }
+
+.visor__pie {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 2.5rem 1.1rem 0.9rem;
+  background: linear-gradient(transparent, rgba(10, 18, 38, 0.75));
+  color: #fff;
+}
+
+.visor__titulo { font-family: var(--fuente-titulos); font-size: 1.35rem; font-weight: 700; }
+.visor__contador { font-size: 0.95rem; opacity: 0.9; white-space: nowrap; }
+
+.visor__estado {
+  position: absolute;
+  top: 0.8rem;
+  left: 0.8rem;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.chip {
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--tinta);
+}
+.chip--vivo::before { content: '▶ '; color: var(--exito); }
+.chip--favorita { background: var(--marcador); }
+
+.visor__progreso {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 4px;
+  background: var(--marcador);
+  animation: avance linear infinite;
+}
+@keyframes avance { from { width: 0; } to { width: 100%; } }
+
+.corazon {
+  position: absolute;
+  bottom: 18%;
+  font-size: 4.5rem;
+  animation: subir 1.6s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes subir {
+  0% { transform: translateY(0) scale(0.4); opacity: 0; }
+  15% { transform: translateY(-10%) scale(1.15); opacity: 1; }
+  100% { transform: translateY(-260%) scale(0.9); opacity: 0; }
+}
+
+.miniaturas {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.miniatura {
+  position: relative;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  background: none;
+  opacity: 0.65;
+
+  img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+  &:hover { opacity: 1; }
+}
+.miniatura--actual { border-color: var(--cobalto); opacity: 1; }
+.miniatura__estrella {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  color: var(--marcador);
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
+}

@@ -1,0 +1,46 @@
+{
+  "name": "gestoweb-backend",
+  "version": "1.0.0",
+  "description": "Backend de GestoWeb: API REST con arquitectura hexagonal",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "test": "jest --testPathIgnorePatterns=postgres",
+    "test:pg": "jest pruebas/postgres --runInBand",
+    "test:todo": "jest --runInBand",
+    "test:cobertura": "jest --coverage --testPathIgnorePatterns=postgres",
+    "typecheck": "tsc --noEmit",
+    "db:crear": "tsx scripts/crear-base-datos.ts",
+    "db:datos-prueba": "tsx scripts/cargar-datos-prueba.ts"
+  },
+  "author": "Equipo GestoWeb",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.7",
+    "express": "^4.22.3",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.25",
+    "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.20.5",
+    "@types/pg": "^8.23.1",
+    "@types/supertest": "^7.2.1",
+    "jest": "^29.7.0",
+    "supertest": "^7.3.1",
+    "ts-jest": "^29.4.14",
+    "tsx": "^4.23.15",
+    "typescript": "5.8"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  }
+}

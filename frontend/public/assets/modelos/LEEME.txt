@@ -1,0 +1,6 @@
+Aquí va el modelo de MediaPipe: gesture_recognizer.task (≈8 MB).
+
+Descárgalo con:   cd frontend && npm run modelo
+
+Si no está, la aplicación usa la copia oficial en línea de Google (necesita internet).
+Para la demo en clase conviene descargarlo: así no depende de servidores externos (SRS §2.4).

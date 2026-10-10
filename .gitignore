@@ -1,0 +1,19 @@
+# Dependencias y compilados
+node_modules/
+dist/
+coverage/
+.angular/
+
+# Variables de entorno reales (nunca se suben; usa .env.example)
+.env
+.env.*
+!.env.example
+
+# Modelo de MediaPipe (se descarga con "npm run modelo" en frontend/)
+frontend/public/assets/modelos/*.task
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+*.log
+.idea/

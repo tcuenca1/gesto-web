@@ -1,0 +1,23 @@
+# PostgreSQL para desarrollo con Docker (opcional).
+# Si ya tienes PostgreSQL instalado en tu computador no lo necesitas.
+#
+#   docker compose up -d        → base de datos en localhost:5432
+#   cd backend && npm run db:crear
+#
+# Usuario: postgres · Contraseña: postgres · Base: gestoweb
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gestoweb
+      TZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      - datos-gestoweb:/var/lib/postgresql/data
+
+volumes:
+  datos-gestoweb:

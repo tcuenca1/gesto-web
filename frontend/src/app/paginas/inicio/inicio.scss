@@ -1,0 +1,130 @@
+.portada {
+  background: var(--tinta);
+  color: #fff;
+}
+
+.portada__interior {
+  max-width: var(--ancho-max);
+  margin: 0 auto;
+  padding: clamp(2.5rem, 7vw, 5rem) var(--margen);
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+}
+
+h1 {
+  font-size: clamp(2.3rem, 5vw, 3.6rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  max-width: 14ch;
+}
+
+.portada__bajada {
+  font-size: 1.15rem;
+  max-width: 46ch;
+  color: #d5dcec;
+}
+
+.portada__botones { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1.75rem 0; }
+
+.boton--marcador {
+  background: var(--marcador);
+  border-color: var(--marcador);
+  color: var(--tinta);
+  &:hover { background: #ffd56e; border-color: #ffd56e; }
+}
+.boton--claro {
+  background: transparent;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.45);
+  &:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff; }
+}
+
+.portada__privacidad {
+  max-width: 50ch;
+  padding-left: 1rem;
+  border-left: 3px solid var(--marcador);
+  color: #c3cde3;
+  font-size: 0.95rem;
+}
+
+/* La demo: un gesto enorme que cambia, con la acción que provoca. */
+.demo {
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+  background: radial-gradient(circle at 50% 35%, #263c70 0%, var(--escenario) 72%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 0.35rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+.demo__gesto { font-size: clamp(5rem, 11vw, 8rem); line-height: 1; }
+.demo__nombre { font-family: var(--fuente-titulos); font-size: 1.5rem; font-weight: 700; margin-top: 0.75rem; }
+.demo__accion { color: var(--marcador); font-size: 1.05rem; }
+.demo__puntos {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  span { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: rgba(255, 255, 255, 0.25); transition: background 0.3s; }
+  .activo { background: var(--marcador); }
+}
+
+.pasos-seccion h2 { margin-top: 0.5rem; }
+
+.pasos {
+  list-style: none;
+  counter-reset: paso;
+  padding: 0;
+  margin: 1rem 0 3rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+
+  li {
+    counter-increment: paso;
+    padding-top: 1rem;
+    border-top: 3px solid var(--tinta);
+    color: var(--tinta-suave);
+
+    &::before {
+      content: counter(paso);
+      display: block;
+      font-family: var(--fuente-titulos);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--cobalto);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    strong { color: var(--tinta); display: block; }
+  }
+}
+
+.gestos {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: 0.75rem;
+
+  li {
+    display: grid;
+    gap: 0.15rem;
+    padding: 1rem;
+    background: var(--superficie);
+    border: 1px solid var(--linea);
+    border-radius: 10px;
+    span:last-child { color: var(--tinta-suave); font-size: 0.92rem; }
+  }
+}
+.gestos__icono { font-size: 2rem; }
+
+@media (max-width: 820px) {
+  .portada__interior { grid-template-columns: 1fr; }
+  .pasos { grid-template-columns: 1fr; }
+}

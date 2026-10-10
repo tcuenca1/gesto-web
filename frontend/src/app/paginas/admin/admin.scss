@@ -1,0 +1,57 @@
+/* Estilos compartidos por las pantallas de administración. */
+.lista { display: grid; gap: 0.75rem; }
+
+.gesto {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 13rem;
+  gap: 1.25rem;
+  align-items: start;
+  .campo { margin-bottom: 0.6rem; }
+}
+.gesto--inactivo { opacity: 0.7; background: #f7f8fb; }
+.gesto__icono { font-size: 2.5rem; line-height: 1; }
+.gesto__campos { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 0 1rem; }
+.gesto__lateral {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+  font-size: 0.92rem;
+  code { background: #eef1f6; padding: 0.1rem 0.4rem; border-radius: 4px; }
+}
+
+.interruptor { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; cursor: pointer; }
+
+.formulario-linea {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+  align-items: flex-end;
+  margin-bottom: 1.25rem;
+  .campo { flex: 1; min-width: 12rem; }
+  .boton { margin-bottom: 1rem; }
+}
+
+.acciones-fila { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+.cifras {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+  p { margin: 0; }
+}
+.cifra__valor { font-family: var(--fuente-titulos); font-size: 2rem; font-weight: 700; }
+
+.graficos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+h2 { font-size: 1.15rem; }
+
+.cambios { margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
+.cambios del { color: var(--error); }
+.cambios ins { color: var(--exito); text-decoration: none; font-weight: 700; }
+
+@media (max-width: 960px) {
+  .gesto { grid-template-columns: auto 1fr; }
+  .gesto__lateral { grid-column: 1 / -1; grid-template-columns: repeat(2, auto); align-items: center; }
+  .gesto__campos { grid-template-columns: 1fr; }
+  .graficos { grid-template-columns: 1fr; }
+}

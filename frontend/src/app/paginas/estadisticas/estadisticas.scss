@@ -1,0 +1,41 @@
+.periodo { margin: 0; min-width: 12rem; }
+
+.resumen {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  p { margin: 0; }
+}
+
+.resumen__principal {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: var(--tinta);
+  color: #fff;
+  border-color: var(--tinta);
+
+  .texto-suave { color: #c3cde3; }
+  .resumen__etiqueta { color: var(--marcador); }
+}
+
+.resumen__icono { font-size: 3.5rem; line-height: 1; }
+.resumen__etiqueta { font-size: 0.92rem; color: var(--tinta-suave); }
+.resumen__valor { font-family: var(--fuente-titulos); font-size: 2rem; font-weight: 700; line-height: 1.15; }
+
+.graficos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  h2 { font-size: 1.15rem; }
+}
+
+h2 { font-size: 1.15rem; }
+
+@media (max-width: 860px) {
+  .resumen, .graficos { grid-template-columns: 1fr; }
+}

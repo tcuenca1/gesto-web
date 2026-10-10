@@ -1,0 +1,219 @@
+.rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  align-items: start;
+}
+
+/* ---------- Escenario de la cámara ---------- */
+.escenario {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 40%, #1d2d52 0%, var(--escenario) 70%);
+}
+
+/* Video y dibujo se muestran como un espejo: mover la mano a la derecha la mueve a la derecha. */
+.escenario__video,
+.escenario__lienzo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.escenario__capa {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+  color: #dfe6f5;
+
+  small { opacity: 0.75; }
+}
+
+.escenario__titulo {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: 1.3rem;
+  color: #fff;
+}
+
+.escenario__error { margin: 0; max-width: 38ch; }
+
+.boton--marcador {
+  background: var(--marcador);
+  border-color: var(--marcador);
+  color: var(--tinta);
+  &:hover:not(:disabled) { background: #ffd56e; border-color: #ffd56e; }
+}
+
+.girador {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--marcador);
+  border-radius: 50%;
+  animation: girar 0.9s linear infinite;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+
+.fps {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 0.8rem;
+}
+
+/* ---------- Lectura del gesto: el anillo se llena durante el medio segundo de estabilidad ---------- */
+.lectura {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.85rem;
+  padding: 0.9rem 1rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 12px;
+}
+
+.anillo {
+  position: relative;
+  flex: 0 0 auto;
+  width: 4.75rem;
+  height: 4.75rem;
+
+  svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  circle { fill: none; stroke-width: 3.5; }
+}
+.anillo__fondo { stroke: var(--linea); }
+.anillo__avance {
+  stroke: var(--cobalto);
+  stroke-linecap: round;
+  stroke-dasharray: 125.66;
+  transition: stroke-dashoffset 0.1s linear, stroke 0.2s;
+}
+.anillo__icono {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 2.1rem;
+}
+
+.lectura--espera .anillo__icono { opacity: 0.45; filter: grayscale(1); }
+.lectura--aceptado {
+  border-color: var(--marcador);
+  .anillo__avance { stroke: var(--marcador); }
+  .anillo { animation: latido 0.35s ease-out; }
+}
+@keyframes latido { 50% { transform: scale(1.08); } }
+
+.lectura__texto { display: grid; gap: 0.15rem; flex: 1; min-width: 0; }
+.lectura__titulo { font-family: var(--fuente-titulos); font-size: 1.35rem; line-height: 1.2; }
+.lectura__detalle { color: var(--tinta-suave); font-size: 0.95rem; }
+
+.confianza { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.3rem; }
+.confianza__barra {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--linea);
+  overflow: hidden;
+
+  span { display: block; height: 100%; background: var(--cobalto); transition: width 0.15s; }
+}
+.confianza__valor { font-size: 0.9rem; min-width: 3.6ch; text-align: right; color: var(--tinta-suave); }
+
+.guardado { margin: 0.6rem 0 0; font-size: 0.92rem; color: var(--tinta-suave); }
+
+.ultima {
+  margin: 0.85rem 0 0;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: var(--cobalto-claro);
+  color: var(--tinta);
+}
+
+/* ---------- Leyenda de gestos ---------- */
+.leyenda { margin-top: 2.25rem; }
+.leyenda__cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+  h2 { margin: 0; }
+}
+.leyenda__lista {
+  list-style: none;
+  padding: 0;
+  margin: 0.9rem 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.tarjeta-gesto {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.2rem;
+  padding: 0.85rem 0.5rem;
+  border: 1.5px solid var(--linea);
+  border-radius: 10px;
+  background: var(--superficie);
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  transition: border-color 0.2s, background-color 0.2s;
+
+  kbd {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.45rem;
+    font: inherit;
+    font-size: 0.75rem;
+    color: var(--tinta-suave);
+  }
+}
+.tarjeta-gesto--boton {
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+  &:hover:not(:disabled) { border-color: var(--cobalto); }
+  &:active:not(:disabled) { background: var(--cobalto-claro); }
+  &:disabled { cursor: not-allowed; opacity: 0.6; }
+}
+.tarjeta-gesto--ultima { border-color: var(--marcador); background: #fffaeb; }
+.tarjeta-gesto__icono { font-size: 2rem; line-height: 1.2; }
+.tarjeta-gesto__nombre { font-weight: 700; font-size: 0.95rem; }
+.tarjeta-gesto__accion { font-size: 0.85rem; color: var(--tinta-suave); }
+
+@media (max-width: 1100px) {
+  .leyenda__lista { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .lectura { padding: 0.7rem; gap: 0.7rem; }
+  .anillo { width: 3.75rem; height: 3.75rem; }
+  .anillo__icono { font-size: 1.7rem; }
+  .lectura__titulo { font-size: 1.15rem; }
+}
+
+@media (max-width: 700px) {
+  .rejilla { grid-template-columns: 1fr; }
+  .leyenda__lista { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
