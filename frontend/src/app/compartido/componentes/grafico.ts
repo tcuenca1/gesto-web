@@ -4,18 +4,57 @@ import {
   BarElement,
   CategoryScale,
   Chart,
-  Filler,
   LinearScale,
   LineController,
   LineElement,
+  Plugin,
   PointElement,
   Tooltip,
 } from 'chart.js';
 
 // Solo se registran las piezas que se usan: el paquete pesa menos.
-Chart.register(BarController, BarElement, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Filler);
+Chart.register(BarController, BarElement, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip);
 
-/** Gráfico simple de barras o líneas con Chart.js (RF-16, RF-21). */
+interface Colores {
+  tinta: string;
+  tenue: string;
+  regla: string;
+  senal: string;
+  papel: string;
+}
+
+/** Lee los tokens de styles.scss: el gráfico no tiene colores propios. */
+function leerColores(): Colores {
+  const e = getComputedStyle(document.documentElement);
+  const v = (n: string) => e.getPropertyValue(n).trim();
+  return { tinta: v('--tinta'), tenue: v('--tinta-tenue'), regla: v('--regla-fuerte'), senal: v('--senal'), papel: v('--papel') };
+}
+
+/** Escribe el valor del último punto de una línea, como la lectura actual de un instrumento. */
+const valorFinal: Plugin<'line'> = {
+  id: 'valorFinal',
+  afterDatasetsDraw(chart) {
+    const meta = chart.getDatasetMeta(0);
+    const punto = meta.data[meta.data.length - 1];
+    const valor = chart.data.datasets[0]?.data[meta.data.length - 1];
+    if (!punto || valor === undefined) return;
+    const { ctx } = chart;
+    ctx.save();
+    ctx.font = '500 11px "IBM Plex Mono", monospace';
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--senal').trim();
+    const cercaDelBorde = punto.x - chart.chartArea.left < 40;
+    ctx.textAlign = cercaDelBorde ? 'left' : 'right';
+    ctx.fillText(String(valor), punto.x + (cercaDelBorde ? 8 : -8), punto.y - 8);
+    ctx.restore();
+  },
+};
+
+/**
+ * Gráfico de barras o líneas con Chart.js (RF-16, RF-21), con el estilo de
+ * instrumento de la skill interfaz-gestoweb §5: barras en tinta con una sola
+ * destacada en rojo, líneas rectas sin relleno, rejilla punteada, ejes en mono
+ * y sin animación.
+ */
 @Component({
   selector: 'app-grafico',
   template: `<div class="lienzo"><canvas #lienzo role="img" [attr.aria-label]="descripcion()"></canvas></div>`,
@@ -28,18 +67,29 @@ export class Grafico implements OnDestroy {
   readonly nombreSerie = input('Detecciones');
   readonly descripcion = input('Gráfico');
   readonly horizontal = input(false);
+  /** Índice de la barra que se pinta en rojo (por ejemplo, el gesto más usado). */
+  readonly destacado = input<number | null>(null);
 
   private readonly lienzo = viewChild.required<ElementRef<HTMLCanvasElement>>('lienzo');
   private grafico: Chart | null = null;
+  private colores: Colores | null = null;
 
   constructor() {
     afterNextRender(() => this.crear());
     effect(() => {
       const etiquetas = this.etiquetas();
       const valores = this.valores();
-      if (!this.grafico) return;
+      const destacado = this.destacado();
+      if (!this.grafico || !this.colores) return;
       this.grafico.data.labels = etiquetas;
-      this.grafico.data.datasets[0].data = valores;
+      const serie = this.grafico.data.datasets[0];
+      serie.data = valores;
+      if (this.tipo() === 'bar') serie.backgroundColor = this.coloresBarras(valores.length, destacado);
+      else {
+        const linea = serie as { pointRadius?: number[]; pointBackgroundColor?: string[] };
+        linea.pointRadius = this.radiosPuntos(valores.length);
+        linea.pointBackgroundColor = this.coloresPuntos(valores.length);
+      }
       this.grafico.update();
     });
   }
@@ -48,12 +98,27 @@ export class Grafico implements OnDestroy {
     this.grafico?.destroy();
   }
 
+  private coloresBarras(cantidad: number, destacado: number | null): string[] {
+    const c = this.colores!;
+    return Array.from({ length: cantidad }, (_, i) => (i === destacado ? c.senal : c.tinta));
+  }
+
+  private radiosPuntos(cantidad: number): number[] {
+    return Array.from({ length: cantidad }, (_, i) => (i === cantidad - 1 ? 4 : 2));
+  }
+
+  /** El último punto de la línea va en rojo: es la lectura más reciente. */
+  private coloresPuntos(cantidad: number): string[] {
+    const c = this.colores!;
+    return Array.from({ length: cantidad }, (_, i) => (i === cantidad - 1 ? c.senal : c.tinta));
+  }
+
   private crear(): void {
-    const estilos = getComputedStyle(document.documentElement);
-    const color = (nombre: string) => estilos.getPropertyValue(nombre).trim();
-    const tinta = color('--tinta-suave') || '#4a5872';
-    const linea = color('--linea') || '#dbe1ec';
-    const acento = color('--cobalto') || '#2b59c3';
+    const c = (this.colores = leerColores());
+    const esLinea = this.tipo() === 'line';
+    const n = this.valores().length;
+    const fuenteEje = { family: '"IBM Plex Mono", monospace', size: 11 };
+    const rejilla = { color: c.regla, drawTicks: false };
 
     this.grafico = new Chart(this.lienzo().nativeElement, {
       type: this.tipo(),
@@ -63,14 +128,16 @@ export class Grafico implements OnDestroy {
           {
             label: this.nombreSerie(),
             data: this.valores(),
-            backgroundColor: this.tipo() === 'line' ? acento + '22' : acento,
-            borderColor: acento,
-            borderWidth: this.tipo() === 'line' ? 2 : 0,
-            borderRadius: 4,
-            fill: this.tipo() === 'line',
-            tension: 0.3,
-            pointRadius: 3,
-            maxBarThickness: 36,
+            backgroundColor: esLinea ? c.tinta : this.coloresBarras(n, this.destacado()),
+            borderColor: c.tinta,
+            borderWidth: esLinea ? 1.5 : 0,
+            borderRadius: 0,
+            tension: 0,
+            fill: false,
+            pointRadius: esLinea ? this.radiosPuntos(n) : 0,
+            pointBackgroundColor: this.coloresPuntos(n),
+            pointBorderWidth: 0,
+            maxBarThickness: 18,
           },
         ],
       },
@@ -78,13 +145,36 @@ export class Grafico implements OnDestroy {
         indexAxis: this.horizontal() ? 'y' : 'x',
         responsive: true,
         maintainAspectRatio: false,
-        animation: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? false : { duration: 400 },
-        plugins: { legend: { display: false }, tooltip: { intersect: false } },
+        animation: false,
+        layout: { padding: { top: esLinea ? 16 : 0 } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            intersect: false,
+            backgroundColor: c.tinta,
+            titleColor: c.papel,
+            bodyColor: c.papel,
+            cornerRadius: 0,
+            displayColors: false,
+            titleFont: fuenteEje,
+            bodyFont: fuenteEje,
+          },
+        },
         scales: {
-          x: { grid: { display: this.horizontal(), color: linea }, ticks: { color: tinta, precision: 0 } },
-          y: { grid: { display: !this.horizontal(), color: linea }, ticks: { color: tinta, precision: 0 }, beginAtZero: true },
+          x: {
+            border: { display: !this.horizontal(), color: c.tinta, dash: [2, 3] },
+            grid: { display: this.horizontal(), ...rejilla, lineWidth: 1 },
+            ticks: { color: c.tenue, precision: 0, font: fuenteEje },
+          },
+          y: {
+            border: { display: this.horizontal(), color: c.tinta, dash: [2, 3] },
+            grid: { display: !this.horizontal(), ...rejilla, lineWidth: 1 },
+            ticks: { color: c.tenue, precision: 0, font: fuenteEje },
+            beginAtZero: true,
+          },
         },
       },
+      plugins: esLinea ? [valorFinal as Plugin] : [],
     });
   }
 }

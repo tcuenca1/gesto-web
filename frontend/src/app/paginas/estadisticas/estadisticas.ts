@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Grafico } from '../../compartido/componentes/grafico';
 import { diaCorto, haceDias, porcentaje } from '../../compartido/utilidades';
-import { infoGesto } from '../../nucleo/dominio/gesto';
 import { Estadisticas } from '../../nucleo/dominio/modelos';
 import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
@@ -16,8 +15,8 @@ import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salid
     <section class="pagina">
       <div class="pagina__titulo">
         <div>
-          <h1>Mis estadísticas</h1>
-          <p>Cómo has usado tus gestos en el periodo elegido.</p>
+          <span class="pagina__ruta">04 / Estadísticas</span>
+          <h1>Estadísticas</h1>
         </div>
         <div class="campo periodo">
           <label for="periodo">Periodo</label>
@@ -36,56 +35,58 @@ import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salid
 
       @if (datos(); as d) {
         @if (d.totalDetecciones === 0) {
-          <div class="panel vacio">
-            <p>Aún no hay gestos en este periodo.</p>
+          <div class="vacio">
+            <p>No hay gestos aceptados en este periodo.</p>
             <a class="boton" routerLink="/reconocer">Reconocer gestos</a>
           </div>
         } @else {
-          <div class="resumen">
-            <div class="panel resumen__principal">
-              <app-icono-gesto class="resumen__icono" [codigo]="d.gestoMasUsado?.codigo" [tamano]="64" [decorativo]="true" />
+          <section class="panel">
+            <h2>Lecturas</h2>
+            <dl class="lecturas">
               <div>
-                <p class="resumen__etiqueta">Tu gesto más usado</p>
-                <p class="resumen__valor">{{ d.gestoMasUsado?.nombre }}</p>
-                <p class="texto-suave">{{ d.gestoMasUsado?.total }} veces</p>
+                <dt>Gestos aceptados</dt>
+                <dd>{{ d.totalDetecciones }}</dd>
               </div>
-            </div>
-            <div class="panel">
-              <p class="resumen__etiqueta">Gestos aceptados</p>
-              <p class="resumen__valor">{{ d.totalDetecciones }}</p>
-            </div>
-            <div class="panel">
-              <p class="resumen__etiqueta">Confianza promedio</p>
-              <p class="resumen__valor">{{ porcentaje(d.confianzaPromedio) }}</p>
-            </div>
-          </div>
+              <div>
+                <dt>Confianza promedio</dt>
+                <dd>{{ porcentaje(d.confianzaPromedio) }}</dd>
+              </div>
+              <div class="lecturas__gesto">
+                <dt>Gesto más usado</dt>
+                <dd>
+                  <app-icono-gesto [codigo]="d.gestoMasUsado?.codigo" [tamano]="40" [decorativo]="true" />
+                  <span>{{ d.gestoMasUsado?.nombre }}</span>
+                  <span class="lecturas__veces">{{ d.gestoMasUsado?.total }} veces</span>
+                </dd>
+              </div>
+            </dl>
+          </section>
 
-          <div class="graficos">
-            <div class="panel">
-              <h2>Total por gesto</h2>
-              <app-grafico [etiquetas]="etiquetasGestos()" [valores]="valoresGestos()" [horizontal]="true" descripcion="Cantidad de veces que usaste cada gesto" />
-            </div>
-            <div class="panel">
-              <h2>Uso por día</h2>
-              <app-grafico tipo="line" [etiquetas]="etiquetasDias()" [valores]="valoresDias()" descripcion="Gestos aceptados por día" />
-            </div>
-          </div>
+          <section class="panel">
+            <h2>Total por gesto</h2>
+            <app-grafico [etiquetas]="etiquetasGestos()" [valores]="valoresGestos()" [horizontal]="true" [destacado]="indiceMasUsado()" descripcion="Cantidad de veces que usaste cada gesto" />
+          </section>
 
-          <div class="panel tabla-contenedor">
+          <section class="panel">
+            <h2>Uso por día</h2>
+            <app-grafico tipo="line" [etiquetas]="etiquetasDias()" [valores]="valoresDias()" descripcion="Gestos aceptados por día" />
+          </section>
+
+          <section class="panel tabla-contenedor">
             <h2>Detalle por gesto</h2>
-            <table>
-              <thead><tr><th>Gesto</th><th>Veces</th><th>Confianza promedio</th></tr></thead>
+            <table class="hoja-tabla">
+              <thead><tr><th>Gesto</th><th class="num">Veces</th><th class="num">Confianza promedio</th></tr></thead>
               <tbody>
                 @for (g of d.totalesPorGesto; track g.idGesto) {
                   <tr>
                     <td><app-icono-gesto [codigo]="g.codigo" [tamano]="22" [decorativo]="true" /> {{ g.nombre }}</td>
-                    <td>{{ g.total }}</td>
-                    <td>{{ g.total ? porcentaje(g.confianzaPromedio) : '—' }}</td>
+                    <td class="num">{{ g.total }}</td>
+                    <td class="num">{{ g.total ? porcentaje(g.confianzaPromedio) : '—' }}</td>
                   </tr>
                 }
               </tbody>
             </table>
-          </div>
+          </section>
         }
       } @else if (!error()) {
         <p class="texto-suave">Cargando…</p>
@@ -105,6 +106,11 @@ export class EstadisticasPagina implements OnInit {
   protected readonly etiquetasGestos = computed(() => this.datos()?.totalesPorGesto.map((g) => g.nombre) ?? []);
   protected readonly valoresGestos = computed(() => this.datos()?.totalesPorGesto.map((g) => g.total) ?? []);
   protected readonly etiquetasDias = computed(() => this.datos()?.usoPorDia.map((d) => diaCorto(d.dia)) ?? []);
+  protected readonly indiceMasUsado = computed(() => {
+    const d = this.datos();
+    const i = d?.totalesPorGesto.findIndex((g) => g.codigo === d.gestoMasUsado?.codigo) ?? -1;
+    return i >= 0 ? i : null;
+  });
   protected readonly valoresDias = computed(() => this.datos()?.usoPorDia.map((d) => d.total) ?? []);
 
   ngOnInit(): void {

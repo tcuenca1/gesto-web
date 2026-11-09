@@ -16,15 +16,16 @@ import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salid
     <section class="pagina">
       <div class="pagina__titulo">
         <div>
+          <span class="pagina__ruta">03 / Historial</span>
           <h1>Historial</h1>
-          <p>Cada gesto aceptado queda guardado con su acción, confianza y hora. Nunca se guardan imágenes.</p>
+          <p>Registro de gestos aceptados: hora, acción, confianza y mano. No se guardan imágenes.</p>
         </div>
         <button type="button" class="boton boton--fantasma" (click)="descargar()" [disabled]="descargando() || total() === 0">
-          {{ descargando() ? 'Preparando archivo…' : 'Descargar CSV' }}
+          {{ descargando() ? 'Preparando CSV…' : 'Exportar CSV' }}
         </button>
       </div>
 
-      <form class="filtros panel" (ngSubmit)="buscar(1)">
+      <form class="filtros" (ngSubmit)="buscar(1)">
         <div class="campo">
           <label for="desde">Desde</label>
           <input id="desde" type="date" name="desde" [(ngModel)]="desde" />
@@ -52,29 +53,29 @@ import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salid
         <p class="alerta alerta--error" role="alert">{{ error() }}</p>
       }
 
-      <div class="panel">
+      <div class="registro">
         @if (cargando()) {
           <p class="texto-suave">Cargando…</p>
         } @else if (filas().length === 0) {
           <div class="vacio">
             <p>{{ hayFiltros() ? 'No hay gestos con esos filtros.' : 'Todavía no tienes gestos guardados.' }}</p>
             @if (!hayFiltros()) {
-              <a class="boton" routerLink="/reconocer">Reconocer mi primer gesto</a>
+              <a class="boton" routerLink="/reconocer">Reconocer gestos</a>
             }
           </div>
         } @else {
           <div class="tabla-contenedor">
-            <table>
+            <table class="hoja-tabla">
               <thead>
-                <tr><th>Fecha y hora</th><th>Gesto</th><th>Acción</th><th>Confianza</th><th>Mano</th></tr>
+                <tr><th>Fecha y hora</th><th>Gesto</th><th>Acción</th><th class="num">Confianza</th><th>Mano</th></tr>
               </thead>
               <tbody>
                 @for (d of filas(); track d.id) {
                   <tr>
-                    <td>{{ fecha(d.fechaHora) }}</td>
+                    <td class="dato">{{ fecha(d.fechaHora) }}</td>
                     <td><app-icono-gesto [codigo]="d.codigoGesto" [tamano]="22" [decorativo]="true" /> {{ d.nombreGesto }}</td>
                     <td>{{ d.nombreAccion ?? '—' }}</td>
-                    <td>{{ porcentaje(d.confianza) }}</td>
+                    <td class="num">{{ porcentaje(d.confianza) }}</td>
                     <td>{{ d.mano }}</td>
                   </tr>
                 }
@@ -82,7 +83,7 @@ import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salid
             </table>
           </div>
           <nav class="paginacion" aria-label="Páginas del historial">
-            <span class="texto-suave">{{ total() }} gestos, página {{ pagina() }} de {{ paginas() }}</span>
+            <span class="dato texto-suave">{{ total() }} registros · página {{ pagina() }} / {{ paginas() }}</span>
             <div>
               <button class="boton boton--fantasma boton--chico" type="button" (click)="buscar(pagina() - 1)" [disabled]="pagina() <= 1">Anterior</button>
               <button class="boton boton--fantasma boton--chico" type="button" (click)="buscar(pagina() + 1)" [disabled]="pagina() >= paginas()">Siguiente</button>
@@ -93,9 +94,10 @@ import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salid
     </section>
   `,
   styles: `
-    .filtros { display: flex; flex-wrap: wrap; gap: 0 1rem; align-items: flex-end; margin-bottom: 1.25rem; }
-    .filtros .campo { min-width: 11rem; flex: 1; }
-    .filtros__botones { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .filtros { display: flex; flex-wrap: wrap; gap: 0 1.5rem; align-items: flex-end; margin-bottom: 1.5rem; padding-bottom: 0.25rem; border-bottom: var(--trazo) solid var(--regla-fuerte); }
+    .filtros .campo { min-width: 10rem; flex: 1; }
+    .filtros__botones { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .hoja-tabla { background: var(--hoja); }
     .paginacion { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
     .paginacion div { display: flex; gap: 0.5rem; }
     td:first-child { white-space: nowrap; }
