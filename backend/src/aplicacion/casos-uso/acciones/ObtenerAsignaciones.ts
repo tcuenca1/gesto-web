@@ -1,10 +1,10 @@
 import { resolverAccionEfectiva } from '../../../dominio/accion/Asignacion';
-import { AsignacionDTO } from '../../puertos/entrada/dtos';
+import { DtoAsignacion } from '../../dto/DtoAccion';
 import { ObtenerAsignacionesPuerto } from '../../puertos/entrada/acciones';
 import { PuertoSalidaAccion } from '../../puerto/salida/PuertoSalidaAccion';
 import { PuertoSalidaAsignacion } from '../../puerto/salida/PuertoSalidaAsignacion';
 import { PuertoSalidaGesto } from '../../puerto/salida/PuertoSalidaGesto';
-import { accionADto, gestoADto } from '../comun';
+import { accionARespuesta, gestoARespuesta } from '../../dto/RespuestaAccion';
 
 /**
  * RF-11 / RF-12 · Qué acción hace cada gesto activo para este usuario.
@@ -17,7 +17,7 @@ export class ObtenerAsignaciones implements ObtenerAsignacionesPuerto {
     private readonly asignaciones: PuertoSalidaAsignacion,
   ) {}
 
-  async ejecutar({ idUsuario }: { idUsuario: number }): Promise<AsignacionDTO[]> {
+  async ejecutar({ idUsuario }: { idUsuario: number }): Promise<DtoAsignacion[]> {
     const [gestos, acciones, asignaciones] = await Promise.all([
       this.gestos.listar({ soloActivos: true }),
       this.acciones.listar(),
@@ -28,7 +28,7 @@ export class ObtenerAsignaciones implements ObtenerAsignacionesPuerto {
 
     return gestos.map((gesto) => {
       const { accion, esPredeterminada } = resolverAccionEfectiva(gesto, asignacionPorGesto.get(gesto.id), accionesPorId);
-      return { gesto: gestoADto(gesto), accion: accion ? accionADto(accion) : null, esPredeterminada };
+      return { gesto: gestoARespuesta(gesto), accion: accion ? accionARespuesta(accion) : null, esPredeterminada };
     });
   }
 }

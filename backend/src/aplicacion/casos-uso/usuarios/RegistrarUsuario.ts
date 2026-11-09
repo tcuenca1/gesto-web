@@ -1,6 +1,7 @@
 import { ErrorConflicto } from '../../../dominio/compartido/errores';
 import { Usuario, UsuarioPublico } from '../../../dominio/usuario/Usuario';
-import { EntradaRegistro, RegistrarUsuarioPuerto } from '../../puertos/entrada/usuarios';
+import { DtoRegistroUsuario } from '../../dto/DtoUsuario';
+import { RegistrarUsuarioPuerto } from '../../puertos/entrada/usuarios';
 import { PuertoSalidaCifrador } from '../../puerto/salida/PuertoSalidaCifrador';
 import { PuertoSalidaUsuario } from '../../puerto/salida/PuertoSalidaUsuario';
 
@@ -14,7 +15,7 @@ export class RegistrarUsuario implements RegistrarUsuarioPuerto {
     private readonly cifrador: PuertoSalidaCifrador,
   ) {}
 
-  async ejecutar(entrada: EntradaRegistro): Promise<UsuarioPublico> {
+  async ejecutar(entrada: DtoRegistroUsuario): Promise<UsuarioPublico> {
     const nombre = Usuario.validarNombre(entrada.nombre);
     const correo = Usuario.normalizarCorreo(entrada.correo);
     const contrasena = Usuario.validarContrasena(entrada.contrasena);

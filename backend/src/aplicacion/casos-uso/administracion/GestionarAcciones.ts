@@ -1,9 +1,10 @@
 import { Accion } from '../../../dominio/accion/Accion';
 import { ErrorConflicto, ErrorNoEncontrado } from '../../../dominio/compartido/errores';
-import { AccionDTO } from '../../puertos/entrada/dtos';
-import { GestionarAccionesPuerto, OperacionAccion } from '../../puertos/entrada/administracion';
+import { DtoAccion } from '../../dto/DtoAccion';
+import { GestionarAccionesPuerto } from '../../puertos/entrada/administracion';
+import { DtoOperacionAccion } from '../../dto/DtoAdministracion';
 import { RepositoriosTransaccionales, PuertoSalidaUnidadDeTrabajo } from '../../puerto/salida/PuertoSalidaUnidadDeTrabajo';
-import { accionADto } from '../comun';
+import { accionARespuesta } from '../../dto/RespuestaAccion';
 
 /**
  * RF-19 · El administrador gestiona el catálogo de acciones.
@@ -14,7 +15,7 @@ import { accionADto } from '../comun';
 export class GestionarAcciones implements GestionarAccionesPuerto {
   constructor(private readonly unidad: PuertoSalidaUnidadDeTrabajo) {}
 
-  ejecutar(entrada: OperacionAccion & { idAdministrador: number }): Promise<AccionDTO> {
+  ejecutar(entrada: DtoOperacionAccion & { idAdministrador: number }): Promise<DtoAccion> {
     return this.unidad.ejecutar(async (repos) => {
       switch (entrada.tipo) {
         case 'crear':
@@ -31,7 +32,7 @@ export class GestionarAcciones implements GestionarAccionesPuerto {
     { acciones, bitacora }: RepositoriosTransaccionales,
     idAdministrador: number,
     datos: { codigo?: unknown; nombre?: unknown; descripcion?: unknown },
-  ): Promise<AccionDTO> {
+  ): Promise<DtoAccion> {
     const nueva = Accion.validarNueva(datos);
     if (await acciones.buscarPorCodigo(nueva.codigo)) {
       throw new ErrorConflicto(`Ya existe una acción con el código ${nueva.codigo}`);
@@ -43,7 +44,7 @@ export class GestionarAcciones implements GestionarAccionesPuerto {
       operacion: 'INSERT',
       detalle: { despues: accion.aDatos() },
     });
-    return accionADto(accion);
+    return accionARespuesta(accion);
   }
 
   private async editar(
@@ -52,7 +53,7 @@ export class GestionarAcciones implements GestionarAccionesPuerto {
     idAccion: number,
     cambios: { nombre?: unknown; descripcion?: unknown; activa?: unknown },
     operacion: 'UPDATE' | 'DELETE',
-  ): Promise<AccionDTO> {
+  ): Promise<DtoAccion> {
     const accion = await acciones.buscarPorId(idAccion);
     if (!accion) throw new ErrorNoEncontrado('La acción no existe');
     const antes = accion.aDatos();
@@ -72,6 +73,6 @@ export class GestionarAcciones implements GestionarAccionesPuerto {
       operacion,
       detalle: { antes, despues: accion.aDatos() },
     });
-    return accionADto(accion);
+    return accionARespuesta(accion);
   }
 }

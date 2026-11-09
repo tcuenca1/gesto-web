@@ -1,13 +1,9 @@
 /**
- * Utilidades compartidas por los casos de uso: lectura de parámetros
- * y conversión de entidades a DTO.
+ * Utilidades compartidas por los casos de uso: lectura y validación de
+ * parámetros que llegan sin validar.
  */
-import { Accion } from '../../dominio/accion/Accion';
 import { ErrorValidacion } from '../../dominio/compartido/errores';
 import { RangoFechas, validarRango, validarZonaHoraria } from '../../dominio/deteccion/Estadisticas';
-import { SesionReconocimiento } from '../../dominio/deteccion/SesionReconocimiento';
-import { Gesto } from '../../dominio/gesto/Gesto';
-import { AccionDTO, GestoDTO, SesionDTO } from '../puertos/entrada/dtos';
 
 // ---------------------------------------------------------------------
 // Lectura de parámetros
@@ -49,21 +45,4 @@ export function leerPaginacion(
   const p = pagina === undefined || pagina === '' ? 1 : leerEnteroPositivo(pagina, 'pagina');
   const l = limite === undefined || limite === '' ? opciones.porDefecto : leerEnteroPositivo(limite, 'limite');
   return { pagina: p, limite: Math.min(l, opciones.maximo) };
-}
-
-// ---------------------------------------------------------------------
-// Entidades → DTO
-// ---------------------------------------------------------------------
-
-export function gestoADto(g: Gesto): GestoDTO {
-  return g.aDatos();
-}
-
-export function accionADto(a: Accion): AccionDTO {
-  return a.aDatos();
-}
-
-export function sesionADto(s: SesionReconocimiento): SesionDTO {
-  const { idUsuario: _dueno, ...datos } = s.aDatos();
-  return datos;
 }

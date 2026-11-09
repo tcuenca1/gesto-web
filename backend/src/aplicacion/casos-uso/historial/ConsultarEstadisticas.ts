@@ -1,5 +1,6 @@
 import { ResumenEstadisticas, resumirEstadisticas } from '../../../dominio/deteccion/Estadisticas';
-import { ConsultarEstadisticasPuerto, EntradaEstadisticas } from '../../puertos/entrada/historial';
+import { ConsultarEstadisticasPuerto } from '../../puertos/entrada/historial';
+import { DtoConsultaEstadisticas } from '../../dto/DtoHistorial';
 import { PuertoSalidaDeteccion } from '../../puerto/salida/PuertoSalidaDeteccion';
 import { leerRango, leerZona } from '../comun';
 
@@ -13,7 +14,7 @@ export class ConsultarEstadisticas implements ConsultarEstadisticasPuerto {
     private readonly zonaPorDefecto: string,
   ) {}
 
-  async ejecutar(entrada: EntradaEstadisticas): Promise<ResumenEstadisticas> {
+  async ejecutar(entrada: DtoConsultaEstadisticas): Promise<ResumenEstadisticas> {
     const rango = leerRango(entrada.desde, entrada.hasta);
     const zona = leerZona(entrada.zonaHoraria, this.zonaPorDefecto);
     const [totales, porDia] = await Promise.all([

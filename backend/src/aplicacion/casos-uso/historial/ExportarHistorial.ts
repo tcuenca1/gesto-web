@@ -1,4 +1,6 @@
-import { ArchivoCsv, ExportarHistorialPuerto, EntradaHistorial } from '../../puertos/entrada/historial';
+import { DtoArchivoCsv } from '../../dto/DtoHistorial';
+import { ExportarHistorialPuerto } from '../../puertos/entrada/historial';
+import { DtoConsultaHistorial } from '../../dto/DtoHistorial';
 import { PuertoSalidaDeteccion } from '../../puerto/salida/PuertoSalidaDeteccion';
 import { PuertoSalidaGesto } from '../../puerto/salida/PuertoSalidaGesto';
 import { PuertoSalidaReloj } from '../../puerto/salida/PuertoSalidaReloj';
@@ -18,7 +20,7 @@ export class ExportarHistorial implements ExportarHistorialPuerto {
     private readonly zonaPorDefecto: string,
   ) {}
 
-  async ejecutar(entrada: Omit<EntradaHistorial, 'pagina' | 'limite'> & { zonaHoraria?: unknown }): Promise<ArchivoCsv> {
+  async ejecutar(entrada: Omit<DtoConsultaHistorial, 'pagina' | 'limite'> & { zonaHoraria?: unknown }): Promise<DtoArchivoCsv> {
     const zona = leerZona(entrada.zonaHoraria, this.zonaPorDefecto);
     const filtro = await construirFiltro(this.gestos, entrada, { pagina: 1, limite: MAXIMO_FILAS_CSV });
     const { elementos } = await this.detecciones.historial(filtro);

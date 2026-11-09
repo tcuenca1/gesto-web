@@ -1,10 +1,8 @@
 import { ErrorConflicto, ErrorNoEncontrado, ErrorValidacion } from '../../../dominio/compartido/errores';
 import { Usuario, UsuarioPublico } from '../../../dominio/usuario/Usuario';
-import {
-  EntradaGestionarUsuario,
-  GestionarUsuariosPuerto,
-  ListarUsuariosPuerto,
-} from '../../puertos/entrada/administracion';
+import { DtoGestionarUsuario } from '../../dto/DtoAdministracion';
+import { GestionarUsuariosPuerto } from '../../puertos/entrada/administracion';
+import { ListarUsuariosPuerto } from '../../puertos/entrada/administracion';
 import { PuertoSalidaUnidadDeTrabajo } from '../../puerto/salida/PuertoSalidaUnidadDeTrabajo';
 import { PuertoSalidaUsuario } from '../../puerto/salida/PuertoSalidaUsuario';
 
@@ -25,7 +23,7 @@ export class ListarUsuarios implements ListarUsuariosPuerto {
 export class GestionarUsuarios implements GestionarUsuariosPuerto {
   constructor(private readonly unidad: PuertoSalidaUnidadDeTrabajo) {}
 
-  ejecutar(entrada: EntradaGestionarUsuario): Promise<UsuarioPublico> {
+  ejecutar(entrada: DtoGestionarUsuario): Promise<UsuarioPublico> {
     return this.unidad.ejecutar(async ({ usuarios, bitacora }) => {
       const usuario = await usuarios.buscarPorId(entrada.idUsuario);
       if (!usuario) throw new ErrorNoEncontrado('El usuario no existe');

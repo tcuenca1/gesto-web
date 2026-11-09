@@ -1,8 +1,9 @@
 import { SesionReconocimiento } from '../../../dominio/deteccion/SesionReconocimiento';
-import { AbrirSesionReconocimientoPuerto, EntradaAbrirSesion } from '../../puertos/entrada/reconocimiento';
-import { SesionDTO } from '../../puertos/entrada/dtos';
+import { AbrirSesionReconocimientoPuerto } from '../../puertos/entrada/reconocimiento';
+import { DtoAbrirSesion } from '../../dto/DtoReconocimiento';
+import { DtoSesion } from '../../dto/DtoReconocimiento';
 import { PuertoSalidaSesion } from '../../puerto/salida/PuertoSalidaSesion';
-import { sesionADto } from '../comun';
+import { sesionARespuesta } from '../../dto/RespuestaReconocimiento';
 
 /**
  * CU-03 paso 3 · Abre una sesión de reconocimiento al encender la cámara.
@@ -11,9 +12,9 @@ import { sesionADto } from '../comun';
 export class AbrirSesionReconocimiento implements AbrirSesionReconocimientoPuerto {
   constructor(private readonly sesiones: PuertoSalidaSesion) {}
 
-  async ejecutar(entrada: EntradaAbrirSesion): Promise<SesionDTO> {
+  async ejecutar(entrada: DtoAbrirSesion): Promise<DtoSesion> {
     const navegador = SesionReconocimiento.normalizarNavegador(entrada.navegador);
     const sesion = await this.sesiones.abrir(entrada.idUsuario, navegador);
-    return sesionADto(sesion);
+    return sesionARespuesta(sesion);
   }
 }

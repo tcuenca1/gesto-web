@@ -1,8 +1,9 @@
 import { ErrorNoEncontrado } from '../../../dominio/compartido/errores';
-import { GestoDTO } from '../../puertos/entrada/dtos';
-import { EditarGestoPuerto, EntradaEditarGesto } from '../../puertos/entrada/administracion';
+import { DtoGesto } from '../../dto/DtoAccion';
+import { EditarGestoPuerto } from '../../puertos/entrada/administracion';
+import { DtoEditarGesto } from '../../dto/DtoAdministracion';
 import { PuertoSalidaUnidadDeTrabajo } from '../../puerto/salida/PuertoSalidaUnidadDeTrabajo';
-import { gestoADto } from '../comun';
+import { gestoARespuesta } from '../../dto/RespuestaAccion';
 
 /**
  * RF-18 · El administrador activa o desactiva un gesto y edita su nombre,
@@ -12,7 +13,7 @@ import { gestoADto } from '../comun';
 export class EditarGesto implements EditarGestoPuerto {
   constructor(private readonly unidad: PuertoSalidaUnidadDeTrabajo) {}
 
-  ejecutar(entrada: EntradaEditarGesto): Promise<GestoDTO> {
+  ejecutar(entrada: DtoEditarGesto): Promise<DtoGesto> {
     return this.unidad.ejecutar(async ({ gestos, bitacora }) => {
       const gesto = await gestos.buscarPorId(entrada.idGesto);
       if (!gesto) throw new ErrorNoEncontrado('El gesto no existe');
@@ -27,7 +28,7 @@ export class EditarGesto implements EditarGestoPuerto {
         operacion: 'UPDATE',
         detalle: { antes, despues: gesto.aDatos() },
       });
-      return gestoADto(gesto);
+      return gestoARespuesta(gesto);
     });
   }
 }

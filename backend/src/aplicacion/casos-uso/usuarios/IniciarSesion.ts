@@ -1,6 +1,8 @@
 import { ErrorNoAutenticado } from '../../../dominio/compartido/errores';
 import { Usuario } from '../../../dominio/usuario/Usuario';
-import { EntradaInicioSesion, IniciarSesionPuerto, ResultadoInicioSesion } from '../../puertos/entrada/usuarios';
+import { DtoInicioSesion } from '../../dto/DtoUsuario';
+import { IniciarSesionPuerto } from '../../puertos/entrada/usuarios';
+import { DtoResultadoInicioSesion } from '../../dto/DtoUsuario';
 import { PuertoSalidaCifrador } from '../../puerto/salida/PuertoSalidaCifrador';
 import { PuertoSalidaTokens } from '../../puerto/salida/PuertoSalidaTokens';
 import { PuertoSalidaReloj } from '../../puerto/salida/PuertoSalidaReloj';
@@ -23,7 +25,7 @@ export class IniciarSesion implements IniciarSesionPuerto {
     private readonly reloj: PuertoSalidaReloj,
   ) {}
 
-  async ejecutar(entrada: EntradaInicioSesion): Promise<ResultadoInicioSesion> {
+  async ejecutar(entrada: DtoInicioSesion): Promise<DtoResultadoInicioSesion> {
     if (typeof entrada.contrasena !== 'string' || entrada.contrasena === '') {
       throw new ErrorNoAutenticado(MENSAJE_CREDENCIALES);
     }

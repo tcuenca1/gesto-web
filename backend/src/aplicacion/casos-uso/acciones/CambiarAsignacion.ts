@@ -1,10 +1,12 @@
 import { ErrorConflicto, ErrorNoEncontrado, ErrorValidacion } from '../../../dominio/compartido/errores';
-import { AsignacionDTO } from '../../puertos/entrada/dtos';
-import { CambiarAsignacionPuerto, EntradaCambiarAsignacion } from '../../puertos/entrada/acciones';
+import { DtoAsignacion } from '../../dto/DtoAccion';
+import { CambiarAsignacionPuerto } from '../../puertos/entrada/acciones';
+import { DtoCambiarAsignacion } from '../../dto/DtoAccion';
 import { PuertoSalidaAccion } from '../../puerto/salida/PuertoSalidaAccion';
 import { PuertoSalidaAsignacion } from '../../puerto/salida/PuertoSalidaAsignacion';
 import { PuertoSalidaGesto } from '../../puerto/salida/PuertoSalidaGesto';
-import { accionADto, gestoADto, leerEnteroPositivo } from '../comun';
+import { accionARespuesta, gestoARespuesta } from '../../dto/RespuestaAccion';
+import { leerEnteroPositivo } from '../comun';
 
 /** RF-12 · El usuario cambia qué acción hace un gesto. */
 export class CambiarAsignacion implements CambiarAsignacionPuerto {
@@ -14,7 +16,7 @@ export class CambiarAsignacion implements CambiarAsignacionPuerto {
     private readonly asignaciones: PuertoSalidaAsignacion,
   ) {}
 
-  async ejecutar(entrada: EntradaCambiarAsignacion): Promise<AsignacionDTO> {
+  async ejecutar(entrada: DtoCambiarAsignacion): Promise<DtoAsignacion> {
     const idAccion = leerEnteroPositivo(entrada.idAccion, 'idAccion');
 
     const gesto = await this.gestos.buscarPorId(entrada.idGesto);
@@ -27,8 +29,8 @@ export class CambiarAsignacion implements CambiarAsignacionPuerto {
 
     await this.asignaciones.guardar(entrada.idUsuario, gesto.id, accion.id);
     return {
-      gesto: gestoADto(gesto),
-      accion: accionADto(accion),
+      gesto: gestoARespuesta(gesto),
+      accion: accionARespuesta(accion),
       esPredeterminada: accion.id === gesto.idAccionPredeterminada,
     };
   }

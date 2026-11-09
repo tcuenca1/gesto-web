@@ -67,7 +67,6 @@ export interface CasosDeUso {
 }
 
 export * from './CasoDeUso';
-export * from './dtos';
 export * from './usuarios';
 export * from './reconocimiento';
 export * from './acciones';

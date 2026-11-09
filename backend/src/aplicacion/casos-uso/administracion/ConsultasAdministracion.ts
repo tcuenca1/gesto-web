@@ -1,10 +1,8 @@
 import { resumirEstadisticas } from '../../../dominio/deteccion/Estadisticas';
-import {
-  ConsultarBitacoraPuerto,
-  ConsultarEstadisticasGeneralesPuerto,
-  EstadisticasGenerales,
-} from '../../puertos/entrada/administracion';
-import { Paginado } from '../../puertos/entrada/CasoDeUso';
+import { ConsultarBitacoraPuerto } from '../../puertos/entrada/administracion';
+import { ConsultarEstadisticasGeneralesPuerto } from '../../puertos/entrada/administracion';
+import { DtoEstadisticasGenerales } from '../../dto/DtoAdministracion';
+import { Paginado } from '../../dto/DtoComun';
 import { PuertoSalidaBitacora, EntradaBitacora } from '../../puerto/salida/PuertoSalidaBitacora';
 import { PuertoSalidaDeteccion } from '../../puerto/salida/PuertoSalidaDeteccion';
 import { PuertoSalidaSesion } from '../../puerto/salida/PuertoSalidaSesion';
@@ -24,7 +22,7 @@ export class ConsultarEstadisticasGenerales implements ConsultarEstadisticasGene
     private readonly zonaPorDefecto: string,
   ) {}
 
-  async ejecutar(entrada: { zonaHoraria?: unknown; desde?: unknown; hasta?: unknown }): Promise<EstadisticasGenerales> {
+  async ejecutar(entrada: { zonaHoraria?: unknown; desde?: unknown; hasta?: unknown }): Promise<DtoEstadisticasGenerales> {
     const zona = leerZona(entrada.zonaHoraria, this.zonaPorDefecto);
     const rango = leerRango(entrada.desde, entrada.hasta);
     const [totalUsuarios, totalSesiones, totalDetecciones, usoPorGesto, usoPorDia] = await Promise.all([

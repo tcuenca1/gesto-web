@@ -8,13 +8,3 @@
 export interface CasoDeUso<Entrada, Salida> {
   ejecutar(entrada: Entrada): Promise<Salida>;
 }
-
-/** Los datos que llegan desde afuera se tratan como "desconocidos" hasta validarlos. */
-export type SinValidar = unknown;
-
-export interface Paginado<T> {
-  elementos: T[];
-  total: number;
-  pagina: number;
-  limite: number;
-}

@@ -1,14 +1,15 @@
 import { ErrorValidacion } from '../../../dominio/compartido/errores';
 import { EntradaHistorial as FilaHistorial } from '../../../dominio/deteccion/Estadisticas';
-import { Paginado } from '../../puertos/entrada/CasoDeUso';
-import { DeteccionDTO } from '../../puertos/entrada/dtos';
-import { ConsultarHistorialPuerto, EntradaHistorial } from '../../puertos/entrada/historial';
+import { Paginado } from '../../dto/DtoComun';
+import { DtoDeteccion } from '../../dto/DtoReconocimiento';
+import { ConsultarHistorialPuerto } from '../../puertos/entrada/historial';
+import { DtoConsultaHistorial } from '../../dto/DtoHistorial';
 import { PuertoSalidaDeteccion, FiltroHistorial } from '../../puerto/salida/PuertoSalidaDeteccion';
 import { PuertoSalidaGesto } from '../../puerto/salida/PuertoSalidaGesto';
 import { leerPaginacion, leerRango } from '../comun';
 
 /** Convierte una fila del historial en el DTO que ve el usuario. */
-export function filaADto(fila: FilaHistorial): DeteccionDTO {
+export function filaADto(fila: FilaHistorial): DtoDeteccion {
   const { idUsuario: _dueno, ...dto } = fila;
   return dto;
 }
@@ -39,7 +40,7 @@ export class ConsultarHistorial implements ConsultarHistorialPuerto {
     private readonly detecciones: PuertoSalidaDeteccion,
   ) {}
 
-  async ejecutar(entrada: EntradaHistorial): Promise<Paginado<DeteccionDTO>> {
+  async ejecutar(entrada: DtoConsultaHistorial): Promise<Paginado<DtoDeteccion>> {
     const paginacion = leerPaginacion(entrada.pagina, entrada.limite);
     const filtro = await construirFiltro(this.gestos, entrada, paginacion);
     const { elementos, total } = await this.detecciones.historial(filtro);

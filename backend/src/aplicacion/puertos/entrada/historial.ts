@@ -1,35 +1,12 @@
 import { ResumenEstadisticas } from '../../../dominio/deteccion/Estadisticas';
-import { CasoDeUso, Paginado, SinValidar } from './CasoDeUso';
-import { DeteccionDTO } from './dtos';
-
-export interface EntradaHistorial {
-  idUsuario: number;
-  desde?: SinValidar;
-  hasta?: SinValidar;
-  /** Código del gesto, por ejemplo Thumb_Up. */
-  gesto?: SinValidar;
-  pagina?: SinValidar;
-  limite?: SinValidar;
-}
-
-export interface EntradaEstadisticas {
-  idUsuario: number;
-  desde?: SinValidar;
-  hasta?: SinValidar;
-  zonaHoraria?: SinValidar;
-}
-
-export interface ArchivoCsv {
-  nombreArchivo: string;
-  contenido: string;
-}
+import { Paginado } from '../../dto/DtoComun';
+import { DtoArchivoCsv, DtoConsultaEstadisticas, DtoConsultaHistorial, DtoExportarHistorial } from '../../dto/DtoHistorial';
+import { DtoDeteccion } from '../../dto/DtoReconocimiento';
+import { CasoDeUso } from './CasoDeUso';
 
 /** RF-15 */
-export type ConsultarHistorialPuerto = CasoDeUso<EntradaHistorial, Paginado<DeteccionDTO>>;
+export type ConsultarHistorialPuerto = CasoDeUso<DtoConsultaHistorial, Paginado<DtoDeteccion>>;
 /** RF-16 */
-export type ConsultarEstadisticasPuerto = CasoDeUso<EntradaEstadisticas, ResumenEstadisticas>;
+export type ConsultarEstadisticasPuerto = CasoDeUso<DtoConsultaEstadisticas, ResumenEstadisticas>;
 /** RF-17 */
-export type ExportarHistorialPuerto = CasoDeUso<
-  Omit<EntradaHistorial, 'pagina' | 'limite'> & { zonaHoraria?: SinValidar },
-  ArchivoCsv
->;
+export type ExportarHistorialPuerto = CasoDeUso<DtoExportarHistorial, DtoArchivoCsv>;

@@ -3,8 +3,9 @@ import { resolverAccionEfectiva } from '../../../dominio/accion/Asignacion';
 import { ErrorNoEncontrado, ErrorValidacion } from '../../../dominio/compartido/errores';
 import { ReglasDeteccion } from '../../../dominio/deteccion/Deteccion';
 import { Gesto } from '../../../dominio/gesto/Gesto';
-import { DeteccionDTO } from '../../puertos/entrada/dtos';
-import { EntradaRegistrarDeteccion, RegistrarDeteccionPuerto } from '../../puertos/entrada/reconocimiento';
+import { DtoDeteccion } from '../../dto/DtoReconocimiento';
+import { DtoRegistrarDeteccion } from '../../dto/DtoReconocimiento';
+import { RegistrarDeteccionPuerto } from '../../puertos/entrada/reconocimiento';
 import { PuertoSalidaAccion } from '../../puerto/salida/PuertoSalidaAccion';
 import { PuertoSalidaAsignacion } from '../../puerto/salida/PuertoSalidaAsignacion';
 import { PuertoSalidaDeteccion } from '../../puerto/salida/PuertoSalidaDeteccion';
@@ -30,7 +31,7 @@ export class RegistrarDeteccion implements RegistrarDeteccionPuerto {
     private readonly reloj: PuertoSalidaReloj,
   ) {}
 
-  async ejecutar(entrada: EntradaRegistrarDeteccion): Promise<DeteccionDTO> {
+  async ejecutar(entrada: DtoRegistrarDeteccion): Promise<DtoDeteccion> {
     const sesion = await this.sesiones.buscarPorId(entrada.idSesion);
     if (!sesion) throw new ErrorNoEncontrado('La sesión de reconocimiento no existe');
 

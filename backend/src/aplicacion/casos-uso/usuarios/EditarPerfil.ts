@@ -1,6 +1,7 @@
 import { ErrorNoEncontrado, ErrorValidacion } from '../../../dominio/compartido/errores';
 import { Usuario, UsuarioPublico } from '../../../dominio/usuario/Usuario';
-import { EditarPerfilPuerto, EntradaEditarPerfil } from '../../puertos/entrada/usuarios';
+import { EditarPerfilPuerto } from '../../puertos/entrada/usuarios';
+import { DtoEditarPerfil } from '../../dto/DtoUsuario';
 import { PuertoSalidaCifrador } from '../../puerto/salida/PuertoSalidaCifrador';
 import { PuertoSalidaUsuario } from '../../puerto/salida/PuertoSalidaUsuario';
 
@@ -11,7 +12,7 @@ export class EditarPerfil implements EditarPerfilPuerto {
     private readonly cifrador: PuertoSalidaCifrador,
   ) {}
 
-  async ejecutar(entrada: EntradaEditarPerfil): Promise<UsuarioPublico> {
+  async ejecutar(entrada: DtoEditarPerfil): Promise<UsuarioPublico> {
     const usuario = await this.usuarios.buscarPorId(entrada.idUsuario);
     if (!usuario) throw new ErrorNoEncontrado('El usuario no existe');
 
