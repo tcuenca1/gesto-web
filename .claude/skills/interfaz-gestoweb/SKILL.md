@@ -51,9 +51,10 @@ Se definen una sola vez en `src/styles.scss`. **Ningún color, fuente o radio se
   /* Tinta */
   --tinta: #1b1b18;          /* texto y trazos principales */
   --tinta-media: #55534b;    /* texto secundario */
-  --tinta-tenue: #8a867a;    /* etiquetas, ejes, ayudas */
+  --tinta-tenue: #77736a;    /* etiquetas, ejes, ayudas */
   --regla: #d6d0c1;          /* líneas de 1 px */
-  --reticula: #e3ddcf;       /* puntos o líneas de la retícula */
+  --regla-fuerte: #b9b2a1;   /* reglas de sección */
+  --reticula: #e0d9ca;       /* puntos o líneas de la retícula */
 
   /* Señales */
   --senal: #c8281e;          /* acento único: activo, gesto aceptado, acción principal */

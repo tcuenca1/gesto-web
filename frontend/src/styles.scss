@@ -1,29 +1,49 @@
 /*
  * GestoWeb · estilos globales
  *
- * Paleta: papel azulado y tinta azul marino; el escenario de la cámara es
- * oscuro para que los puntos de la mano (amarillo marcador) resalten.
- * Tipografías: Bricolage Grotesque para títulos, Atkinson Hyperlegible para
- * el texto (diseñada para leerse bien, útil al proyectar en clase).
+ * Dirección "instrumento técnico" (skill interfaz-gestoweb): papel cálido,
+ * tinta grafito, retícula de puntos, líneas en vez de tarjetas, datos en
+ * monoespaciada y un solo acento rojo para lo activo o lo que exige atención.
+ * Tipografía: IBM Plex Sans (texto), IBM Plex Sans Condensed (títulos) e
+ * IBM Plex Mono (datos, códigos y etiquetas).
+ *
+ * Ningún color, fuente o radio se escribe fuera de este archivo.
  */
 :root {
-  --papel: #f3f5f9;
-  --superficie: #ffffff;
-  --tinta: #14213d;
-  --tinta-suave: #4a5872;
-  --linea: #dbe1ec;
-  --cobalto: #2b59c3;
-  --cobalto-oscuro: #1f43a0;
-  --cobalto-claro: #e6edfb;
-  --marcador: #f2c14e;
-  --escenario: #0f1a33;
-  --exito: #2e9e6b;
-  --error: #c8423b;
+  /* Superficies */
+  --papel: #f4f1ea;
+  --papel-hundido: #ebe6da;
+  --hoja: #fbf9f4;
+  --visor: #141412;
 
-  --fuente-titulos: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
-  --fuente-texto: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+  /* Tinta */
+  --tinta: #1b1b18;
+  --tinta-media: #55534b;
+  --tinta-tenue: #77736a;
+  --regla: #d6d0c1;
+  --regla-fuerte: #b9b2a1;
+  --reticula: #e0d9ca;
 
-  --ancho-max: 76rem;
+  /* Señales */
+  --senal: #c8281e;
+  --senal-oscura: #a11f17;
+  --senal-tenue: #f3dcd6;
+  --correcto: #2f6b3a;
+  --correcto-tenue: #dde9da;
+  --atencion: #8a5f00;
+  --atencion-tenue: #f1e4c4;
+
+  /* Tipografía */
+  --fuente-texto: 'IBM Plex Sans', system-ui, sans-serif;
+  --fuente-titulo: 'IBM Plex Sans Condensed', 'IBM Plex Sans', sans-serif;
+  --fuente-dato: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Medidas */
+  --radio: 2px;
+  --trazo: 1px;
+  --trazo-fuerte: 2px;
+  --paso: 8px;
+  --ancho-max: 72rem;
   --margen: clamp(1rem, 3vw, 2rem);
   color-scheme: light;
 }
@@ -40,7 +60,9 @@ html {
 
 body {
   margin: 0;
-  background: var(--papel);
+  background-color: var(--papel);
+  background-image: radial-gradient(var(--reticula) 1px, transparent 1px);
+  background-size: 24px 24px;
   color: var(--tinta);
   font-family: var(--fuente-texto);
   font-size: 1rem;
@@ -51,22 +73,48 @@ body {
 h1,
 h2,
 h3 {
-  font-family: var(--fuente-titulos);
-  line-height: 1.15;
-  letter-spacing: -0.015em;
+  font-family: var(--fuente-titulo);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
   margin: 0 0 0.5em;
 }
-h1 { font-size: clamp(1.9rem, 3.5vw, 2.45rem); font-weight: 700; }
-h2 { font-size: 1.5rem; font-weight: 700; }
-h3 { font-size: 1.2rem; font-weight: 500; }
+h1 { font-size: clamp(2rem, 4vw, 2.75rem); }
+h2 { font-size: 1.45rem; }
+h3 { font-size: 1.15rem; font-weight: 600; }
 p { margin: 0 0 1em; }
 
-a { color: var(--cobalto); }
+a { color: var(--tinta); text-decoration-color: var(--senal); text-underline-offset: 3px; }
+a:hover { color: var(--senal); }
 
 :focus-visible {
-  outline: 3px solid var(--marcador);
+  outline: var(--trazo-fuerte) solid var(--senal);
   outline-offset: 2px;
-  border-radius: 4px;
+}
+
+/* ---------- Datos ---------- */
+.dato,
+.etiqueta-dato,
+code,
+kbd {
+  font-family: var(--fuente-dato);
+  font-variant-numeric: tabular-nums;
+}
+.etiqueta-dato {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tinta-tenue);
+}
+kbd {
+  font-size: 0.8em;
+  padding: 0 0.35em;
+  border: var(--trazo) solid var(--regla-fuerte);
+  border-bottom-width: var(--trazo-fuerte);
+  border-radius: var(--radio);
+  background: var(--hoja);
 }
 
 /* ---------- Estructura de página ---------- */
@@ -76,26 +124,55 @@ a { color: var(--cobalto); }
   padding: clamp(1.5rem, 4vw, 2.5rem) var(--margen) 4rem;
 }
 
+/* Encabezado: número y ruta en mono, título, regla gruesa debajo. */
 .pagina__titulo {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.75rem;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: var(--trazo-fuerte) solid var(--tinta);
 
   h1 { margin: 0; }
-  p { margin: 0.35rem 0 0; color: var(--tinta-suave); max-width: 60ch; }
+  p { margin: 0.4rem 0 0; color: var(--tinta-media); max-width: 60ch; }
+}
+.pagina__ruta {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-family: var(--fuente-dato);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tinta-tenue);
 }
 
+/* Sección: regla fina arriba y etiqueta mono. Sin cajas. */
 .panel {
-  background: var(--superficie);
-  border: 1px solid var(--linea);
-  border-radius: 12px;
+  border-top: var(--trazo) solid var(--regla-fuerte);
+  padding: 1rem 0 1.5rem;
+
+  > h2:first-child,
+  > h3:first-child {
+    font-family: var(--fuente-dato);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tinta-media);
+    margin-bottom: 1rem;
+  }
+}
+/* Cuando un bloque necesita leerse sobre la retícula (tablas, formularios). */
+.hoja {
+  background: var(--hoja);
+  border: var(--trazo) solid var(--regla);
+  border-radius: var(--radio);
   padding: clamp(1rem, 2.5vw, 1.5rem);
 }
 
-.texto-suave { color: var(--tinta-suave); }
+.texto-suave { color: var(--tinta-media); }
 .oculto-visual {
   position: absolute; width: 1px; height: 1px; overflow: hidden;
   clip: rect(0 0 0 0); white-space: nowrap;
@@ -106,38 +183,59 @@ a { color: var(--cobalto); }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
   font: inherit;
-  font-weight: 700;
-  padding: 0.65rem 1.15rem;
-  border-radius: 8px;
-  border: 2px solid var(--cobalto);
-  background: var(--cobalto);
-  color: #fff;
+  font-weight: 600;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radio);
+  border: var(--trazo) solid var(--tinta);
+  background: var(--tinta);
+  color: var(--papel);
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.15s, border-color 0.15s;
+  transition: background-color 0.14s, border-color 0.14s, color 0.14s;
 
-  &:hover:not(:disabled) { background: var(--cobalto-oscuro); border-color: var(--cobalto-oscuro); }
-  &:disabled { opacity: 0.55; cursor: not-allowed; }
+  &:hover:not(:disabled) { background: #000; color: var(--papel); }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+/* La acción para la que existe la pantalla. Uno por pantalla. */
+.boton--senal {
+  background: var(--senal);
+  border-color: var(--senal);
+  &:hover:not(:disabled) { background: var(--senal-oscura); border-color: var(--senal-oscura); }
 }
 .boton--fantasma {
   background: transparent;
-  color: var(--cobalto);
-  &:hover:not(:disabled) { background: var(--cobalto-claro); border-color: var(--cobalto); }
+  color: var(--tinta);
+  &:hover:not(:disabled) { background: var(--papel-hundido); color: var(--tinta); }
 }
-.boton--peligro { background: var(--error); border-color: var(--error); &:hover:not(:disabled) { background: #a3342e; border-color: #a3342e; } }
-.boton--grande { padding: 0.85rem 1.5rem; font-size: 1.08rem; }
-.boton--chico { padding: 0.35rem 0.8rem; font-size: 0.9rem; border-width: 1.5px; }
+.boton--peligro {
+  background: transparent;
+  border-color: transparent;
+  color: var(--senal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding-inline: 0.25rem;
+  &:hover:not(:disabled) { background: transparent; color: var(--senal-oscura); }
+}
+.boton--grande { padding: 0.85rem 1.4rem; font-size: 1.05rem; }
+.boton--chico { padding: 0.3rem 0.7rem; font-size: 0.88rem; }
 
 /* ---------- Formularios ---------- */
 .campo {
   display: grid;
   gap: 0.3rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 
-  label { font-weight: 700; font-size: 0.95rem; }
-  small { color: var(--tinta-suave); }
+  label {
+    font-family: var(--fuente-dato);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tinta-media);
+  }
+  small { color: var(--tinta-media); }
 }
 
 input,
@@ -145,27 +243,30 @@ select,
 textarea {
   font: inherit;
   color: inherit;
-  padding: 0.6rem 0.75rem;
-  border: 1.5px solid #c3cbdb;
-  border-radius: 6px;
-  background: #fff;
+  padding: 0.5rem 0.15rem;
+  border: 0;
+  border-bottom: var(--trazo) solid var(--tinta);
+  border-radius: 0;
+  background: transparent;
   width: 100%;
 
-  &:focus { border-color: var(--cobalto); outline: 2px solid var(--cobalto-claro); }
+  &:focus { outline: none; border-bottom: var(--trazo-fuerte) solid var(--senal); padding-bottom: calc(0.5rem - 1px); }
+  &:disabled { color: var(--tinta-tenue); border-bottom-style: dotted; }
 }
-input[type='checkbox'] { width: auto; accent-color: var(--cobalto); }
-input[type='range'] { padding: 0; accent-color: var(--cobalto); }
+select { cursor: pointer; }
+input[type='checkbox'] { width: auto; accent-color: var(--tinta); }
+input[type='range'] { padding: 0; border: 0; accent-color: var(--senal); }
 
-.error-campo { color: var(--error); font-size: 0.9rem; }
+.error-campo { color: var(--senal); font-size: 0.9rem; }
 
 .alerta {
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
+  padding: 0.6rem 0.9rem;
   margin-bottom: 1rem;
-  border: 1px solid;
+  border-left: var(--trazo-fuerte) solid;
+  background: var(--hoja);
 }
-.alerta--error { background: #fbecea; border-color: #eebcb7; color: #7c231e; }
-.alerta--info { background: #fdf6e3; border-color: #f0dca4; color: #5a4510; }
+.alerta--error { border-color: var(--senal); color: var(--senal-oscura); }
+.alerta--info { border-color: var(--atencion); color: var(--tinta); }
 
 /* ---------- Tablas ---------- */
 .tabla-contenedor { overflow-x: auto; }
@@ -174,30 +275,65 @@ table {
   border-collapse: collapse;
   font-size: 0.95rem;
 
-  th { text-align: left; font-weight: 700; color: var(--tinta-suave); padding: 0.6rem 0.75rem; border-bottom: 2px solid var(--linea); white-space: nowrap; }
-  td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--linea); vertical-align: middle; }
-  tbody tr:hover { background: #f8fafd; }
+  th {
+    text-align: left;
+    font-family: var(--fuente-dato);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tinta-tenue);
+    padding: 0.55rem 0.75rem;
+    border-bottom: var(--trazo-fuerte) solid var(--tinta);
+    white-space: nowrap;
+  }
+  td { padding: 0.6rem 0.75rem; border-bottom: var(--trazo) solid var(--regla); vertical-align: middle; }
+  tbody tr:hover td { border-bottom-color: var(--regla-fuerte); }
+  .num { text-align: right; font-family: var(--fuente-dato); font-variant-numeric: tabular-nums; }
 }
 
+/* Estado: rectángulo con borde fino y texto mono en mayúsculas. */
 .etiqueta {
   display: inline-block;
-  padding: 0.1rem 0.55rem;
-  border-radius: 999px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  background: var(--cobalto-claro);
-  color: var(--cobalto-oscuro);
+  padding: 0.05rem 0.45rem;
+  border: var(--trazo) solid var(--tinta);
+  border-radius: var(--radio);
+  font-family: var(--fuente-dato);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tinta);
 }
-.etiqueta--apagada { background: #eceff4; color: var(--tinta-suave); }
-.etiqueta--alerta { background: #fdf0d2; color: #7a5a0c; }
+.etiqueta--apagada { border-color: var(--regla-fuerte); color: var(--tinta-tenue); }
+.etiqueta--alerta { border-color: var(--senal); color: var(--senal); }
 
 .vacio {
-  text-align: center;
-  padding: 2.5rem 1rem;
-  color: var(--tinta-suave);
+  padding: 2rem 0;
+  color: var(--tinta-media);
+  border-top: var(--trazo) dashed var(--regla-fuerte);
+  border-bottom: var(--trazo) dashed var(--regla-fuerte);
   p { margin-bottom: 1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/*
+ * Alias de los tokens anteriores, solo mientras cada pantalla se migra
+ * (commits ui(frontend)). Se eliminan en el último commit del rediseño.
+ */
+:root {
+  --superficie: var(--hoja);
+  --tinta-suave: var(--tinta-media);
+  --linea: var(--regla);
+  --cobalto: var(--tinta);
+  --cobalto-oscuro: #000;
+  --cobalto-claro: var(--papel-hundido);
+  --marcador: var(--senal);
+  --escenario: var(--visor);
+  --exito: var(--correcto);
+  --error: var(--senal);
+  --fuente-titulos: var(--fuente-titulo);
 }
