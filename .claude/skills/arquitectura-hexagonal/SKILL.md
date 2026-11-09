@@ -150,8 +150,8 @@ export abstract class PuertoEntradaUsuarioEscritura {
 // aplicacion/caso_uso/escritura/CasoUso_UsuarioEscritura.ts
 export class CasoUso_UsuarioEscritura extends PuertoEntradaUsuarioEscritura {
   constructor(
-    private readonly adapSalidaUsuario: PuertoSalidaUsuario,
-    private readonly adapSalidaCifrador: PuertoSalidaCifrador,
+    private readonly usuarios: PuertoSalidaUsuario,
+    private readonly cifrador: PuertoSalidaCifrador,
   ) {
     super();
   }
@@ -196,8 +196,9 @@ export function crearContenedorUsuario(p: Persistencia, s: Servicios) {
 
 ### 4.5 Ruta en `app.ts`
 ```ts
-app.post('/api/auth/registro', limitar, manejar((req, res) => c.usuario.adap.registrarUsuario(req, res)));
-app.get('/api/historial', conToken, manejar((req, res) => c.historial.adap.consultarHistorial(req, res)));
+const usuario = c.usuario.adap;   // c = crearContenedores(...)
+app.post('/api/auth/registro', manejar((req, res) => usuario.registrarUsuario(req, res)));
+app.get('/api/historial', manejar((req, res) => historial.consultarHistorial(req, res)));
 ```
 Las rutas se agrupan con comentarios por módulo y mantienen **exactamente** las URLs del contrato de la API (SRS §8.2). Cambiar una URL rompe el frontend y la colección de Postman.
 
