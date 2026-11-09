@@ -14,19 +14,20 @@ export class AdapSalida_CamaraSimulada extends PuertoSalidaCamara {
     lienzo.width = 640;
     lienzo.height = 480;
     const ctx = lienzo.getContext('2d')!;
-    const dibujar = (t: number) => {
-      const g = ctx.createLinearGradient(0, 0, 640, 480);
-      g.addColorStop(0, '#1d2d52');
-      g.addColorStop(1, `hsl(${220 + Math.sin(t / 2000) * 20}, 45%, 22%)`);
-      ctx.fillStyle = g;
+    // Colores del sistema de diseño: fondo del visor y texto tenue en mono.
+    const estilos = getComputedStyle(document.documentElement);
+    const fondo = estilos.getPropertyValue('--visor').trim();
+    const texto = estilos.getPropertyValue('--tinta-tenue').trim();
+    const dibujar = () => {
+      ctx.fillStyle = fondo;
       ctx.fillRect(0, 0, 640, 480);
-      ctx.fillStyle = 'rgba(255,255,255,0.55)';
-      ctx.font = '600 22px sans-serif';
+      ctx.fillStyle = texto;
+      ctx.font = '500 18px "IBM Plex Mono", monospace';
       ctx.textAlign = 'center';
       // El video se ve espejado, así que el texto se dibuja al revés para leerse bien.
       ctx.save();
       ctx.scale(-1, 1);
-      ctx.fillText('Cámara simulada · elige un gesto abajo', -320, 450);
+      ctx.fillText('CÁMARA SIMULADA · TECLAS 1 A 7', -320, 450);
       ctx.restore();
       this.animacion = requestAnimationFrame(dibujar);
     };

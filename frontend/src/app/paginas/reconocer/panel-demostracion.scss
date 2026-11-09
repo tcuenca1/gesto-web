@@ -1,97 +1,93 @@
 :host { display: block; }
 
+/* Visor de imágenes: la imagen limpia y el pie como una lectura debajo. */
 .visor {
   position: relative;
   margin: 0;
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--escenario);
-  outline: 4px solid transparent;
-  transition: outline-color 0.25s;
+  background: var(--visor);
+  border: var(--trazo-fuerte) solid var(--tinta);
+  transition: border-color 0.14s;
 
   img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; }
 }
-
-.visor--favorita { outline-color: var(--marcador); }
+.visor--favorita { border-color: var(--senal); }
 
 .visor__pie {
-  position: absolute;
-  inset: auto 0 0 0;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: baseline;
   gap: 1rem;
-  padding: 2.5rem 1.1rem 0.9rem;
-  background: linear-gradient(transparent, rgba(10, 18, 38, 0.75));
-  color: #fff;
+  padding: 0.55rem 0.75rem;
+  background: var(--hoja);
+  border-top: var(--trazo-fuerte) solid var(--tinta);
 }
-
-.visor__titulo { font-family: var(--fuente-titulos); font-size: 1.35rem; font-weight: 700; }
-.visor__contador { font-size: 0.95rem; opacity: 0.9; white-space: nowrap; }
+.visor__titulo { font-family: var(--fuente-titulo); font-size: 1.15rem; font-weight: 600; }
+.visor__contador { font-family: var(--fuente-dato); font-size: 0.85rem; color: var(--tinta-media); white-space: nowrap; }
 
 .visor__estado {
   position: absolute;
-  top: 0.8rem;
-  left: 0.8rem;
+  top: 0.6rem;
+  left: 0.6rem;
   display: flex;
   gap: 0.4rem;
 }
 
 .chip {
-  padding: 0.2rem 0.65rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.92);
+  padding: 0.1rem 0.45rem;
+  font-family: var(--fuente-dato);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  background: var(--hoja);
+  border: var(--trazo) solid var(--tinta);
   color: var(--tinta);
 }
-.chip--vivo::before { content: '▶ '; color: var(--exito); }
-.chip--favorita { background: var(--marcador); }
+.chip--vivo::before { content: ''; display: inline-block; width: 0.45rem; height: 0.45rem; margin-right: 0.35rem; background: var(--correcto); }
+.chip--favorita { background: var(--senal); border-color: var(--senal); color: var(--papel); }
 
+/* Avance del pase automático: una regla roja bajo la imagen. */
 .visor__progreso {
   position: absolute;
   left: 0;
-  bottom: 0;
-  height: 4px;
-  background: var(--marcador);
+  top: calc(100% - 2.6rem);
+  height: 3px;
+  background: var(--senal);
   animation: avance linear infinite;
 }
 @keyframes avance { from { width: 0; } to { width: 100%; } }
 
 .corazon {
   position: absolute;
-  bottom: 18%;
-  font-size: 4.5rem;
-  animation: subir 1.6s ease-out forwards;
+  bottom: 30%;
+  animation: subir 1.4s ease-out forwards;
   pointer-events: none;
 }
 @keyframes subir {
-  0% { transform: translateY(0) scale(0.4); opacity: 0; }
-  15% { transform: translateY(-10%) scale(1.15); opacity: 1; }
-  100% { transform: translateY(-260%) scale(0.9); opacity: 0; }
+  0% { transform: translateY(0); opacity: 0; }
+  15% { transform: translateY(-10%); opacity: 1; }
+  100% { transform: translateY(-220%); opacity: 0; }
 }
 
 .miniaturas {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 0.5rem;
-  margin-top: 0.6rem;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
 }
 
 .miniatura {
   position: relative;
   padding: 0;
-  border: 2px solid transparent;
-  border-radius: 6px;
-  overflow: hidden;
+  border: var(--trazo-fuerte) solid transparent;
+  border-radius: var(--radio);
   cursor: pointer;
   background: none;
-  opacity: 0.65;
+  opacity: 0.6;
 
   img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
   &:hover { opacity: 1; }
 }
-.miniatura--actual { border-color: var(--cobalto); opacity: 1; }
+.miniatura--actual { border-color: var(--tinta); opacity: 1; }
 .miniatura__estrella {
   position: absolute;
   top: 4px;

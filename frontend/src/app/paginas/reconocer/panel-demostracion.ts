@@ -33,12 +33,12 @@ const SEGUNDOS_POR_IMAGEN = 3;
 
       <figcaption class="visor__pie">
         <span class="visor__titulo">{{ actual().titulo }}</span>
-        <span class="visor__contador">{{ indice() + 1 }} de {{ imagenes.length }}</span>
+        <span class="visor__contador">{{ contador() }}</span>
       </figcaption>
 
       <div class="visor__estado">
         @if (reproduciendo()) {
-          <span class="chip chip--vivo">Pase automático</span>
+          <span class="chip chip--vivo">PASE AUTOMÁTICO</span>
         }
         @if (esFavorita()) {
           <span class="chip chip--favorita">FAVORITA</span>
@@ -87,6 +87,7 @@ export class PanelDemostracion implements OnInit, OnDestroy {
   protected readonly segundos = SEGUNDOS_POR_IMAGEN;
   protected readonly indice = signal(0);
   protected readonly reproduciendo = signal(false);
+  protected readonly contador = computed(() => `${String(this.indice() + 1).padStart(2, '0')} / ${String(this.imagenes.length).padStart(2, '0')}`);
   protected readonly favoritas = signal<Set<number>>(this.leerFavoritas());
   protected readonly corazones = signal<Array<{ id: number; x: number }>>([]);
   protected readonly anuncio = signal('');
