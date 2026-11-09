@@ -172,7 +172,7 @@ En pantallas angostas (< 760 px): una columna, el visor primero, la navegación 
 ```
 [ ] Ningún emoji (grep -rnP "[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}]" frontend/src)
 [ ] Ningún color, fuente o radio literal fuera de styles.scss (grep -rnE "#[0-9a-fA-F]{3,6}|border-radius: ?([3-9]|[1-9][0-9])px" frontend/src/app)
-[ ] Sin box-shadow ni gradientes salvo la retícula (grep -rnE "box-shadow|linear-gradient" frontend/src/app)
+[ ] Sin box-shadow ni gradientes salvo la retícula y las rayas de la franja de modo simulado (grep -rnE "box-shadow|linear-gradient" frontend/src/app)
 [ ] Todos los números con fuente de dato y unidad
 [ ] Un solo botón en --senal por pantalla
 [ ] Íconos de gesto solo con <app-icono-gesto>

@@ -322,20 +322,3 @@ table {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
-/*
- * Alias de los tokens anteriores, solo mientras cada pantalla se migra
- * (commits ui(frontend)). Se eliminan en el último commit del rediseño.
- */
-:root {
-  --superficie: var(--hoja);
-  --tinta-suave: var(--tinta-media);
-  --linea: var(--regla);
-  --cobalto: var(--tinta);
-  --cobalto-oscuro: #000;
-  --cobalto-claro: var(--papel-hundido);
-  --marcador: var(--senal);
-  --escenario: var(--visor);
-  --exito: var(--correcto);
-  --error: var(--senal);
-  --fuente-titulos: var(--fuente-titulo);
-}
