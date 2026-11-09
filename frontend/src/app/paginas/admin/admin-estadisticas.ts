@@ -11,12 +11,15 @@ import { ApiAdministracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/
   imports: [Grafico],
   template: `
     @if (datos(); as d) {
-      <div class="cifras">
-        <div class="panel"><p class="texto-suave">Usuarios</p><p class="cifra__valor">{{ d.totalUsuarios }}</p></div>
-        <div class="panel"><p class="texto-suave">Sesiones de cámara</p><p class="cifra__valor">{{ d.totalSesiones }}</p></div>
-        <div class="panel"><p class="texto-suave">Gestos aceptados</p><p class="cifra__valor">{{ d.totalDetecciones }}</p></div>
-        <div class="panel"><p class="texto-suave">Confianza promedio</p><p class="cifra__valor">{{ porcentaje(d.resumen.confianzaPromedio) }}</p></div>
-      </div>
+      <section class="panel">
+        <h2>Lecturas del sistema</h2>
+        <dl class="cifras">
+          <div><dt>Usuarios</dt><dd>{{ d.totalUsuarios }}</dd></div>
+          <div><dt>Sesiones de cámara</dt><dd>{{ d.totalSesiones }}</dd></div>
+          <div><dt>Gestos aceptados</dt><dd>{{ d.totalDetecciones }}</dd></div>
+          <div><dt>Confianza promedio</dt><dd>{{ porcentaje(d.resumen.confianzaPromedio) }}</dd></div>
+        </dl>
+      </section>
       <div class="graficos">
         <div class="panel">
           <h2>Uso de cada gesto (histórico)</h2>
@@ -27,17 +30,17 @@ import { ApiAdministracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/
           <app-grafico tipo="line" [etiquetas]="dias()" [valores]="totalesDia()" descripcion="Gestos por día en todo el sistema" />
         </div>
       </div>
-      <div class="panel tabla-contenedor">
-        <table>
-          <thead><tr><th>Gesto</th><th>Estado</th><th>Veces</th><th>Confianza promedio</th><th>Personas que lo usaron</th></tr></thead>
+      <div class="tabla-contenedor">
+        <table class="hoja-tabla">
+          <thead><tr><th>Gesto</th><th>Estado</th><th class="num">Veces</th><th class="num">Confianza promedio</th><th class="num">Personas</th></tr></thead>
           <tbody>
             @for (g of d.usoPorGesto; track g.idGesto) {
               <tr>
                 <td>{{ g.nombre }}</td>
                 <td><span class="etiqueta" [class.etiqueta--apagada]="!g.activo">{{ g.activo ? 'Activo' : 'Desactivado' }}</span></td>
-                <td>{{ g.total }}</td>
-                <td>{{ g.total ? porcentaje(g.confianzaPromedio) : '—' }}</td>
-                <td>{{ g.usuariosDistintos }}</td>
+                <td class="num">{{ g.total }}</td>
+                <td class="num">{{ g.total ? porcentaje(g.confianzaPromedio) : '—' }}</td>
+                <td class="num">{{ g.usuariosDistintos }}</td>
               </tr>
             }
           </tbody>

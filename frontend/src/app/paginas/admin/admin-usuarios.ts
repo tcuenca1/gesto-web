@@ -17,8 +17,8 @@ import { ApiAdministracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/
         <input id="buscar" type="search" [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
       </div>
     </div>
-    <div class="panel tabla-contenedor">
-      <table>
+    <div class="tabla-contenedor">
+      <table class="hoja-tabla">
         <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Último acceso</th></tr></thead>
         <tbody>
           @for (u of filtrados(); track u.id) {

@@ -29,8 +29,8 @@ import { ApiAdministracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/
       pero en el panel solo muestra un aviso hasta que alguien programe su efecto. Desactivar una acción no borra el historial.
     </p>
 
-    <div class="panel tabla-contenedor">
-      <table>
+    <div class="tabla-contenedor">
+      <table class="hoja-tabla">
         <thead><tr><th>Código</th><th>Nombre</th><th>Descripción</th><th>Estado</th><th><span class="oculto-visual">Acciones</span></th></tr></thead>
         <tbody>
           @for (a of acciones(); track a.id) {
@@ -44,7 +44,7 @@ import { ApiAdministracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/
               <td class="acciones-fila">
                 <button class="boton boton--chico" type="button" (click)="guardar(a)">Guardar</button>
                 @if (a.activa) {
-                  <button class="boton boton--chico boton--fantasma" type="button" (click)="desactivar(a)">Desactivar</button>
+                  <button class="boton boton--chico boton--peligro" type="button" (click)="desactivar(a)">Desactivar</button>
                 } @else {
                   <button class="boton boton--chico boton--fantasma" type="button" (click)="activar(a)">Activar</button>
                 }

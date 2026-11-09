@@ -10,11 +10,11 @@ const OPERACIONES: Record<string, string> = { INSERT: 'Creó', UPDATE: 'Cambió'
 @Component({
   selector: 'app-admin-bitacora',
   template: `
-    <div class="panel tabla-contenedor">
+    <div class="tabla-contenedor">
       @if (entradas().length === 0) {
         <p class="vacio">Todavía no hay cambios registrados.</p>
       } @else {
-        <table>
+        <table class="hoja-tabla">
           <thead><tr><th>Fecha</th><th>Administrador</th><th>Qué hizo</th><th>Cambios</th></tr></thead>
           <tbody>
             @for (e of entradas(); track e.id) {
