@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { ErrorDominio, ErrorProhibido, TipoError } from '../../../dominio/compartido/errores';
 import { Rol, UsuarioPublico } from '../../../dominio/usuario/Usuario';
-import { AutenticarSolicitudPuerto } from '../../../aplicacion/puertos/entrada/usuarios';
+import { PuertoEntradaUsuarioLectura } from '../../../aplicacion/puerto/entrada/PuertoEntradaUsuarioLectura';
 
 /** Express 4 no atrapa errores de funciones async: este envoltorio los pasa al manejador. */
 export const manejar =
@@ -19,12 +19,12 @@ export function usuarioDe(res: Response): UsuarioPublico {
  * Middleware de token (RNF-07): lee "Authorization: Bearer <token>" y le pide
  * al caso de uso AutenticarSolicitud quién es el usuario.
  */
-export function autenticacion(autenticar: AutenticarSolicitudPuerto): RequestHandler {
+export function autenticacion(cuUsuarioLectura: PuertoEntradaUsuarioLectura): RequestHandler {
   return (req, res, next) => {
     const cabecera = req.header('authorization') ?? '';
     const token = cabecera.startsWith('Bearer ') ? cabecera.slice(7).trim() : '';
-    autenticar
-      .ejecutar({ token })
+    cuUsuarioLectura
+      .autenticarSolicitud({ token })
       .then((usuario) => {
         res.locals.usuario = usuario;
         next();

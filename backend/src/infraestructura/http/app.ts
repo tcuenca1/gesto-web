@@ -2,7 +2,7 @@ import cors from 'cors';
 import express, { Express } from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
-import { CasosDeUso } from '../../aplicacion/puertos/entrada';
+import { CasosDeUso } from '../../aplicacion/caso_uso';
 import { autenticacion, cabecerasSeguridad, exigirRol, manejadorErrores } from './middlewares';
 import { rutasAdmin } from './rutas/rutasAdmin';
 import { rutasAuth } from './rutas/rutasAuth';
@@ -33,7 +33,7 @@ export function crearApp(casos: CasosDeUso, opciones: OpcionesApp): Express {
     res.json({ estado: 'ok', hora: new Date().toISOString() });
   });
 
-  const conToken = autenticacion(casos.usuarios.autenticar);
+  const conToken = autenticacion(casos.usuario.lectura);
   app.use('/api/auth', rutasAuth(casos));
   app.use('/api/admin', conToken, exigirRol('ADMIN'), rutasAdmin(casos));
   app.use('/api', conToken, rutasUsuario(casos));

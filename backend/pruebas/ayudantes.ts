@@ -1,5 +1,5 @@
-import { crearCasosDeUso } from '../src/aplicacion/casos-uso';
-import { CasosDeUso } from '../src/aplicacion/puertos/entrada';
+import { crearCasosDeUso } from '../src/aplicacion/caso_uso';
+import { CasosDeUso } from '../src/aplicacion/caso_uso';
 import { PuertoSalidaReloj } from '../src/aplicacion/puerto/salida/PuertoSalidaReloj';
 import { AlmacenMemoria } from '../src/infraestructura/base_dato/AlmacenMemoria';
 import { datosInicialesMemoria } from '../src/infraestructura/base_dato/datosInicialesMemoria';
@@ -40,6 +40,6 @@ export function entornoMemoria(reloj = new RelojFalso()) {
 
 /** Registra un usuario y devuelve su id. */
 export async function registrar(casos: CasosDeUso, correo = 'ana@correo.com'): Promise<number> {
-  const u = await casos.usuarios.registrar.ejecutar({ nombre: 'Ana', correo, contrasena: 'Clave1234' });
+  const u = await casos.usuario.escritura.registrarUsuario({ nombre: 'Ana', correo, contrasena: 'Clave1234' });
   return u.id;
 }

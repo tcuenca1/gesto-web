@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { CasosDeUso } from '../../../aplicacion/puertos/entrada';
-import { leerEnteroPositivo } from '../../../aplicacion/casos-uso/comun';
+import { CasosDeUso } from '../../../aplicacion/caso_uso';
+import { leerEnteroPositivo } from '../../../aplicacion/caso_uso/comun';
 import { manejar, usuarioDe } from '../middlewares';
 
 /**
@@ -14,33 +14,33 @@ export function rutasUsuario(casos: CasosDeUso): Router {
 
   // ---------------- Perfil ----------------
   r.get('/usuarios/yo', manejar(async (_req, res) => {
-    res.json(await casos.usuarios.obtenerPerfil.ejecutar({ idUsuario: usuarioDe(res).id }));
+    res.json(await casos.usuario.lectura.obtenerPerfil({ idUsuario: usuarioDe(res).id }));
   }));
 
   r.put('/usuarios/yo', manejar(async (req, res) => {
     const { nombre, contrasenaActual, contrasenaNueva } = req.body ?? {};
-    res.json(await casos.usuarios.editarPerfil.ejecutar({ idUsuario: usuarioDe(res).id, nombre, contrasenaActual, contrasenaNueva }));
+    res.json(await casos.usuario.escritura.editarPerfil({ idUsuario: usuarioDe(res).id, nombre, contrasenaActual, contrasenaNueva }));
   }));
 
   // ---------------- Catálogos y asignaciones ----------------
   r.get('/gestos', manejar(async (_req, res) => {
-    res.json(await casos.acciones.listarGestos.ejecutar({}));
+    res.json(await casos.accion.lectura.listarGestos({}));
   }));
 
   r.get('/acciones', manejar(async (_req, res) => {
-    res.json(await casos.acciones.listarAcciones.ejecutar({}));
+    res.json(await casos.accion.lectura.listarAcciones({}));
   }));
 
   r.get('/asignaciones', manejar(async (_req, res) => {
-    res.json(await casos.acciones.obtenerAsignaciones.ejecutar({ idUsuario: usuarioDe(res).id }));
+    res.json(await casos.accion.lectura.obtenerAsignaciones({ idUsuario: usuarioDe(res).id }));
   }));
 
   r.post('/asignaciones/restaurar', manejar(async (_req, res) => {
-    res.json(await casos.acciones.restaurarAsignaciones.ejecutar({ idUsuario: usuarioDe(res).id }));
+    res.json(await casos.accion.escritura.restaurarAsignaciones({ idUsuario: usuarioDe(res).id }));
   }));
 
   r.put('/asignaciones/:idGesto', manejar(async (req, res) => {
-    res.json(await casos.acciones.cambiarAsignacion.ejecutar({
+    res.json(await casos.accion.escritura.cambiarAsignacion({
       idUsuario: usuarioDe(res).id,
       idGesto: id(req.params.idGesto),
       idAccion: req.body?.idAccion,
@@ -50,16 +50,16 @@ export function rutasUsuario(casos: CasosDeUso): Router {
   // ---------------- Reconocimiento (CU-03) ----------------
   r.post('/sesiones', manejar(async (req, res) => {
     const navegador = req.body?.navegador ?? req.header('user-agent');
-    res.status(201).json(await casos.reconocimiento.abrirSesion.ejecutar({ idUsuario: usuarioDe(res).id, navegador }));
+    res.status(201).json(await casos.reconocimiento.escritura.abrirSesion({ idUsuario: usuarioDe(res).id, navegador }));
   }));
 
   r.patch('/sesiones/:id/cerrar', manejar(async (req, res) => {
-    res.json(await casos.reconocimiento.cerrarSesion.ejecutar({ idUsuario: usuarioDe(res).id, idSesion: id(req.params.id) }));
+    res.json(await casos.reconocimiento.escritura.cerrarSesion({ idUsuario: usuarioDe(res).id, idSesion: id(req.params.id) }));
   }));
 
   r.post('/sesiones/:id/detecciones', manejar(async (req, res) => {
     const { codigoGesto, confianza, mano, fechaHora } = req.body ?? {};
-    res.status(201).json(await casos.reconocimiento.registrarDeteccion.ejecutar({
+    res.status(201).json(await casos.reconocimiento.escritura.registrarDeteccion({
       idUsuario: usuarioDe(res).id,
       idSesion: id(req.params.id),
       codigoGesto,
@@ -72,12 +72,12 @@ export function rutasUsuario(casos: CasosDeUso): Router {
   // ---------------- Historial y estadísticas ----------------
   r.get('/historial', manejar(async (req, res) => {
     const { desde, hasta, gesto, pagina, limite } = req.query;
-    res.json(await casos.historial.consultar.ejecutar({ idUsuario: usuarioDe(res).id, desde, hasta, gesto, pagina, limite }));
+    res.json(await casos.historial.lectura.consultarHistorial({ idUsuario: usuarioDe(res).id, desde, hasta, gesto, pagina, limite }));
   }));
 
   r.get('/historial/csv', manejar(async (req, res) => {
     const { desde, hasta, gesto, zona } = req.query;
-    const archivo = await casos.historial.exportar.ejecutar({ idUsuario: usuarioDe(res).id, desde, hasta, gesto, zonaHoraria: zona });
+    const archivo = await casos.historial.lectura.exportarHistorial({ idUsuario: usuarioDe(res).id, desde, hasta, gesto, zonaHoraria: zona });
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${archivo.nombreArchivo}"`);
     res.send(archivo.contenido);
@@ -85,7 +85,7 @@ export function rutasUsuario(casos: CasosDeUso): Router {
 
   r.get('/estadisticas', manejar(async (req, res) => {
     const { desde, hasta, zona } = req.query;
-    res.json(await casos.historial.estadisticas.ejecutar({ idUsuario: usuarioDe(res).id, desde, hasta, zonaHoraria: zona }));
+    res.json(await casos.historial.lectura.consultarEstadisticas({ idUsuario: usuarioDe(res).id, desde, hasta, zonaHoraria: zona }));
   }));
 
   return r;

@@ -8,8 +8,8 @@
  * adaptadores son intercambiables (principio de sustitución de Liskov).
  */
 import { Pool } from 'pg';
-import { crearCasosDeUso } from '../../src/aplicacion/casos-uso';
-import { CasosDeUso } from '../../src/aplicacion/puertos/entrada';
+import { crearCasosDeUso } from '../../src/aplicacion/caso_uso';
+import { CasosDeUso } from '../../src/aplicacion/caso_uso';
 import { AdapSalida_CifradorBcrypt } from '../../src/infraestructura/adaptadores/salida/AdapSalida_CifradorBcrypt';
 import { AdapSalida_TokensJwt } from '../../src/infraestructura/adaptadores/salida/AdapSalida_TokensJwt';
 import { persistenciaMemoria, persistenciaPostgres } from '../../src/main';
@@ -56,48 +56,48 @@ describe.each(fabricas)('Núcleo con adaptadores de %s', (_nombre, fabrica) => {
   });
 
   it('registro, login y perfil', async () => {
-    const u = await casos.usuarios.registrar.ejecutar({ nombre: 'Terry', correo: 'Terry@X.com', contrasena: 'Clave1234' });
-    await expect(casos.usuarios.registrar.ejecutar({ nombre: 'Otro', correo: 'terry@x.com', contrasena: 'Clave1234' }))
+    const u = await casos.usuario.escritura.registrarUsuario({ nombre: 'Terry', correo: 'Terry@X.com', contrasena: 'Clave1234' });
+    await expect(casos.usuario.escritura.registrarUsuario({ nombre: 'Otro', correo: 'terry@x.com', contrasena: 'Clave1234' }))
       .rejects.toMatchObject({ tipo: 'CONFLICTO' });
-    const { token } = await casos.usuarios.iniciarSesion.ejecutar({ correo: 'terry@x.com', contrasena: 'Clave1234' });
-    expect((await casos.usuarios.autenticar.ejecutar({ token })).id).toBe(u.id);
-    expect((await casos.acciones.obtenerAsignaciones.ejecutar({ idUsuario: u.id }))).toHaveLength(7);
+    const { token } = await casos.usuario.escritura.iniciarSesion({ correo: 'terry@x.com', contrasena: 'Clave1234' });
+    expect((await casos.usuario.lectura.autenticarSolicitud({ token })).id).toBe(u.id);
+    expect((await casos.accion.lectura.obtenerAsignaciones({ idUsuario: u.id }))).toHaveLength(7);
   });
 
   it('CU-03 completo con historial y estadísticas', async () => {
-    const { usuario } = await casos.usuarios.iniciarSesion.ejecutar(ADMIN);
-    await casos.acciones.cambiarAsignacion.ejecutar({ idUsuario: usuario.id, idGesto: 4, idAccion: 7 });
-    const s = await casos.reconocimiento.abrirSesion.ejecutar({ idUsuario: usuario.id, navegador: 'jest' });
+    const { usuario } = await casos.usuario.escritura.iniciarSesion(ADMIN);
+    await casos.accion.escritura.cambiarAsignacion({ idUsuario: usuario.id, idGesto: 4, idAccion: 7 });
+    const s = await casos.reconocimiento.escritura.abrirSesion({ idUsuario: usuario.id, navegador: 'jest' });
     for (const codigoGesto of ['Victory', 'Victory', 'Closed_Fist']) {
-      await casos.reconocimiento.registrarDeteccion.ejecutar({
+      await casos.reconocimiento.escritura.registrarDeteccion({
         idUsuario: usuario.id, idSesion: s.id, codigoGesto, confianza: 0.9, mano: 'Derecha',
         fechaHora: new Date(Date.now() + 1000).toISOString(),
       });
     }
-    const cerrada = await casos.reconocimiento.cerrarSesion.ejecutar({ idUsuario: usuario.id, idSesion: s.id });
+    const cerrada = await casos.reconocimiento.escritura.cerrarSesion({ idUsuario: usuario.id, idSesion: s.id });
     expect(cerrada.totalDetecciones).toBe(3);
-    await expect(casos.reconocimiento.registrarDeteccion.ejecutar({
+    await expect(casos.reconocimiento.escritura.registrarDeteccion({
       idUsuario: usuario.id, idSesion: s.id, codigoGesto: 'Victory', confianza: 0.9, mano: 'Derecha',
     })).rejects.toMatchObject({ tipo: 'CONFLICTO' });
 
-    const historial = await casos.historial.consultar.ejecutar({ idUsuario: usuario.id, gesto: 'Victory' });
+    const historial = await casos.historial.lectura.consultarHistorial({ idUsuario: usuario.id, gesto: 'Victory' });
     expect(historial.total).toBe(2);
     expect(historial.elementos[0].codigoAccion).toBe('CORAZON');
 
-    const stats = await casos.historial.estadisticas.ejecutar({ idUsuario: usuario.id });
+    const stats = await casos.historial.lectura.consultarEstadisticas({ idUsuario: usuario.id });
     expect(stats.totalDetecciones).toBe(3);
     expect(stats.gestoMasUsado?.codigo).toBe('Victory');
     expect(stats.usoPorDia.reduce((suma, d) => suma + d.total, 0)).toBe(3);
   });
 
   it('administración con bitácora y transacción que se deshace al fallar', async () => {
-    const g = await casos.administracion.editarGesto.ejecutar({ idAdministrador: 1, idGesto: 2, cambios: { umbralConfianza: 0.8 } });
+    const g = await casos.administracion.escritura.editarGesto({ idAdministrador: 1, idGesto: 2, cambios: { umbralConfianza: 0.8 } });
     expect(g.umbralConfianza).toBe(0.8);
-    await expect(casos.administracion.gestionarAcciones.ejecutar({ tipo: 'desactivar', idAdministrador: 1, idAccion: 8 }))
+    await expect(casos.administracion.escritura.gestionarAccion({ tipo: 'desactivar', idAdministrador: 1, idAccion: 8 }))
       .rejects.toMatchObject({ tipo: 'CONFLICTO' });
-    const bitacora = await casos.administracion.consultarBitacora.ejecutar({});
+    const bitacora = await casos.administracion.lectura.consultarBitacora({});
     expect(bitacora.total).toBe(1); // el intento fallido no dejó rastro
-    const generales = await casos.administracion.estadisticasGenerales.ejecutar({});
+    const generales = await casos.administracion.lectura.consultarEstadisticasGenerales({});
     expect(generales.usoPorGesto).toHaveLength(7);
   });
 });

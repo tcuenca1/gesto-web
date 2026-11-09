@@ -14,8 +14,8 @@
  * se prueba sin instalar PostgreSQL.
  */
 import { Pool } from 'pg';
-import { crearCasosDeUso, PuertosDeSalida } from './aplicacion/casos-uso';
-import { CasosDeUso } from './aplicacion/puertos/entrada';
+import { crearCasosDeUso, PuertosDeSalida } from './aplicacion/caso_uso';
+import { CasosDeUso } from './aplicacion/caso_uso';
 import { PuertoSalidaReloj } from './aplicacion/puerto/salida/PuertoSalidaReloj';
 import { Configuracion, leerConfiguracion } from './config/entorno';
 import { crearApp } from './infraestructura/http/app';
