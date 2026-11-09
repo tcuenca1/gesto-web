@@ -7,8 +7,8 @@
  */
 import { performance } from 'node:perf_hooks';
 import { leerConfiguracion } from '../src/config/entorno';
-import { crearPool } from '../src/infraestructura/persistencia/postgres/conexion';
-import { DeteccionRepositorioPg } from '../src/infraestructura/persistencia/postgres/ReconocimientoRepositoriosPg';
+import { crearPool } from '../src/infraestructura/base_dato/ConexionPostgresql';
+import { AdapSalida_DeteccionPostgres } from '../src/infraestructura/adaptadores/salida/AdapSalida_DeteccionPostgres';
 import { CifradorBcrypt } from '../src/infraestructura/seguridad/CifradorBcrypt';
 
 async function medir<T>(nombre: string, fn: () => Promise<T>): Promise<number> {
@@ -78,7 +78,7 @@ async function main(): Promise<void> {
 
     const total = (await pool.query<{ total: number }>('SELECT COUNT(*) AS total FROM detecciones')).rows[0].total;
     console.log(`\nTiempos de consulta con ${total.toLocaleString('es')} detecciones en total (RNF-04, meta < 500 ms):`);
-    const repo = new DeteccionRepositorioPg(pool);
+    const repo = new AdapSalida_DeteccionPostgres(pool);
     const hace30 = new Date(Date.now() - 30 * 86400000);
     const tiempos = [
       await medir('Historial, página 1 (20 filas)', () => repo.historial({ idUsuario, pagina: 1, limite: 20 })),

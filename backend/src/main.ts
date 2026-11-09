@@ -4,7 +4,7 @@
  * Es el ÚNICO lugar del sistema que conoce a la vez el núcleo y los
  * adaptadores concretos. Aquí se decide qué adaptador cumple cada puerto:
  *
- *    puerto PuertoSalidaUsuario  ← UsuarioRepositorioPg   (o …Memoria)
+ *    puerto PuertoSalidaUsuario  ← AdapSalida_UsuarioPostgres   (o …Memoria)
  *    puerto PuertoSalidaCifrador ← CifradorBcrypt
  *    puerto PuertoSalidaTokens     ← GeneradorTokensJwt
  *    …
@@ -19,27 +19,25 @@ import { CasosDeUso } from './aplicacion/puertos/entrada';
 import { PuertoSalidaReloj } from './aplicacion/puerto/salida/PuertoSalidaReloj';
 import { Configuracion, leerConfiguracion } from './config/entorno';
 import { crearApp } from './infraestructura/http/app';
-import { AlmacenMemoria } from './infraestructura/persistencia/memoria/AlmacenMemoria';
-import { datosInicialesMemoria } from './infraestructura/persistencia/memoria/datosIniciales';
-import {
-  AccionRepositorioMemoria,
-  AsignacionRepositorioMemoria,
-  BitacoraRepositorioMemoria,
-  DeteccionRepositorioMemoria,
-  GestoRepositorioMemoria,
-  SesionRepositorioMemoria,
-  UnidadDeTrabajoMemoria,
-  UsuarioRepositorioMemoria,
-} from './infraestructura/persistencia/memoria/RepositoriosMemoria';
-import { BitacoraRepositorioPg, UnidadDeTrabajoPg } from './infraestructura/persistencia/postgres/BitacoraYTransaccionPg';
-import {
-  AccionRepositorioPg,
-  AsignacionRepositorioPg,
-  GestoRepositorioPg,
-} from './infraestructura/persistencia/postgres/CatalogoRepositoriosPg';
-import { crearPool } from './infraestructura/persistencia/postgres/conexion';
-import { DeteccionRepositorioPg, SesionRepositorioPg } from './infraestructura/persistencia/postgres/ReconocimientoRepositoriosPg';
-import { UsuarioRepositorioPg } from './infraestructura/persistencia/postgres/UsuarioRepositorioPg';
+import { AlmacenMemoria } from './infraestructura/base_dato/AlmacenMemoria';
+import { datosInicialesMemoria } from './infraestructura/base_dato/datosInicialesMemoria';
+import { AdapSalida_AccionMemoria } from './infraestructura/adaptadores/salida/AdapSalida_AccionMemoria';
+import { AdapSalida_AsignacionMemoria } from './infraestructura/adaptadores/salida/AdapSalida_AsignacionMemoria';
+import { AdapSalida_BitacoraMemoria } from './infraestructura/adaptadores/salida/AdapSalida_BitacoraMemoria';
+import { AdapSalida_DeteccionMemoria } from './infraestructura/adaptadores/salida/AdapSalida_DeteccionMemoria';
+import { AdapSalida_GestoMemoria } from './infraestructura/adaptadores/salida/AdapSalida_GestoMemoria';
+import { AdapSalida_SesionMemoria } from './infraestructura/adaptadores/salida/AdapSalida_SesionMemoria';
+import { AdapSalida_UnidadDeTrabajoMemoria } from './infraestructura/adaptadores/salida/AdapSalida_UnidadDeTrabajoMemoria';
+import { AdapSalida_UsuarioMemoria } from './infraestructura/adaptadores/salida/AdapSalida_UsuarioMemoria';
+import { AdapSalida_BitacoraPostgres } from './infraestructura/adaptadores/salida/AdapSalida_BitacoraPostgres';
+import { AdapSalida_UnidadDeTrabajoPostgres } from './infraestructura/adaptadores/salida/AdapSalida_UnidadDeTrabajoPostgres';
+import { AdapSalida_AccionPostgres } from './infraestructura/adaptadores/salida/AdapSalida_AccionPostgres';
+import { AdapSalida_AsignacionPostgres } from './infraestructura/adaptadores/salida/AdapSalida_AsignacionPostgres';
+import { AdapSalida_GestoPostgres } from './infraestructura/adaptadores/salida/AdapSalida_GestoPostgres';
+import { crearPool } from './infraestructura/base_dato/ConexionPostgresql';
+import { AdapSalida_DeteccionPostgres } from './infraestructura/adaptadores/salida/AdapSalida_DeteccionPostgres';
+import { AdapSalida_SesionPostgres } from './infraestructura/adaptadores/salida/AdapSalida_SesionPostgres';
+import { AdapSalida_UsuarioPostgres } from './infraestructura/adaptadores/salida/AdapSalida_UsuarioPostgres';
 import { CifradorBcrypt } from './infraestructura/seguridad/CifradorBcrypt';
 import { GeneradorTokensJwt } from './infraestructura/seguridad/GeneradorTokensJwt';
 import { RelojSistema } from './infraestructura/sistema/RelojSistema';
@@ -52,32 +50,32 @@ type Persistencia = Pick<
 /** Adaptadores PostgreSQL (versión 1 del sistema). */
 export function persistenciaPostgres(pool: Pool): Persistencia {
   return {
-    usuarios: new UsuarioRepositorioPg(pool),
-    gestos: new GestoRepositorioPg(pool),
-    acciones: new AccionRepositorioPg(pool),
-    asignaciones: new AsignacionRepositorioPg(pool),
-    sesiones: new SesionRepositorioPg(pool),
-    detecciones: new DeteccionRepositorioPg(pool),
-    bitacora: new BitacoraRepositorioPg(pool),
-    unidadDeTrabajo: new UnidadDeTrabajoPg(pool),
+    usuarios: new AdapSalida_UsuarioPostgres(pool),
+    gestos: new AdapSalida_GestoPostgres(pool),
+    acciones: new AdapSalida_AccionPostgres(pool),
+    asignaciones: new AdapSalida_AsignacionPostgres(pool),
+    sesiones: new AdapSalida_SesionPostgres(pool),
+    detecciones: new AdapSalida_DeteccionPostgres(pool),
+    bitacora: new AdapSalida_BitacoraPostgres(pool),
+    unidadDeTrabajo: new AdapSalida_UnidadDeTrabajoPostgres(pool),
   };
 }
 
 /** Adaptadores en memoria (pruebas y prueba P-09). */
 export function persistenciaMemoria(reloj: PuertoSalidaReloj, almacen = new AlmacenMemoria(datosInicialesMemoria(reloj.ahora()))): Persistencia {
-  const usuarios = new UsuarioRepositorioMemoria(almacen, reloj);
-  const gestos = new GestoRepositorioMemoria(almacen);
-  const acciones = new AccionRepositorioMemoria(almacen);
-  const bitacora = new BitacoraRepositorioMemoria(almacen, reloj);
+  const usuarios = new AdapSalida_UsuarioMemoria(almacen, reloj);
+  const gestos = new AdapSalida_GestoMemoria(almacen);
+  const acciones = new AdapSalida_AccionMemoria(almacen);
+  const bitacora = new AdapSalida_BitacoraMemoria(almacen, reloj);
   return {
     usuarios,
     gestos,
     acciones,
     bitacora,
-    asignaciones: new AsignacionRepositorioMemoria(almacen, reloj),
-    sesiones: new SesionRepositorioMemoria(almacen, reloj),
-    detecciones: new DeteccionRepositorioMemoria(almacen),
-    unidadDeTrabajo: new UnidadDeTrabajoMemoria(almacen, { usuarios, gestos, acciones, bitacora }),
+    asignaciones: new AdapSalida_AsignacionMemoria(almacen, reloj),
+    sesiones: new AdapSalida_SesionMemoria(almacen, reloj),
+    detecciones: new AdapSalida_DeteccionMemoria(almacen),
+    unidadDeTrabajo: new AdapSalida_UnidadDeTrabajoMemoria(almacen, { usuarios, gestos, acciones, bitacora }),
   };
 }
 

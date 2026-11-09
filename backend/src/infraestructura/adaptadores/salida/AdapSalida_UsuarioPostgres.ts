@@ -1,6 +1,6 @@
 import { NuevoUsuario, Rol, Usuario } from '../../../dominio/usuario/Usuario';
 import { PuertoSalidaUsuario } from '../../../aplicacion/puerto/salida/PuertoSalidaUsuario';
-import { consultar, Consultor } from './conexion';
+import { consultar, Consultor } from '../../base_dato/ConexionPostgresql';
 
 interface FilaUsuario {
   id_usuario: number;
@@ -32,8 +32,10 @@ const aEntidad = (f: FilaUsuario) =>
   });
 
 /** Adaptador PostgreSQL del puerto PuertoSalidaUsuario. */
-export class UsuarioRepositorioPg implements PuertoSalidaUsuario {
-  constructor(private readonly bd: Consultor) {}
+export class AdapSalida_UsuarioPostgres extends PuertoSalidaUsuario {
+  constructor(private readonly bd: Consultor) {
+    super();
+  }
 
   async crear(nuevo: NuevoUsuario): Promise<Usuario> {
     // El trigger trg_asignaciones_iniciales crea sus 7 asignaciones.

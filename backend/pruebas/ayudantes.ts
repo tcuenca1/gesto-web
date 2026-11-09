@@ -1,8 +1,8 @@
 import { crearCasosDeUso } from '../src/aplicacion/casos-uso';
 import { CasosDeUso } from '../src/aplicacion/puertos/entrada';
 import { PuertoSalidaReloj } from '../src/aplicacion/puerto/salida/PuertoSalidaReloj';
-import { AlmacenMemoria } from '../src/infraestructura/persistencia/memoria/AlmacenMemoria';
-import { datosInicialesMemoria } from '../src/infraestructura/persistencia/memoria/datosIniciales';
+import { AlmacenMemoria } from '../src/infraestructura/base_dato/AlmacenMemoria';
+import { datosInicialesMemoria } from '../src/infraestructura/base_dato/datosInicialesMemoria';
 import { CifradorBcrypt } from '../src/infraestructura/seguridad/CifradorBcrypt';
 import { GeneradorTokensJwt } from '../src/infraestructura/seguridad/GeneradorTokensJwt';
 import { persistenciaMemoria } from '../src/main';

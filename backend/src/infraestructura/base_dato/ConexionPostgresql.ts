@@ -1,5 +1,5 @@
 import { Pool, PoolConfig, QueryResult, QueryResultRow, types, defaults } from 'pg';
-import { ErrorConflicto, ErrorValidacion } from '../../../dominio/compartido/errores';
+import { ErrorConflicto, ErrorValidacion } from '../../dominio/compartido/errores';
 
 /**
  * Las columnas TIMESTAMP de GestoWeb guardan la hora en UTC.
