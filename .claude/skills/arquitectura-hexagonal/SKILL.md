@@ -15,7 +15,7 @@ GestoWeb sigue la arquitectura hexagonal **con la misma forma y el mismo vocabul
 ## 1. Reglas obligatorias
 
 1. **Nomenclatura del proyecto de clase** (sección 3). Ningún archivo nuevo usa `Repositorio`, `Servicio`, `Controlador`, `rutas*` ni `*Pg` como nombre de pieza arquitectónica.
-2. **Una clase por archivo, y el archivo se llama igual que la clase** (`AdapSalida_UsuarioPostgres.ts` exporta `class AdapSalida_UsuarioPostgres`). Sin `export default`.
+2. **Una clase por archivo, y el archivo se llama igual que la clase** (`AdapSalida_UsuarioPostgres.ts` exporta `class AdapSalida_UsuarioPostgres`). Sin `export default`. Única excepción: `dominio/compartido/errores.ts`, que agrupa la jerarquía de `ErrorDominio`.
 3. **Los puertos son clases abstractas** (`export abstract class PuertoSalidaUsuario`) con métodos `abstract`. Los casos de uso y los adaptadores hacen `extends` y llaman `super()`. Es la versión tipada del `throw new Error("Debes implementar …")` del proyecto de clase.
 4. **Lectura y escritura separadas:** cada módulo tiene `CasoUso_<Modulo>Lectura` (consultas sin efectos) y/o `CasoUso_<Modulo>Escritura` (todo lo que cambia estado, incluido registrar el último acceso).
 5. **Inyección manual por constructor.** Los casos de uso reciben puertos de salida; los adaptadores de entrada reciben puertos de entrada. Nadie hace `new` de un adaptador fuera de `contenedor/`.
