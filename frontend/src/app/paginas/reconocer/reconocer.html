@@ -51,7 +51,7 @@
             <circle class="anillo__fondo" cx="22" cy="22" r="20" />
             <circle class="anillo__avance" cx="22" cy="22" r="20" [style.stroke-dashoffset]="125.66 * (1 - lectura().progreso)" />
           </svg>
-          <span class="anillo__icono">{{ lectura().icono || '✋' }}</span>
+          <app-icono-gesto class="anillo__icono" [codigo]="lectura().codigo" [tamano]="56" [decorativo]="true" />
         </div>
         <div class="lectura__texto">
           <strong class="lectura__titulo">{{ lectura().titulo }}</strong>
@@ -114,14 +114,14 @@
               (pointerleave)="simular(null)"
               [attr.aria-label]="'Simular ' + g.nombre + ' (tecla ' + (i + 1) + ')'"
             >
-              <span class="tarjeta-gesto__icono" aria-hidden="true">{{ g.icono }}</span>
+              <app-icono-gesto class="tarjeta-gesto__icono" [codigo]="g.codigo" [tamano]="40" [decorativo]="true" />
               <span class="tarjeta-gesto__nombre">{{ g.nombre }}</span>
               <span class="tarjeta-gesto__accion">{{ g.accion }}</span>
               <kbd>{{ i + 1 }}</kbd>
             </button>
           } @else {
             <div class="tarjeta-gesto" [class.tarjeta-gesto--ultima]="motor.ultimaAccion()?.codigoGesto === g.codigo">
-              <span class="tarjeta-gesto__icono" aria-hidden="true">{{ g.icono }}</span>
+              <app-icono-gesto class="tarjeta-gesto__icono" [codigo]="g.codigo" [tamano]="40" [decorativo]="true" />
               <span class="tarjeta-gesto__nombre">{{ g.nombre }}</span>
               <span class="tarjeta-gesto__accion">{{ g.accion }}</span>
             </div>

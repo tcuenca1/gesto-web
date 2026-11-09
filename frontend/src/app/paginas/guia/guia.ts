@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
+import { IconoGesto } from '../../compartido/componentes/icono-gesto';
 import { RouterLink } from '@angular/router';
 import { GUIA_GESTOS } from '../../nucleo/dominio/gesto';
 
 /** RF-13 · Guía visual de los 7 gestos y consejos para que se reconozcan bien. */
 @Component({
   selector: 'app-guia',
-  imports: [RouterLink],
+  imports: [IconoGesto, RouterLink],
   template: `
     <section class="pagina">
       <div class="pagina__titulo">
@@ -18,7 +19,7 @@ import { GUIA_GESTOS } from '../../nucleo/dominio/gesto';
       <ul class="guia">
         @for (g of gestos; track g.codigo) {
           <li class="panel">
-            <span class="guia__icono" aria-hidden="true">{{ g.icono }}</span>
+            <app-icono-gesto class="guia__icono" [codigo]="g.codigo" [tamano]="72" [decorativo]="true" />
             <div>
               <h2>{{ g.nombre }}</h2>
               <p>{{ g.comoSeHace }}</p>
@@ -43,7 +44,7 @@ import { GUIA_GESTOS } from '../../nucleo/dominio/gesto';
     .guia li { display: flex; gap: 1rem; align-items: flex-start; }
     .guia h2 { font-size: 1.2rem; margin-bottom: 0.25rem; }
     .guia p { margin: 0 0 0.35rem; }
-    .guia__icono { font-size: 3.25rem; line-height: 1; flex: 0 0 auto; width: 4.5rem; height: 4.5rem; display: grid; place-items: center; background: var(--cobalto-claro); border-radius: 50%; }
+    .guia__icono { flex: 0 0 auto; }
     .consejos { max-width: 65ch; padding-left: 1.2rem; margin-bottom: 1.5rem; }
     .consejos li { margin-bottom: 0.4rem; }
   `,

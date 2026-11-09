@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { IconoGesto } from '../../compartido/componentes/icono-gesto';
 import { RouterLink } from '@angular/router';
 import { SesionUsuario } from '../../compartido/servicios/sesion-usuario';
 import { GUIA_GESTOS } from '../../nucleo/dominio/gesto';
@@ -16,7 +17,7 @@ const ACCIONES_INICIALES: Record<string, string> = {
 /** Página de inicio para visitantes. */
 @Component({
   selector: 'app-inicio',
-  imports: [RouterLink],
+  imports: [IconoGesto, RouterLink],
   template: `
     <section class="portada">
       <div class="portada__interior">
@@ -41,7 +42,7 @@ const ACCIONES_INICIALES: Record<string, string> = {
         </div>
 
         <div class="demo" aria-hidden="true">
-          <span class="demo__gesto">{{ actual().icono }}</span>
+          <app-icono-gesto class="demo__gesto" [codigo]="actual().codigo" [tamano]="170" [decorativo]="true" />
           <span class="demo__nombre">{{ actual().nombre }}</span>
           <span class="demo__accion">{{ accionActual() }}</span>
           <div class="demo__puntos">
@@ -65,7 +66,7 @@ const ACCIONES_INICIALES: Record<string, string> = {
       <ul class="gestos">
         @for (g of gestos; track g.codigo) {
           <li>
-            <span class="gestos__icono" aria-hidden="true">{{ g.icono }}</span>
+            <app-icono-gesto class="gestos__icono" [codigo]="g.codigo" [tamano]="44" [decorativo]="true" />
             <strong>{{ g.nombre }}</strong>
             <span>{{ acciones[g.codigo] }}</span>
           </li>

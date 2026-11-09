@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { IconoGesto } from '../../compartido/componentes/icono-gesto';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Avisos } from '../../compartido/servicios/avisos';
@@ -10,7 +11,7 @@ import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salid
 /** RF-15 y RF-17 · Historial propio con filtros por fecha y gesto, y descarga en CSV. */
 @Component({
   selector: 'app-historial',
-  imports: [FormsModule, RouterLink],
+  imports: [IconoGesto, FormsModule, RouterLink],
   template: `
     <section class="pagina">
       <div class="pagina__titulo">
@@ -71,7 +72,7 @@ import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salid
                 @for (d of filas(); track d.id) {
                   <tr>
                     <td>{{ fecha(d.fechaHora) }}</td>
-                    <td><span aria-hidden="true">{{ icono(d.codigoGesto) }}</span> {{ d.nombreGesto }}</td>
+                    <td><app-icono-gesto [codigo]="d.codigoGesto" [tamano]="22" [decorativo]="true" /> {{ d.nombreGesto }}</td>
                     <td>{{ d.nombreAccion ?? '—' }}</td>
                     <td>{{ porcentaje(d.confianza) }}</td>
                     <td>{{ d.mano }}</td>
@@ -126,9 +127,6 @@ export class Historial implements OnInit {
     void this.buscar(1);
   }
 
-  protected icono(codigo: string): string {
-    return infoGesto(codigo)?.icono ?? '';
-  }
 
   protected async buscar(pagina: number): Promise<void> {
     this.cargando.set(true);

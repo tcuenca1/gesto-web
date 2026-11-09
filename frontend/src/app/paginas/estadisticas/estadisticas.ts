@@ -1,3 +1,4 @@
+import { IconoGesto } from '../../compartido/componentes/icono-gesto';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -10,7 +11,7 @@ import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salid
 /** RF-16 · Estadísticas propias: gesto más usado, total por gesto, confianza promedio y uso por día. */
 @Component({
   selector: 'app-estadisticas',
-  imports: [FormsModule, RouterLink, Grafico],
+  imports: [IconoGesto, FormsModule, RouterLink, Grafico],
   template: `
     <section class="pagina">
       <div class="pagina__titulo">
@@ -42,7 +43,7 @@ import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salid
         } @else {
           <div class="resumen">
             <div class="panel resumen__principal">
-              <span class="resumen__icono" aria-hidden="true">{{ icono(d.gestoMasUsado?.codigo) }}</span>
+              <app-icono-gesto class="resumen__icono" [codigo]="d.gestoMasUsado?.codigo" [tamano]="64" [decorativo]="true" />
               <div>
                 <p class="resumen__etiqueta">Tu gesto más usado</p>
                 <p class="resumen__valor">{{ d.gestoMasUsado?.nombre }}</p>
@@ -77,7 +78,7 @@ import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salid
               <tbody>
                 @for (g of d.totalesPorGesto; track g.idGesto) {
                   <tr>
-                    <td><span aria-hidden="true">{{ icono(g.codigo) }}</span> {{ g.nombre }}</td>
+                    <td><app-icono-gesto [codigo]="g.codigo" [tamano]="22" [decorativo]="true" /> {{ g.nombre }}</td>
                     <td>{{ g.total }}</td>
                     <td>{{ g.total ? porcentaje(g.confianzaPromedio) : '—' }}</td>
                   </tr>
@@ -110,9 +111,6 @@ export class EstadisticasPagina implements OnInit {
     void this.cargar();
   }
 
-  protected icono(codigo?: string): string {
-    return (codigo && infoGesto(codigo)?.icono) || '✋';
-  }
 
   protected async cargar(): Promise<void> {
     this.error.set(null);

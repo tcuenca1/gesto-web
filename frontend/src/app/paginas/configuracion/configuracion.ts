@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { IconoGesto } from '../../compartido/componentes/icono-gesto';
 import { RouterLink } from '@angular/router';
 import { Avisos } from '../../compartido/servicios/avisos';
 import { infoGesto } from '../../nucleo/dominio/gesto';
@@ -8,7 +9,7 @@ import { ApiConfiguracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/s
 /** RF-12 · El usuario elige qué acción hace cada gesto, o vuelve a la configuración inicial. */
 @Component({
   selector: 'app-configuracion',
-  imports: [RouterLink],
+  imports: [IconoGesto, RouterLink],
   template: `
     <section class="pagina">
       <div class="pagina__titulo">
@@ -35,7 +36,7 @@ import { ApiConfiguracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/s
               @for (a of asignaciones(); track a.gesto.id) {
                 <tr>
                   <td>
-                    <span class="icono" aria-hidden="true">{{ icono(a.gesto.codigo) }}</span>
+                    <app-icono-gesto class="icono" [codigo]="a.gesto.codigo" [tamano]="30" [decorativo]="true" />
                     <strong>{{ a.gesto.nombre }}</strong>
                   </td>
                   <td>
@@ -66,7 +67,7 @@ import { ApiConfiguracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/s
   `,
   styles: `
     td:first-child { white-space: nowrap; }
-    .icono { font-size: 1.5rem; margin-right: 0.5rem; vertical-align: middle; }
+    .icono { margin-right: 0.6rem; }
     select { max-width: 22rem; }
     td:last-child { width: 9rem; }
   `,
@@ -93,9 +94,6 @@ export class Configuracion implements OnInit {
     }
   }
 
-  protected icono(codigo: string): string {
-    return infoGesto(codigo)?.icono ?? '✋';
-  }
 
   protected async cambiar(asignacion: Asignacion, idAccion: string): Promise<void> {
     this.guardando.set(asignacion.gesto.id);

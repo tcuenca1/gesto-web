@@ -1,3 +1,4 @@
+import { IconoGesto } from '../../compartido/componentes/icono-gesto';
 import {
   Component,
   computed,
@@ -24,7 +25,7 @@ import { PanelDemostracion } from './panel-demostracion';
  */
 @Component({
   selector: 'app-reconocer',
-  imports: [PanelDemostracion, RouterLink],
+  imports: [IconoGesto, PanelDemostracion, RouterLink],
   providers: [CasoUso_MotorReconocimiento],
   templateUrl: './reconocer.html',
   styleUrl: './reconocer.scss',
@@ -56,22 +57,22 @@ export class Reconocer implements OnDestroy {
     const l = this.motor.lectura();
     switch (l.tipo) {
       case 'sin-mano':
-        return { titulo: 'Muestra tu mano a la cámara', icono: '', confianza: 0, progreso: 0, clase: 'espera' };
+        return { titulo: 'Muestra tu mano a la cámara', codigo: null, confianza: 0, progreso: 0, clase: 'espera' };
       case 'buscando':
         return {
           titulo: 'Buscando gesto',
           detalle: l.codigo ? `Parece ${infoGesto(l.codigo)?.nombre.toLowerCase() ?? l.codigo}, pero con poca seguridad` : 'Veo tu mano, pero no un gesto conocido',
-          icono: l.codigo ? (infoGesto(l.codigo)?.icono ?? '') : '',
+          codigo: l.codigo ?? null,
           confianza: l.confianza,
           progreso: 0,
           clase: 'espera',
         };
       case 'estabilizando':
-        return { titulo: infoGesto(l.codigo)?.nombre ?? l.codigo, detalle: 'Mantén el gesto…', icono: infoGesto(l.codigo)?.icono ?? '', confianza: l.confianza, progreso: l.progreso, clase: 'cargando' };
+        return { titulo: infoGesto(l.codigo)?.nombre ?? l.codigo, detalle: 'Mantén el gesto…', codigo: l.codigo, confianza: l.confianza, progreso: l.progreso, clase: 'cargando' };
       case 'en-pausa':
-        return { titulo: infoGesto(l.codigo)?.nombre ?? l.codigo, detalle: 'Listo. Mantenlo para repetir', icono: infoGesto(l.codigo)?.icono ?? '', confianza: l.confianza, progreso: 1, clase: 'aceptado' };
+        return { titulo: infoGesto(l.codigo)?.nombre ?? l.codigo, detalle: 'Listo. Mantenlo para repetir', codigo: l.codigo, confianza: l.confianza, progreso: 1, clase: 'aceptado' };
       case 'aceptado':
-        return { titulo: infoGesto(l.codigo)?.nombre ?? l.codigo, detalle: 'Gesto aceptado', icono: infoGesto(l.codigo)?.icono ?? '', confianza: l.confianza, progreso: 1, clase: 'aceptado' };
+        return { titulo: infoGesto(l.codigo)?.nombre ?? l.codigo, detalle: 'Gesto aceptado', codigo: l.codigo, confianza: l.confianza, progreso: 1, clase: 'aceptado' };
     }
   });
 

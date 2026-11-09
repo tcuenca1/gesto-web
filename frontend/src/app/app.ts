@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { IconoGesto } from './compartido/componentes/icono-gesto';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Avisos } from './compartido/servicios/avisos';
 import { SesionUsuario } from './compartido/servicios/sesion-usuario';
@@ -7,13 +8,13 @@ import { MODO_SIMULADO } from './compartido/modo-simulado';
 /** Estructura común: barra superior, contenido de la página y avisos. */
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [IconoGesto, RouterOutlet, RouterLink, RouterLinkActive],
   template: `
     <a class="saltar" href="#contenido">Saltar al contenido</a>
     <header class="barra">
       <div class="barra__interior">
         <a class="marca" routerLink="/" aria-label="GestoWeb, inicio">
-          <span class="marca__mano" aria-hidden="true">✋</span>
+          <app-icono-gesto class="marca__mano" codigo="Open_Palm" [tamano]="28" [decorativo]="true" />
           <span>GestoWeb</span>
         </a>
 
