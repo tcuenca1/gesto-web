@@ -4,9 +4,10 @@ export interface Aviso {
   id: number;
   tipo: 'exito' | 'error' | 'info';
   texto: string;
+  hora: Date;
 }
 
-/** Mensajes cortos que aparecen abajo de la pantalla y se van solos. */
+/** Registro de avisos: líneas cortas con hora que aparecen abajo a la izquierda y se van solas. */
 @Injectable({ providedIn: 'root' })
 export class Avisos {
   readonly lista = signal<Aviso[]>([]);
@@ -29,9 +30,9 @@ export class Avisos {
     this.lista.update((l) => l.filter((a) => a.id !== id));
   }
 
-  private mostrar(tipo: Aviso['tipo'], texto: string, duracion = 3500): void {
+  private mostrar(tipo: Aviso['tipo'], texto: string, duracion = 5000): void {
     const id = this.siguienteId++;
-    this.lista.update((l) => [...l.slice(-2), { id, tipo, texto }]);
+    this.lista.update((l) => [...l.slice(-2), { id, tipo, texto, hora: new Date() }]);
     setTimeout(() => this.quitar(id), duracion);
   }
 }
