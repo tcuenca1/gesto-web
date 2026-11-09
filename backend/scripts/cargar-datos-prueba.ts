@@ -6,7 +6,7 @@
  * Crea el usuario "carga@gestoweb.local" (contraseña Carga1234) con sus datos.
  */
 import { performance } from 'node:perf_hooks';
-import { leerConfiguracion } from '../src/config/entorno';
+import { leerConfiguracion } from '../src/infraestructura/util/entorno';
 import { crearPool } from '../src/infraestructura/base_dato/ConexionPostgresql';
 import { AdapSalida_DeteccionPostgres } from '../src/infraestructura/adaptadores/salida/AdapSalida_DeteccionPostgres';
 import { AdapSalida_CifradorBcrypt } from '../src/infraestructura/adaptadores/salida/AdapSalida_CifradorBcrypt';
@@ -16,7 +16,7 @@ async function medir<T>(nombre: string, fn: () => Promise<T>): Promise<number> {
   const inicio = performance.now();
   await fn();
   const ms = performance.now() - inicio;
-  console.log(`  ${ms < 500 ? '✔' : '✖'} ${nombre.padEnd(40)} ${ms.toFixed(1)} ms`);
+  console.log(`  ${ms < 500 ? 'OK   ' : 'LENTO'} ${nombre.padEnd(40)} ${ms.toFixed(1)} ms`);
   return ms;
 }
 
@@ -95,6 +95,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error('✖', (error as Error).message);
+  console.error('[ERROR]', (error as Error).message);
   process.exit(1);
 });

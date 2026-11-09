@@ -2,12 +2,7 @@ import cors from 'cors';
 import express, { Express } from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
-import { CasosDeUso } from './aplicacion/caso_uso';
-import { AdapEntrada_AccionWeb } from './infraestructura/adaptadores/entrada/AdapEntrada_AccionWeb';
-import { AdapEntrada_AdministracionWeb } from './infraestructura/adaptadores/entrada/AdapEntrada_AdministracionWeb';
-import { AdapEntrada_HistorialWeb } from './infraestructura/adaptadores/entrada/AdapEntrada_HistorialWeb';
-import { AdapEntrada_ReconocimientoWeb } from './infraestructura/adaptadores/entrada/AdapEntrada_ReconocimientoWeb';
-import { AdapEntrada_UsuarioWeb } from './infraestructura/adaptadores/entrada/AdapEntrada_UsuarioWeb';
+import { Contenedores } from './contenedor';
 import {
   autenticacion,
   cabecerasSeguridad,
@@ -25,16 +20,16 @@ export interface OpcionesApp {
 }
 
 /**
- * Crea la aplicación Express. Solo enruta: cada ruta delega en un método
- * de un adaptador de entrada (AdapEntrada_*Web), igual que app.js en el
- * proyecto de clase.
+ * Crea la aplicación Express. Solo enruta: cada ruta delega en el adaptador
+ * de entrada de su contenedor (contenedor.adap.metodo), igual que app.js en
+ * el proyecto de clase.
  */
-export function crearApp(casos: CasosDeUso, opciones: OpcionesApp): Express {
-  const usuario = new AdapEntrada_UsuarioWeb(casos.usuario.lectura, casos.usuario.escritura);
-  const reconocimiento = new AdapEntrada_ReconocimientoWeb(casos.reconocimiento.escritura);
-  const accion = new AdapEntrada_AccionWeb(casos.accion.lectura, casos.accion.escritura);
-  const historial = new AdapEntrada_HistorialWeb(casos.historial.lectura);
-  const administracion = new AdapEntrada_AdministracionWeb(casos.administracion.lectura, casos.administracion.escritura);
+export function crearApp(c: Contenedores, opciones: OpcionesApp): Express {
+  const usuario = c.usuario.adap;
+  const reconocimiento = c.reconocimiento.adap;
+  const accion = c.accion.adap;
+  const historial = c.historial.adap;
+  const administracion = c.administracion.adap;
 
   const app = express();
   app.disable('x-powered-by');
@@ -54,7 +49,7 @@ export function crearApp(casos: CasosDeUso, opciones: OpcionesApp): Express {
   app.post('/api/auth/login', manejar((req, res) => usuario.iniciarSesion(req, res)));
 
   // ---------------- Administrador (token + rol ADMIN) ----------------
-  const conToken = autenticacion(casos.usuario.lectura);
+  const conToken = autenticacion(c.usuario.cuLectura);
   app.use('/api/admin', conToken, exigirRol('ADMIN'));
   app.get('/api/admin/gestos', manejar((req, res) => accion.listarTodosLosGestos(req, res)));
   app.put('/api/admin/gestos/:id', manejar((req, res) => administracion.editarGesto(req, res)));
