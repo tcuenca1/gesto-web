@@ -1,6 +1,6 @@
 import { ResumenEstadisticas, resumirEstadisticas } from '../../../dominio/deteccion/Estadisticas';
 import { ConsultarEstadisticasPuerto, EntradaEstadisticas } from '../../puertos/entrada/historial';
-import { DeteccionRepositorio } from '../../puertos/salida/DeteccionRepositorio';
+import { PuertoSalidaDeteccion } from '../../puerto/salida/PuertoSalidaDeteccion';
 import { leerRango, leerZona } from '../comun';
 
 /**
@@ -9,7 +9,7 @@ import { leerRango, leerZona } from '../comun';
  */
 export class ConsultarEstadisticas implements ConsultarEstadisticasPuerto {
   constructor(
-    private readonly detecciones: DeteccionRepositorio,
+    private readonly detecciones: PuertoSalidaDeteccion,
     private readonly zonaPorDefecto: string,
   ) {}
 

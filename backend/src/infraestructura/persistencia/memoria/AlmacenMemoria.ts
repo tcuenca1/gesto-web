@@ -4,7 +4,7 @@ import { Deteccion } from '../../../dominio/deteccion/Deteccion';
 import { DatosSesion } from '../../../dominio/deteccion/SesionReconocimiento';
 import { DatosGesto } from '../../../dominio/gesto/Gesto';
 import { DatosUsuario } from '../../../dominio/usuario/Usuario';
-import { NuevaEntradaBitacora } from '../../../aplicacion/puertos/salida/BitacoraRepositorio';
+import { NuevaEntradaBitacora } from '../../../aplicacion/puerto/salida/PuertoSalidaBitacora';
 
 export interface FilaBitacoraMemoria extends NuevaEntradaBitacora {
   id: number;

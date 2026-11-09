@@ -15,7 +15,7 @@ export interface EntradaBitacora extends NuevaEntradaBitacora {
 }
 
 /** Puerto de salida: registrar los cambios hechos por administradores (RF-22). */
-export interface BitacoraRepositorio {
-  registrar(entrada: NuevaEntradaBitacora): Promise<void>;
-  listar(pagina: number, limite: number): Promise<{ elementos: EntradaBitacora[]; total: number }>;
+export abstract class PuertoSalidaBitacora {
+  abstract registrar(entrada: NuevaEntradaBitacora): Promise<void>;
+  abstract listar(pagina: number, limite: number): Promise<{ elementos: EntradaBitacora[]; total: number }>;
 }

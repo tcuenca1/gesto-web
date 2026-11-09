@@ -3,8 +3,8 @@ import { EntradaHistorial as FilaHistorial } from '../../../dominio/deteccion/Es
 import { Paginado } from '../../puertos/entrada/CasoDeUso';
 import { DeteccionDTO } from '../../puertos/entrada/dtos';
 import { ConsultarHistorialPuerto, EntradaHistorial } from '../../puertos/entrada/historial';
-import { DeteccionRepositorio, FiltroHistorial } from '../../puertos/salida/DeteccionRepositorio';
-import { GestoRepositorio } from '../../puertos/salida/GestoRepositorio';
+import { PuertoSalidaDeteccion, FiltroHistorial } from '../../puerto/salida/PuertoSalidaDeteccion';
+import { PuertoSalidaGesto } from '../../puerto/salida/PuertoSalidaGesto';
 import { leerPaginacion, leerRango } from '../comun';
 
 /** Convierte una fila del historial en el DTO que ve el usuario. */
@@ -18,7 +18,7 @@ export function filaADto(fila: FilaHistorial): DeteccionDTO {
  * ExportarHistorial para que ambos entiendan los filtros igual.
  */
 export async function construirFiltro(
-  gestos: GestoRepositorio,
+  gestos: PuertoSalidaGesto,
   entrada: { idUsuario: number; desde?: unknown; hasta?: unknown; gesto?: unknown },
   paginacion: { pagina: number; limite: number },
 ): Promise<FiltroHistorial> {
@@ -35,8 +35,8 @@ export async function construirFiltro(
 /** RF-15 · Historial propio con filtros por fecha y por gesto, paginado. */
 export class ConsultarHistorial implements ConsultarHistorialPuerto {
   constructor(
-    private readonly gestos: GestoRepositorio,
-    private readonly detecciones: DeteccionRepositorio,
+    private readonly gestos: PuertoSalidaGesto,
+    private readonly detecciones: PuertoSalidaDeteccion,
   ) {}
 
   async ejecutar(entrada: EntradaHistorial): Promise<Paginado<DeteccionDTO>> {

@@ -1,15 +1,15 @@
 import { ErrorNoEncontrado } from '../../../dominio/compartido/errores';
 import { SesionDTO } from '../../puertos/entrada/dtos';
 import { CerrarSesionReconocimientoPuerto, EntradaCerrarSesion } from '../../puertos/entrada/reconocimiento';
-import { SesionRepositorio } from '../../puertos/salida/SesionRepositorio';
-import { Reloj } from '../../puertos/salida/servicios';
+import { PuertoSalidaSesion } from '../../puerto/salida/PuertoSalidaSesion';
+import { PuertoSalidaReloj } from '../../puerto/salida/PuertoSalidaReloj';
 import { sesionADto } from '../comun';
 
 /** CU-03 paso 9 · Cierra la sesión de reconocimiento al apagar la cámara. */
 export class CerrarSesionReconocimiento implements CerrarSesionReconocimientoPuerto {
   constructor(
-    private readonly sesiones: SesionRepositorio,
-    private readonly reloj: Reloj,
+    private readonly sesiones: PuertoSalidaSesion,
+    private readonly reloj: PuertoSalidaReloj,
   ) {}
 
   async ejecutar(entrada: EntradaCerrarSesion): Promise<SesionDTO> {

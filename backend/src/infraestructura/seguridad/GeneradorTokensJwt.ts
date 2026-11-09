@@ -1,10 +1,11 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { ErrorNoAutenticado } from '../../dominio/compartido/errores';
 import { ROLES, Rol } from '../../dominio/usuario/Usuario';
-import { DatosToken, GeneradorTokens } from '../../aplicacion/puertos/salida/servicios';
+import { DatosToken } from '../../aplicacion/puerto/salida/PuertoSalidaTokens';
+import { PuertoSalidaTokens } from '../../aplicacion/puerto/salida/PuertoSalidaTokens';
 
-/** Adaptador del puerto GeneradorTokens con JSON Web Tokens (RNF-07: vencen a las 8 horas). */
-export class GeneradorTokensJwt implements GeneradorTokens {
+/** Adaptador del puerto PuertoSalidaTokens con JSON Web Tokens (RNF-07: vencen a las 8 horas). */
+export class GeneradorTokensJwt implements PuertoSalidaTokens {
   constructor(
     private readonly secreto: string,
     private readonly duracionSegundos = 8 * 60 * 60,

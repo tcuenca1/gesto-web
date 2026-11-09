@@ -2,7 +2,7 @@ import { Accion } from '../../../dominio/accion/Accion';
 import { ErrorConflicto, ErrorNoEncontrado } from '../../../dominio/compartido/errores';
 import { AccionDTO } from '../../puertos/entrada/dtos';
 import { GestionarAccionesPuerto, OperacionAccion } from '../../puertos/entrada/administracion';
-import { RepositoriosTransaccionales, UnidadDeTrabajo } from '../../puertos/salida/UnidadDeTrabajo';
+import { RepositoriosTransaccionales, PuertoSalidaUnidadDeTrabajo } from '../../puerto/salida/PuertoSalidaUnidadDeTrabajo';
 import { accionADto } from '../comun';
 
 /**
@@ -12,7 +12,7 @@ import { accionADto } from '../comun';
  * siguen apuntando a la acción, así el historial nunca pierde información.
  */
 export class GestionarAcciones implements GestionarAccionesPuerto {
-  constructor(private readonly unidad: UnidadDeTrabajo) {}
+  constructor(private readonly unidad: PuertoSalidaUnidadDeTrabajo) {}
 
   ejecutar(entrada: OperacionAccion & { idAdministrador: number }): Promise<AccionDTO> {
     return this.unidad.ejecutar(async (repos) => {

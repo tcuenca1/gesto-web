@@ -5,12 +5,12 @@ import { ReglasDeteccion } from '../../../dominio/deteccion/Deteccion';
 import { Gesto } from '../../../dominio/gesto/Gesto';
 import { DeteccionDTO } from '../../puertos/entrada/dtos';
 import { EntradaRegistrarDeteccion, RegistrarDeteccionPuerto } from '../../puertos/entrada/reconocimiento';
-import { AccionRepositorio } from '../../puertos/salida/AccionRepositorio';
-import { AsignacionRepositorio } from '../../puertos/salida/AsignacionRepositorio';
-import { DeteccionRepositorio } from '../../puertos/salida/DeteccionRepositorio';
-import { GestoRepositorio } from '../../puertos/salida/GestoRepositorio';
-import { SesionRepositorio } from '../../puertos/salida/SesionRepositorio';
-import { Reloj } from '../../puertos/salida/servicios';
+import { PuertoSalidaAccion } from '../../puerto/salida/PuertoSalidaAccion';
+import { PuertoSalidaAsignacion } from '../../puerto/salida/PuertoSalidaAsignacion';
+import { PuertoSalidaDeteccion } from '../../puerto/salida/PuertoSalidaDeteccion';
+import { PuertoSalidaGesto } from '../../puerto/salida/PuertoSalidaGesto';
+import { PuertoSalidaSesion } from '../../puerto/salida/PuertoSalidaSesion';
+import { PuertoSalidaReloj } from '../../puerto/salida/PuertoSalidaReloj';
 
 /**
  * RF-14 / CU-03 paso 8 · Guarda un gesto aceptado dentro de una sesión.
@@ -22,12 +22,12 @@ import { Reloj } from '../../puertos/salida/servicios';
  */
 export class RegistrarDeteccion implements RegistrarDeteccionPuerto {
   constructor(
-    private readonly sesiones: SesionRepositorio,
-    private readonly gestos: GestoRepositorio,
-    private readonly acciones: AccionRepositorio,
-    private readonly asignaciones: AsignacionRepositorio,
-    private readonly detecciones: DeteccionRepositorio,
-    private readonly reloj: Reloj,
+    private readonly sesiones: PuertoSalidaSesion,
+    private readonly gestos: PuertoSalidaGesto,
+    private readonly acciones: PuertoSalidaAccion,
+    private readonly asignaciones: PuertoSalidaAsignacion,
+    private readonly detecciones: PuertoSalidaDeteccion,
+    private readonly reloj: PuertoSalidaReloj,
   ) {}
 
   async ejecutar(entrada: EntradaRegistrarDeteccion): Promise<DeteccionDTO> {

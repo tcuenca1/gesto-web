@@ -1,14 +1,14 @@
 import { ErrorNoEncontrado, ErrorValidacion } from '../../../dominio/compartido/errores';
 import { Usuario, UsuarioPublico } from '../../../dominio/usuario/Usuario';
 import { EditarPerfilPuerto, EntradaEditarPerfil } from '../../puertos/entrada/usuarios';
-import { CifradorContrasenas } from '../../puertos/salida/servicios';
-import { UsuarioRepositorio } from '../../puertos/salida/UsuarioRepositorio';
+import { PuertoSalidaCifrador } from '../../puerto/salida/PuertoSalidaCifrador';
+import { PuertoSalidaUsuario } from '../../puerto/salida/PuertoSalidaUsuario';
 
 /** RF-05 · Editar el nombre y cambiar la contraseña (confirmando la actual). */
 export class EditarPerfil implements EditarPerfilPuerto {
   constructor(
-    private readonly usuarios: UsuarioRepositorio,
-    private readonly cifrador: CifradorContrasenas,
+    private readonly usuarios: PuertoSalidaUsuario,
+    private readonly cifrador: PuertoSalidaCifrador,
   ) {}
 
   async ejecutar(entrada: EntradaEditarPerfil): Promise<UsuarioPublico> {

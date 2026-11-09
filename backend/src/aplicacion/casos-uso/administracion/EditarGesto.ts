@@ -1,7 +1,7 @@
 import { ErrorNoEncontrado } from '../../../dominio/compartido/errores';
 import { GestoDTO } from '../../puertos/entrada/dtos';
 import { EditarGestoPuerto, EntradaEditarGesto } from '../../puertos/entrada/administracion';
-import { UnidadDeTrabajo } from '../../puertos/salida/UnidadDeTrabajo';
+import { PuertoSalidaUnidadDeTrabajo } from '../../puerto/salida/PuertoSalidaUnidadDeTrabajo';
 import { gestoADto } from '../comun';
 
 /**
@@ -10,7 +10,7 @@ import { gestoADto } from '../comun';
  * (RF-22) se guardan juntos: o se guardan los dos o ninguno.
  */
 export class EditarGesto implements EditarGestoPuerto {
-  constructor(private readonly unidad: UnidadDeTrabajo) {}
+  constructor(private readonly unidad: PuertoSalidaUnidadDeTrabajo) {}
 
   ejecutar(entrada: EntradaEditarGesto): Promise<GestoDTO> {
     return this.unidad.ejecutar(async ({ gestos, bitacora }) => {

@@ -1,11 +1,11 @@
 import { ErrorNoEncontrado } from '../../../dominio/compartido/errores';
 import { UsuarioPublico } from '../../../dominio/usuario/Usuario';
 import { ObtenerPerfilPuerto } from '../../puertos/entrada/usuarios';
-import { UsuarioRepositorio } from '../../puertos/salida/UsuarioRepositorio';
+import { PuertoSalidaUsuario } from '../../puerto/salida/PuertoSalidaUsuario';
 
 /** Ver mi perfil (GET /api/usuarios/yo). */
 export class ObtenerPerfil implements ObtenerPerfilPuerto {
-  constructor(private readonly usuarios: UsuarioRepositorio) {}
+  constructor(private readonly usuarios: PuertoSalidaUsuario) {}
 
   async ejecutar({ idUsuario }: { idUsuario: number }): Promise<UsuarioPublico> {
     const usuario = await this.usuarios.buscarPorId(idUsuario);

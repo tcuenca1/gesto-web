@@ -1,7 +1,7 @@
 import { UsuarioPublico } from '../../../dominio/usuario/Usuario';
 import { ResumenEstadisticas, UsoPorDia } from '../../../dominio/deteccion/Estadisticas';
-import { EntradaBitacora } from '../salida/BitacoraRepositorio';
-import { UsoGeneralPorGesto } from '../salida/DeteccionRepositorio';
+import { EntradaBitacora } from '../../puerto/salida/PuertoSalidaBitacora';
+import { UsoGeneralPorGesto } from '../../puerto/salida/PuertoSalidaDeteccion';
 import { CasoDeUso, Paginado, SinValidar } from './CasoDeUso';
 import { AccionDTO, GestoDTO } from './dtos';
 

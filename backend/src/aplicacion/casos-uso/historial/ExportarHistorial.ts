@@ -1,7 +1,7 @@
 import { ArchivoCsv, ExportarHistorialPuerto, EntradaHistorial } from '../../puertos/entrada/historial';
-import { DeteccionRepositorio } from '../../puertos/salida/DeteccionRepositorio';
-import { GestoRepositorio } from '../../puertos/salida/GestoRepositorio';
-import { Reloj } from '../../puertos/salida/servicios';
+import { PuertoSalidaDeteccion } from '../../puerto/salida/PuertoSalidaDeteccion';
+import { PuertoSalidaGesto } from '../../puerto/salida/PuertoSalidaGesto';
+import { PuertoSalidaReloj } from '../../puerto/salida/PuertoSalidaReloj';
 import { leerZona } from '../comun';
 import { construirFiltro } from './ConsultarHistorial';
 import { formatearFechaLocal, generarCsv } from './csv';
@@ -12,9 +12,9 @@ export const MAXIMO_FILAS_CSV = 10000;
 /** RF-17 · Exporta el historial propio (con los mismos filtros) a CSV. */
 export class ExportarHistorial implements ExportarHistorialPuerto {
   constructor(
-    private readonly gestos: GestoRepositorio,
-    private readonly detecciones: DeteccionRepositorio,
-    private readonly reloj: Reloj,
+    private readonly gestos: PuertoSalidaGesto,
+    private readonly detecciones: PuertoSalidaDeteccion,
+    private readonly reloj: PuertoSalidaReloj,
     private readonly zonaPorDefecto: string,
   ) {}
 

@@ -5,12 +5,12 @@ import {
   GestionarUsuariosPuerto,
   ListarUsuariosPuerto,
 } from '../../puertos/entrada/administracion';
-import { UnidadDeTrabajo } from '../../puertos/salida/UnidadDeTrabajo';
-import { UsuarioRepositorio } from '../../puertos/salida/UsuarioRepositorio';
+import { PuertoSalidaUnidadDeTrabajo } from '../../puerto/salida/PuertoSalidaUnidadDeTrabajo';
+import { PuertoSalidaUsuario } from '../../puerto/salida/PuertoSalidaUsuario';
 
 /** RF-20 · El administrador ve la lista de usuarios. */
 export class ListarUsuarios implements ListarUsuariosPuerto {
-  constructor(private readonly usuarios: UsuarioRepositorio) {}
+  constructor(private readonly usuarios: PuertoSalidaUsuario) {}
 
   async ejecutar(): Promise<UsuarioPublico[]> {
     return (await this.usuarios.listar()).map((u) => u.aPublico());
@@ -23,7 +23,7 @@ export class ListarUsuarios implements ListarUsuariosPuerto {
  * ni desactivarse a sí mismo (el sistema podría quedarse sin administradores).
  */
 export class GestionarUsuarios implements GestionarUsuariosPuerto {
-  constructor(private readonly unidad: UnidadDeTrabajo) {}
+  constructor(private readonly unidad: PuertoSalidaUnidadDeTrabajo) {}
 
   ejecutar(entrada: EntradaGestionarUsuario): Promise<UsuarioPublico> {
     return this.unidad.ejecutar(async ({ usuarios, bitacora }) => {

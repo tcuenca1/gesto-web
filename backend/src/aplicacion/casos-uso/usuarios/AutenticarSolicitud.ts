@@ -1,8 +1,8 @@
 import { ErrorNoAutenticado } from '../../../dominio/compartido/errores';
 import { UsuarioPublico } from '../../../dominio/usuario/Usuario';
 import { AutenticarSolicitudPuerto } from '../../puertos/entrada/usuarios';
-import { GeneradorTokens } from '../../puertos/salida/servicios';
-import { UsuarioRepositorio } from '../../puertos/salida/UsuarioRepositorio';
+import { PuertoSalidaTokens } from '../../puerto/salida/PuertoSalidaTokens';
+import { PuertoSalidaUsuario } from '../../puerto/salida/PuertoSalidaUsuario';
 
 /**
  * RF-04 / RNF-07 · Convierte el token de una petición en el usuario que la hace.
@@ -13,8 +13,8 @@ import { UsuarioRepositorio } from '../../puertos/salida/UsuarioRepositorio';
  */
 export class AutenticarSolicitud implements AutenticarSolicitudPuerto {
   constructor(
-    private readonly tokens: GeneradorTokens,
-    private readonly usuarios: UsuarioRepositorio,
+    private readonly tokens: PuertoSalidaTokens,
+    private readonly usuarios: PuertoSalidaUsuario,
   ) {}
 
   async ejecutar({ token }: { token: unknown }): Promise<UsuarioPublico> {

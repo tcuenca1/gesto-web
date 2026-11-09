@@ -2,12 +2,12 @@ import { Deteccion, Mano, NuevaDeteccion } from '../../../dominio/deteccion/Dete
 import { EntradaHistorial, RangoFechas, TotalPorGesto, UsoPorDia } from '../../../dominio/deteccion/Estadisticas';
 import { SesionReconocimiento } from '../../../dominio/deteccion/SesionReconocimiento';
 import {
-  DeteccionRepositorio,
+  PuertoSalidaDeteccion,
   FiltroHistorial,
   PaginaHistorial,
   UsoGeneralPorGesto,
-} from '../../../aplicacion/puertos/salida/DeteccionRepositorio';
-import { SesionRepositorio } from '../../../aplicacion/puertos/salida/SesionRepositorio';
+} from '../../../aplicacion/puerto/salida/PuertoSalidaDeteccion';
+import { PuertoSalidaSesion } from '../../../aplicacion/puerto/salida/PuertoSalidaSesion';
 import { consultar, Consultor } from './conexion';
 
 // ---------------------------------------------------------------------
@@ -32,8 +32,8 @@ const sesionDesdeFila = (f: FilaSesion) =>
     totalDetecciones: f.total_detecciones,
   });
 
-/** Adaptador PostgreSQL del puerto SesionRepositorio. */
-export class SesionRepositorioPg implements SesionRepositorio {
+/** Adaptador PostgreSQL del puerto PuertoSalidaSesion. */
+export class SesionRepositorioPg implements PuertoSalidaSesion {
   constructor(private readonly bd: Consultor) {}
 
   async abrir(idUsuario: number, navegador: string | null): Promise<SesionReconocimiento> {
@@ -102,8 +102,8 @@ function condiciones(idUsuario: number | null, rango: RangoFechas, columnaUsuari
   return { where: partes.length ? `WHERE ${partes.join(' AND ')}` : '', valores };
 }
 
-/** Adaptador PostgreSQL del puerto DeteccionRepositorio. */
-export class DeteccionRepositorioPg implements DeteccionRepositorio {
+/** Adaptador PostgreSQL del puerto PuertoSalidaDeteccion. */
+export class DeteccionRepositorioPg implements PuertoSalidaDeteccion {
   constructor(private readonly bd: Consultor) {}
 
   async guardar(nueva: NuevaDeteccion): Promise<Deteccion> {

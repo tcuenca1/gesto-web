@@ -11,26 +11,26 @@ import { EntradaHistorial, RangoFechas, TotalPorGesto, UsoPorDia } from '../../.
 import { SesionReconocimiento } from '../../../dominio/deteccion/SesionReconocimiento';
 import { Gesto } from '../../../dominio/gesto/Gesto';
 import { NuevoUsuario, Usuario } from '../../../dominio/usuario/Usuario';
-import { AccionRepositorio } from '../../../aplicacion/puertos/salida/AccionRepositorio';
-import { AsignacionRepositorio } from '../../../aplicacion/puertos/salida/AsignacionRepositorio';
-import { BitacoraRepositorio, EntradaBitacora, NuevaEntradaBitacora } from '../../../aplicacion/puertos/salida/BitacoraRepositorio';
+import { PuertoSalidaAccion } from '../../../aplicacion/puerto/salida/PuertoSalidaAccion';
+import { PuertoSalidaAsignacion } from '../../../aplicacion/puerto/salida/PuertoSalidaAsignacion';
+import { PuertoSalidaBitacora, EntradaBitacora, NuevaEntradaBitacora } from '../../../aplicacion/puerto/salida/PuertoSalidaBitacora';
 import {
-  DeteccionRepositorio,
+  PuertoSalidaDeteccion,
   FiltroHistorial,
   PaginaHistorial,
   UsoGeneralPorGesto,
-} from '../../../aplicacion/puertos/salida/DeteccionRepositorio';
-import { GestoRepositorio } from '../../../aplicacion/puertos/salida/GestoRepositorio';
-import { SesionRepositorio } from '../../../aplicacion/puertos/salida/SesionRepositorio';
-import { Reloj } from '../../../aplicacion/puertos/salida/servicios';
-import { RepositoriosTransaccionales, UnidadDeTrabajo } from '../../../aplicacion/puertos/salida/UnidadDeTrabajo';
-import { UsuarioRepositorio } from '../../../aplicacion/puertos/salida/UsuarioRepositorio';
+} from '../../../aplicacion/puerto/salida/PuertoSalidaDeteccion';
+import { PuertoSalidaGesto } from '../../../aplicacion/puerto/salida/PuertoSalidaGesto';
+import { PuertoSalidaSesion } from '../../../aplicacion/puerto/salida/PuertoSalidaSesion';
+import { PuertoSalidaReloj } from '../../../aplicacion/puerto/salida/PuertoSalidaReloj';
+import { RepositoriosTransaccionales, PuertoSalidaUnidadDeTrabajo } from '../../../aplicacion/puerto/salida/PuertoSalidaUnidadDeTrabajo';
+import { PuertoSalidaUsuario } from '../../../aplicacion/puerto/salida/PuertoSalidaUsuario';
 import { AlmacenMemoria } from './AlmacenMemoria';
 
 const redondear = (n: number, decimales = 3) => Math.round(n * 10 ** decimales) / 10 ** decimales;
 
-export class UsuarioRepositorioMemoria implements UsuarioRepositorio {
-  constructor(private readonly almacen: AlmacenMemoria, private readonly reloj: Reloj) {}
+export class UsuarioRepositorioMemoria implements PuertoSalidaUsuario {
+  constructor(private readonly almacen: AlmacenMemoria, private readonly reloj: PuertoSalidaReloj) {}
 
   async crear(nuevo: NuevoUsuario): Promise<Usuario> {
     const e = this.almacen.estado;
@@ -70,7 +70,7 @@ export class UsuarioRepositorioMemoria implements UsuarioRepositorio {
   }
 }
 
-export class GestoRepositorioMemoria implements GestoRepositorio {
+export class GestoRepositorioMemoria implements PuertoSalidaGesto {
   constructor(private readonly almacen: AlmacenMemoria) {}
 
   async listar(opciones: { soloActivos?: boolean } = {}): Promise<Gesto[]> {
@@ -97,7 +97,7 @@ export class GestoRepositorioMemoria implements GestoRepositorio {
   }
 }
 
-export class AccionRepositorioMemoria implements AccionRepositorio {
+export class AccionRepositorioMemoria implements PuertoSalidaAccion {
   constructor(private readonly almacen: AlmacenMemoria) {}
 
   async listar(opciones: { soloActivas?: boolean } = {}): Promise<Accion[]> {
@@ -137,8 +137,8 @@ export class AccionRepositorioMemoria implements AccionRepositorio {
   }
 }
 
-export class AsignacionRepositorioMemoria implements AsignacionRepositorio {
-  constructor(private readonly almacen: AlmacenMemoria, private readonly reloj: Reloj) {}
+export class AsignacionRepositorioMemoria implements PuertoSalidaAsignacion {
+  constructor(private readonly almacen: AlmacenMemoria, private readonly reloj: PuertoSalidaReloj) {}
 
   async listarDeUsuario(idUsuario: number): Promise<Asignacion[]> {
     return this.almacen.estado.asignaciones.filter((a) => a.idUsuario === idUsuario).map((a) => ({ ...a }));
@@ -160,8 +160,8 @@ export class AsignacionRepositorioMemoria implements AsignacionRepositorio {
   }
 }
 
-export class SesionRepositorioMemoria implements SesionRepositorio {
-  constructor(private readonly almacen: AlmacenMemoria, private readonly reloj: Reloj) {}
+export class SesionRepositorioMemoria implements PuertoSalidaSesion {
+  constructor(private readonly almacen: AlmacenMemoria, private readonly reloj: PuertoSalidaReloj) {}
 
   async abrir(idUsuario: number, navegador: string | null): Promise<SesionReconocimiento> {
     const e = this.almacen.estado;
@@ -197,7 +197,7 @@ export class SesionRepositorioMemoria implements SesionRepositorio {
   }
 }
 
-export class DeteccionRepositorioMemoria implements DeteccionRepositorio {
+export class DeteccionRepositorioMemoria implements PuertoSalidaDeteccion {
   constructor(private readonly almacen: AlmacenMemoria) {}
 
   async guardar(nueva: NuevaDeteccion): Promise<Deteccion> {
@@ -290,8 +290,8 @@ export class DeteccionRepositorioMemoria implements DeteccionRepositorio {
   }
 }
 
-export class BitacoraRepositorioMemoria implements BitacoraRepositorio {
-  constructor(private readonly almacen: AlmacenMemoria, private readonly reloj: Reloj) {}
+export class BitacoraRepositorioMemoria implements PuertoSalidaBitacora {
+  constructor(private readonly almacen: AlmacenMemoria, private readonly reloj: PuertoSalidaReloj) {}
 
   async registrar(entrada: NuevaEntradaBitacora): Promise<void> {
     this.almacen.estado.bitacora.push({
@@ -319,7 +319,7 @@ export class BitacoraRepositorioMemoria implements BitacoraRepositorio {
  * Transacción en memoria: guarda una copia del estado y, si algo falla,
  * la restaura. Mismo comportamiento "todo o nada" que BEGIN/ROLLBACK.
  */
-export class UnidadDeTrabajoMemoria implements UnidadDeTrabajo {
+export class UnidadDeTrabajoMemoria implements PuertoSalidaUnidadDeTrabajo {
   constructor(private readonly almacen: AlmacenMemoria, private readonly repos: RepositoriosTransaccionales) {}
 
   async ejecutar<T>(trabajo: (repos: RepositoriosTransaccionales) => Promise<T>): Promise<T> {

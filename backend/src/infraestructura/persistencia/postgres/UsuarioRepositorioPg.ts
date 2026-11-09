@@ -1,5 +1,5 @@
 import { NuevoUsuario, Rol, Usuario } from '../../../dominio/usuario/Usuario';
-import { UsuarioRepositorio } from '../../../aplicacion/puertos/salida/UsuarioRepositorio';
+import { PuertoSalidaUsuario } from '../../../aplicacion/puerto/salida/PuertoSalidaUsuario';
 import { consultar, Consultor } from './conexion';
 
 interface FilaUsuario {
@@ -31,8 +31,8 @@ const aEntidad = (f: FilaUsuario) =>
     ultimoAcceso: f.ultimo_acceso,
   });
 
-/** Adaptador PostgreSQL del puerto UsuarioRepositorio. */
-export class UsuarioRepositorioPg implements UsuarioRepositorio {
+/** Adaptador PostgreSQL del puerto PuertoSalidaUsuario. */
+export class UsuarioRepositorioPg implements PuertoSalidaUsuario {
   constructor(private readonly bd: Consultor) {}
 
   async crear(nuevo: NuevoUsuario): Promise<Usuario> {

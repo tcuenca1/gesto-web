@@ -1,9 +1,9 @@
 import { resolverAccionEfectiva } from '../../../dominio/accion/Asignacion';
 import { AsignacionDTO } from '../../puertos/entrada/dtos';
 import { ObtenerAsignacionesPuerto } from '../../puertos/entrada/acciones';
-import { AccionRepositorio } from '../../puertos/salida/AccionRepositorio';
-import { AsignacionRepositorio } from '../../puertos/salida/AsignacionRepositorio';
-import { GestoRepositorio } from '../../puertos/salida/GestoRepositorio';
+import { PuertoSalidaAccion } from '../../puerto/salida/PuertoSalidaAccion';
+import { PuertoSalidaAsignacion } from '../../puerto/salida/PuertoSalidaAsignacion';
+import { PuertoSalidaGesto } from '../../puerto/salida/PuertoSalidaGesto';
 import { accionADto, gestoADto } from '../comun';
 
 /**
@@ -12,9 +12,9 @@ import { accionADto, gestoADto } from '../comun';
  */
 export class ObtenerAsignaciones implements ObtenerAsignacionesPuerto {
   constructor(
-    private readonly gestos: GestoRepositorio,
-    private readonly acciones: AccionRepositorio,
-    private readonly asignaciones: AsignacionRepositorio,
+    private readonly gestos: PuertoSalidaGesto,
+    private readonly acciones: PuertoSalidaAccion,
+    private readonly asignaciones: PuertoSalidaAsignacion,
   ) {}
 
   async ejecutar({ idUsuario }: { idUsuario: number }): Promise<AsignacionDTO[]> {

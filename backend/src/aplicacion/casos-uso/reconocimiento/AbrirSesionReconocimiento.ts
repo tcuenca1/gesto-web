@@ -1,7 +1,7 @@
 import { SesionReconocimiento } from '../../../dominio/deteccion/SesionReconocimiento';
 import { AbrirSesionReconocimientoPuerto, EntradaAbrirSesion } from '../../puertos/entrada/reconocimiento';
 import { SesionDTO } from '../../puertos/entrada/dtos';
-import { SesionRepositorio } from '../../puertos/salida/SesionRepositorio';
+import { PuertoSalidaSesion } from '../../puerto/salida/PuertoSalidaSesion';
 import { sesionADto } from '../comun';
 
 /**
@@ -9,7 +9,7 @@ import { sesionADto } from '../comun';
  * Si quedó una sesión abierta (pestaña cerrada sin apagar), se cierra primero.
  */
 export class AbrirSesionReconocimiento implements AbrirSesionReconocimientoPuerto {
-  constructor(private readonly sesiones: SesionRepositorio) {}
+  constructor(private readonly sesiones: PuertoSalidaSesion) {}
 
   async ejecutar(entrada: EntradaAbrirSesion): Promise<SesionDTO> {
     const navegador = SesionReconocimiento.normalizarNavegador(entrada.navegador);

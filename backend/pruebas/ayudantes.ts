@@ -1,14 +1,14 @@
 import { crearCasosDeUso } from '../src/aplicacion/casos-uso';
 import { CasosDeUso } from '../src/aplicacion/puertos/entrada';
-import { Reloj } from '../src/aplicacion/puertos/salida/servicios';
+import { PuertoSalidaReloj } from '../src/aplicacion/puerto/salida/PuertoSalidaReloj';
 import { AlmacenMemoria } from '../src/infraestructura/persistencia/memoria/AlmacenMemoria';
 import { datosInicialesMemoria } from '../src/infraestructura/persistencia/memoria/datosIniciales';
 import { CifradorBcrypt } from '../src/infraestructura/seguridad/CifradorBcrypt';
 import { GeneradorTokensJwt } from '../src/infraestructura/seguridad/GeneradorTokensJwt';
 import { persistenciaMemoria } from '../src/main';
 
-/** Reloj falso: la hora la controla la prueba. */
-export class RelojFalso implements Reloj {
+/** PuertoSalidaReloj falso: la hora la controla la prueba. */
+export class RelojFalso implements PuertoSalidaReloj {
   constructor(public actual = new Date('2026-10-09T15:00:00Z')) {}
   ahora(): Date {
     return new Date(this.actual);

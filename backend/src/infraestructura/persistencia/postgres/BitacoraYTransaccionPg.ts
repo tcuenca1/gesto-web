@@ -1,17 +1,17 @@
 import { Pool } from 'pg';
 import {
-  BitacoraRepositorio,
+  PuertoSalidaBitacora,
   EntradaBitacora,
   NuevaEntradaBitacora,
   OperacionBitacora,
-} from '../../../aplicacion/puertos/salida/BitacoraRepositorio';
-import { RepositoriosTransaccionales, UnidadDeTrabajo } from '../../../aplicacion/puertos/salida/UnidadDeTrabajo';
+} from '../../../aplicacion/puerto/salida/PuertoSalidaBitacora';
+import { RepositoriosTransaccionales, PuertoSalidaUnidadDeTrabajo } from '../../../aplicacion/puerto/salida/PuertoSalidaUnidadDeTrabajo';
 import { AccionRepositorioPg, GestoRepositorioPg } from './CatalogoRepositoriosPg';
 import { consultar, Consultor } from './conexion';
 import { UsuarioRepositorioPg } from './UsuarioRepositorioPg';
 
-/** Adaptador PostgreSQL del puerto BitacoraRepositorio. */
-export class BitacoraRepositorioPg implements BitacoraRepositorio {
+/** Adaptador PostgreSQL del puerto PuertoSalidaBitacora. */
+export class BitacoraRepositorioPg implements PuertoSalidaBitacora {
   constructor(private readonly bd: Consultor) {}
 
   async registrar(entrada: NuevaEntradaBitacora): Promise<void> {
@@ -52,10 +52,10 @@ export class BitacoraRepositorioPg implements BitacoraRepositorio {
 }
 
 /**
- * Adaptador PostgreSQL del puerto UnidadDeTrabajo: BEGIN … COMMIT / ROLLBACK
+ * Adaptador PostgreSQL del puerto PuertoSalidaUnidadDeTrabajo: BEGIN … COMMIT / ROLLBACK
  * sobre una misma conexión, con repositorios que usan esa conexión.
  */
-export class UnidadDeTrabajoPg implements UnidadDeTrabajo {
+export class UnidadDeTrabajoPg implements PuertoSalidaUnidadDeTrabajo {
   constructor(private readonly pool: Pool) {}
 
   async ejecutar<T>(trabajo: (repos: RepositoriosTransaccionales) => Promise<T>): Promise<T> {

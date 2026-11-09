@@ -1,13 +1,15 @@
 import { CasosDeUso } from '../puertos/entrada';
-import { AccionRepositorio } from '../puertos/salida/AccionRepositorio';
-import { AsignacionRepositorio } from '../puertos/salida/AsignacionRepositorio';
-import { BitacoraRepositorio } from '../puertos/salida/BitacoraRepositorio';
-import { DeteccionRepositorio } from '../puertos/salida/DeteccionRepositorio';
-import { GestoRepositorio } from '../puertos/salida/GestoRepositorio';
-import { SesionRepositorio } from '../puertos/salida/SesionRepositorio';
-import { CifradorContrasenas, GeneradorTokens, Reloj } from '../puertos/salida/servicios';
-import { UnidadDeTrabajo } from '../puertos/salida/UnidadDeTrabajo';
-import { UsuarioRepositorio } from '../puertos/salida/UsuarioRepositorio';
+import { PuertoSalidaAccion } from '../puerto/salida/PuertoSalidaAccion';
+import { PuertoSalidaAsignacion } from '../puerto/salida/PuertoSalidaAsignacion';
+import { PuertoSalidaBitacora } from '../puerto/salida/PuertoSalidaBitacora';
+import { PuertoSalidaDeteccion } from '../puerto/salida/PuertoSalidaDeteccion';
+import { PuertoSalidaGesto } from '../puerto/salida/PuertoSalidaGesto';
+import { PuertoSalidaSesion } from '../puerto/salida/PuertoSalidaSesion';
+import { PuertoSalidaCifrador } from '../puerto/salida/PuertoSalidaCifrador';
+import { PuertoSalidaTokens } from '../puerto/salida/PuertoSalidaTokens';
+import { PuertoSalidaReloj } from '../puerto/salida/PuertoSalidaReloj';
+import { PuertoSalidaUnidadDeTrabajo } from '../puerto/salida/PuertoSalidaUnidadDeTrabajo';
+import { PuertoSalidaUsuario } from '../puerto/salida/PuertoSalidaUsuario';
 import { CambiarAsignacion } from './acciones/CambiarAsignacion';
 import { ListarAcciones, ListarGestos } from './acciones/ListarCatalogos';
 import { ObtenerAsignaciones } from './acciones/ObtenerAsignaciones';
@@ -30,17 +32,17 @@ import { RegistrarUsuario } from './usuarios/RegistrarUsuario';
 
 /** Todo lo que el núcleo necesita del exterior: solo puertos, ningún adaptador concreto. */
 export interface PuertosDeSalida {
-  usuarios: UsuarioRepositorio;
-  gestos: GestoRepositorio;
-  acciones: AccionRepositorio;
-  asignaciones: AsignacionRepositorio;
-  sesiones: SesionRepositorio;
-  detecciones: DeteccionRepositorio;
-  bitacora: BitacoraRepositorio;
-  unidadDeTrabajo: UnidadDeTrabajo;
-  cifrador: CifradorContrasenas;
-  tokens: GeneradorTokens;
-  reloj: Reloj;
+  usuarios: PuertoSalidaUsuario;
+  gestos: PuertoSalidaGesto;
+  acciones: PuertoSalidaAccion;
+  asignaciones: PuertoSalidaAsignacion;
+  sesiones: PuertoSalidaSesion;
+  detecciones: PuertoSalidaDeteccion;
+  bitacora: PuertoSalidaBitacora;
+  unidadDeTrabajo: PuertoSalidaUnidadDeTrabajo;
+  cifrador: PuertoSalidaCifrador;
+  tokens: PuertoSalidaTokens;
+  reloj: PuertoSalidaReloj;
   /** Zona horaria por defecto para agrupar por día, por ejemplo America/Guayaquil. */
   zonaHoraria: string;
 }

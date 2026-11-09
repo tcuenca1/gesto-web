@@ -1,9 +1,9 @@
 import { Accion, NuevaAccion } from '../../../dominio/accion/Accion';
 import { Asignacion } from '../../../dominio/accion/Asignacion';
 import { Gesto } from '../../../dominio/gesto/Gesto';
-import { AccionRepositorio } from '../../../aplicacion/puertos/salida/AccionRepositorio';
-import { AsignacionRepositorio } from '../../../aplicacion/puertos/salida/AsignacionRepositorio';
-import { GestoRepositorio } from '../../../aplicacion/puertos/salida/GestoRepositorio';
+import { PuertoSalidaAccion } from '../../../aplicacion/puerto/salida/PuertoSalidaAccion';
+import { PuertoSalidaAsignacion } from '../../../aplicacion/puerto/salida/PuertoSalidaAsignacion';
+import { PuertoSalidaGesto } from '../../../aplicacion/puerto/salida/PuertoSalidaGesto';
 import { consultar, Consultor } from './conexion';
 
 // ---------------------------------------------------------------------
@@ -30,8 +30,8 @@ const gestoDesdeFila = (f: FilaGesto) =>
     activo: f.activo,
   });
 
-/** Adaptador PostgreSQL del puerto GestoRepositorio. */
-export class GestoRepositorioPg implements GestoRepositorio {
+/** Adaptador PostgreSQL del puerto PuertoSalidaGesto. */
+export class GestoRepositorioPg implements PuertoSalidaGesto {
   constructor(private readonly bd: Consultor) {}
 
   async listar(opciones: { soloActivos?: boolean } = {}): Promise<Gesto[]> {
@@ -75,8 +75,8 @@ interface FilaAccion {
 const accionDesdeFila = (f: FilaAccion) =>
   Accion.reconstruir({ id: f.id_accion, codigo: f.codigo, nombre: f.nombre, descripcion: f.descripcion, activa: f.activa });
 
-/** Adaptador PostgreSQL del puerto AccionRepositorio. */
-export class AccionRepositorioPg implements AccionRepositorio {
+/** Adaptador PostgreSQL del puerto PuertoSalidaAccion. */
+export class AccionRepositorioPg implements PuertoSalidaAccion {
   constructor(private readonly bd: Consultor) {}
 
   async listar(opciones: { soloActivas?: boolean } = {}): Promise<Accion[]> {
@@ -141,8 +141,8 @@ const asignacionDesdeFila = (f: FilaAsignacion): Asignacion => ({
   fechaActualizacion: f.fecha_actualizacion,
 });
 
-/** Adaptador PostgreSQL del puerto AsignacionRepositorio. */
-export class AsignacionRepositorioPg implements AsignacionRepositorio {
+/** Adaptador PostgreSQL del puerto PuertoSalidaAsignacion. */
+export class AsignacionRepositorioPg implements PuertoSalidaAsignacion {
   constructor(private readonly bd: Consultor) {}
 
   async listarDeUsuario(idUsuario: number): Promise<Asignacion[]> {

@@ -1,17 +1,17 @@
 import { ErrorConflicto, ErrorNoEncontrado, ErrorValidacion } from '../../../dominio/compartido/errores';
 import { AsignacionDTO } from '../../puertos/entrada/dtos';
 import { CambiarAsignacionPuerto, EntradaCambiarAsignacion } from '../../puertos/entrada/acciones';
-import { AccionRepositorio } from '../../puertos/salida/AccionRepositorio';
-import { AsignacionRepositorio } from '../../puertos/salida/AsignacionRepositorio';
-import { GestoRepositorio } from '../../puertos/salida/GestoRepositorio';
+import { PuertoSalidaAccion } from '../../puerto/salida/PuertoSalidaAccion';
+import { PuertoSalidaAsignacion } from '../../puerto/salida/PuertoSalidaAsignacion';
+import { PuertoSalidaGesto } from '../../puerto/salida/PuertoSalidaGesto';
 import { accionADto, gestoADto, leerEnteroPositivo } from '../comun';
 
 /** RF-12 · El usuario cambia qué acción hace un gesto. */
 export class CambiarAsignacion implements CambiarAsignacionPuerto {
   constructor(
-    private readonly gestos: GestoRepositorio,
-    private readonly acciones: AccionRepositorio,
-    private readonly asignaciones: AsignacionRepositorio,
+    private readonly gestos: PuertoSalidaGesto,
+    private readonly acciones: PuertoSalidaAccion,
+    private readonly asignaciones: PuertoSalidaAsignacion,
   ) {}
 
   async ejecutar(entrada: EntradaCambiarAsignacion): Promise<AsignacionDTO> {

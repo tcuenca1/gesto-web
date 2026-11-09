@@ -1,8 +1,10 @@
 import { ErrorNoAutenticado } from '../../../dominio/compartido/errores';
 import { Usuario } from '../../../dominio/usuario/Usuario';
 import { EntradaInicioSesion, IniciarSesionPuerto, ResultadoInicioSesion } from '../../puertos/entrada/usuarios';
-import { CifradorContrasenas, GeneradorTokens, Reloj } from '../../puertos/salida/servicios';
-import { UsuarioRepositorio } from '../../puertos/salida/UsuarioRepositorio';
+import { PuertoSalidaCifrador } from '../../puerto/salida/PuertoSalidaCifrador';
+import { PuertoSalidaTokens } from '../../puerto/salida/PuertoSalidaTokens';
+import { PuertoSalidaReloj } from '../../puerto/salida/PuertoSalidaReloj';
+import { PuertoSalidaUsuario } from '../../puerto/salida/PuertoSalidaUsuario';
 
 const MENSAJE_CREDENCIALES = 'Correo o contraseña incorrectos';
 
@@ -15,10 +17,10 @@ const HASH_DE_RELLENO = '$2b$10$1PUm.xNMrV98XZSzpT1ngeTv3ql14vWBIp.xahgOdZsB7Ses
 /** RF-02 · Iniciar sesión con correo y contraseña y recibir un token. */
 export class IniciarSesion implements IniciarSesionPuerto {
   constructor(
-    private readonly usuarios: UsuarioRepositorio,
-    private readonly cifrador: CifradorContrasenas,
-    private readonly tokens: GeneradorTokens,
-    private readonly reloj: Reloj,
+    private readonly usuarios: PuertoSalidaUsuario,
+    private readonly cifrador: PuertoSalidaCifrador,
+    private readonly tokens: PuertoSalidaTokens,
+    private readonly reloj: PuertoSalidaReloj,
   ) {}
 
   async ejecutar(entrada: EntradaInicioSesion): Promise<ResultadoInicioSesion> {

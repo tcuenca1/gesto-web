@@ -5,10 +5,10 @@ import {
   EstadisticasGenerales,
 } from '../../puertos/entrada/administracion';
 import { Paginado } from '../../puertos/entrada/CasoDeUso';
-import { BitacoraRepositorio, EntradaBitacora } from '../../puertos/salida/BitacoraRepositorio';
-import { DeteccionRepositorio } from '../../puertos/salida/DeteccionRepositorio';
-import { SesionRepositorio } from '../../puertos/salida/SesionRepositorio';
-import { UsuarioRepositorio } from '../../puertos/salida/UsuarioRepositorio';
+import { PuertoSalidaBitacora, EntradaBitacora } from '../../puerto/salida/PuertoSalidaBitacora';
+import { PuertoSalidaDeteccion } from '../../puerto/salida/PuertoSalidaDeteccion';
+import { PuertoSalidaSesion } from '../../puerto/salida/PuertoSalidaSesion';
+import { PuertoSalidaUsuario } from '../../puerto/salida/PuertoSalidaUsuario';
 import { leerPaginacion, leerRango, leerZona } from '../comun';
 
 /**
@@ -18,9 +18,9 @@ import { leerPaginacion, leerRango, leerZona } from '../comun';
  */
 export class ConsultarEstadisticasGenerales implements ConsultarEstadisticasGeneralesPuerto {
   constructor(
-    private readonly usuarios: UsuarioRepositorio,
-    private readonly sesiones: SesionRepositorio,
-    private readonly detecciones: DeteccionRepositorio,
+    private readonly usuarios: PuertoSalidaUsuario,
+    private readonly sesiones: PuertoSalidaSesion,
+    private readonly detecciones: PuertoSalidaDeteccion,
     private readonly zonaPorDefecto: string,
   ) {}
 
@@ -48,7 +48,7 @@ export class ConsultarEstadisticasGenerales implements ConsultarEstadisticasGene
 
 /** RF-22 · Ver la bitácora de cambios del administrador. */
 export class ConsultarBitacora implements ConsultarBitacoraPuerto {
-  constructor(private readonly bitacora: BitacoraRepositorio) {}
+  constructor(private readonly bitacora: PuertoSalidaBitacora) {}
 
   async ejecutar(entrada: { pagina?: unknown; limite?: unknown }): Promise<Paginado<EntradaBitacora>> {
     const paginacion = leerPaginacion(entrada.pagina, entrada.limite);

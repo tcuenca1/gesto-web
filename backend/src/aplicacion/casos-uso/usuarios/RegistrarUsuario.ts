@@ -1,8 +1,8 @@
 import { ErrorConflicto } from '../../../dominio/compartido/errores';
 import { Usuario, UsuarioPublico } from '../../../dominio/usuario/Usuario';
 import { EntradaRegistro, RegistrarUsuarioPuerto } from '../../puertos/entrada/usuarios';
-import { CifradorContrasenas } from '../../puertos/salida/servicios';
-import { UsuarioRepositorio } from '../../puertos/salida/UsuarioRepositorio';
+import { PuertoSalidaCifrador } from '../../puerto/salida/PuertoSalidaCifrador';
+import { PuertoSalidaUsuario } from '../../puerto/salida/PuertoSalidaUsuario';
 
 /**
  * RF-01 · Un visitante crea su cuenta con nombre, correo y contraseña.
@@ -10,8 +10,8 @@ import { UsuarioRepositorio } from '../../puertos/salida/UsuarioRepositorio';
  */
 export class RegistrarUsuario implements RegistrarUsuarioPuerto {
   constructor(
-    private readonly usuarios: UsuarioRepositorio,
-    private readonly cifrador: CifradorContrasenas,
+    private readonly usuarios: PuertoSalidaUsuario,
+    private readonly cifrador: PuertoSalidaCifrador,
   ) {}
 
   async ejecutar(entrada: EntradaRegistro): Promise<UsuarioPublico> {

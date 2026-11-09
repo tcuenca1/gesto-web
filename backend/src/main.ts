@@ -4,9 +4,9 @@
  * Es el ÚNICO lugar del sistema que conoce a la vez el núcleo y los
  * adaptadores concretos. Aquí se decide qué adaptador cumple cada puerto:
  *
- *    puerto UsuarioRepositorio  ← UsuarioRepositorioPg   (o …Memoria)
- *    puerto CifradorContrasenas ← CifradorBcrypt
- *    puerto GeneradorTokens     ← GeneradorTokensJwt
+ *    puerto PuertoSalidaUsuario  ← UsuarioRepositorioPg   (o …Memoria)
+ *    puerto PuertoSalidaCifrador ← CifradorBcrypt
+ *    puerto PuertoSalidaTokens     ← GeneradorTokensJwt
  *    …
  *
  * Cambiar PostgreSQL por otra base de datos, o por memoria (prueba P-09),
@@ -16,7 +16,7 @@
 import { Pool } from 'pg';
 import { crearCasosDeUso, PuertosDeSalida } from './aplicacion/casos-uso';
 import { CasosDeUso } from './aplicacion/puertos/entrada';
-import { Reloj } from './aplicacion/puertos/salida/servicios';
+import { PuertoSalidaReloj } from './aplicacion/puerto/salida/PuertoSalidaReloj';
 import { Configuracion, leerConfiguracion } from './config/entorno';
 import { crearApp } from './infraestructura/http/app';
 import { AlmacenMemoria } from './infraestructura/persistencia/memoria/AlmacenMemoria';
@@ -64,7 +64,7 @@ export function persistenciaPostgres(pool: Pool): Persistencia {
 }
 
 /** Adaptadores en memoria (pruebas y prueba P-09). */
-export function persistenciaMemoria(reloj: Reloj, almacen = new AlmacenMemoria(datosInicialesMemoria(reloj.ahora()))): Persistencia {
+export function persistenciaMemoria(reloj: PuertoSalidaReloj, almacen = new AlmacenMemoria(datosInicialesMemoria(reloj.ahora()))): Persistencia {
   const usuarios = new UsuarioRepositorioMemoria(almacen, reloj);
   const gestos = new GestoRepositorioMemoria(almacen);
   const acciones = new AccionRepositorioMemoria(almacen);
