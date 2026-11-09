@@ -21,7 +21,7 @@ import { ApiAutenticacion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/s
       </div>
 
       <div class="columnas">
-        <form class="panel" [formGroup]="nombre" (ngSubmit)="guardarNombre()">
+        <form class="hoja" [formGroup]="nombre" (ngSubmit)="guardarNombre()">
           <h2>Nombre</h2>
           <div class="campo">
             <label for="nombre">Cómo quieres que te llamemos</label>
@@ -30,7 +30,7 @@ import { ApiAutenticacion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/s
           <button class="boton" type="submit" [disabled]="nombre.invalid || guardando()">Guardar nombre</button>
         </form>
 
-        <form class="panel" [formGroup]="claves" (ngSubmit)="cambiarContrasena()">
+        <form class="hoja" [formGroup]="claves" (ngSubmit)="cambiarContrasena()">
           <h2>Contraseña</h2>
           @if (errorClave()) {
             <p class="alerta alerta--error" role="alert">{{ errorClave() }}</p>

@@ -291,6 +291,8 @@ table {
   tbody tr:hover td { border-bottom-color: var(--regla-fuerte); }
   .num { text-align: right; font-family: var(--fuente-dato); font-variant-numeric: tabular-nums; }
 }
+/* Tabla sobre la retícula: fondo de hoja para que los puntos no se crucen con el texto. */
+.hoja-tabla { background: var(--hoja); }
 
 /* Estado: rectángulo con borde fino y texto mono en mayúsculas. */
 .etiqueta {

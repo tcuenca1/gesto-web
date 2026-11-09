@@ -12,11 +12,12 @@ import { ApiAutenticacion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/s
   imports: [ReactiveFormsModule, RouterLink],
   template: `
     <section class="auth">
-      <h1>Iniciar sesión</h1>
+      <span class="pagina__ruta">Acceso</span>
+      <h1>Entrar</h1>
       @if (vencida()) {
         <p class="alerta alerta--info">Tu sesión venció. Vuelve a iniciar sesión para continuar.</p>
       }
-      <form class="panel" [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+      <form class="hoja" [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
         @if (error()) {
           <p class="alerta alerta--error" role="alert">{{ error() }}</p>
         }

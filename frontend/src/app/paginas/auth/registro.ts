@@ -11,8 +11,9 @@ import { ApiAutenticacion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/s
   imports: [ReactiveFormsModule, RouterLink],
   template: `
     <section class="auth">
+      <span class="pagina__ruta">Acceso</span>
       <h1>Crear cuenta</h1>
-      <form class="panel" [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+      <form class="hoja" [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
         @if (error()) {
           <p class="alerta alerta--error" role="alert">{{ error() }}</p>
         }

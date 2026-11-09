@@ -14,10 +14,11 @@ import { ApiConfiguracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/s
     <section class="pagina">
       <div class="pagina__titulo">
         <div>
+          <span class="pagina__ruta">02 / Mis gestos</span>
           <h1>Mis gestos</h1>
-          <p>Elige qué pasa en el panel de demostración cuando haces cada gesto. Los cambios se guardan al instante.</p>
+          <p>Qué acción ejecuta cada gesto en el panel de demostración. Los cambios se guardan al elegir.</p>
         </div>
-        <button type="button" class="boton boton--fantasma" (click)="restaurar()" [disabled]="cargando()">Volver a la configuración inicial</button>
+        <button type="button" class="boton boton--fantasma" (click)="restaurar()" [disabled]="cargando()">Restaurar acciones iniciales</button>
       </div>
 
       @if (error()) {
@@ -27,10 +28,10 @@ import { ApiConfiguracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/s
       @if (cargando()) {
         <p class="texto-suave">Cargando tu configuración…</p>
       } @else {
-        <div class="panel tabla-contenedor">
-          <table>
+        <div class="tabla-contenedor">
+          <table class="hoja-tabla">
             <thead>
-              <tr><th>Gesto</th><th>Acción</th><th><span class="oculto-visual">Estado</span></th></tr>
+              <tr><th>Gesto</th><th>Código</th><th>Acción</th><th>Estado</th></tr>
             </thead>
             <tbody>
               @for (a of asignaciones(); track a.gesto.id) {
@@ -39,6 +40,7 @@ import { ApiConfiguracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/s
                     <app-icono-gesto class="icono" [codigo]="a.gesto.codigo" [tamano]="30" [decorativo]="true" />
                     <strong>{{ a.gesto.nombre }}</strong>
                   </td>
+                  <td class="codigo">{{ a.gesto.codigo.toUpperCase() }}</td>
                   <td>
                     <label class="oculto-visual" [for]="'accion-' + a.gesto.id">Acción para {{ a.gesto.nombre }}</label>
                     <select [id]="'accion-' + a.gesto.id" [value]="a.accion?.id ?? ''" (change)="cambiar(a, $any($event.target).value)" [disabled]="guardando() === a.gesto.id">
@@ -49,7 +51,7 @@ import { ApiConfiguracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/s
                   </td>
                   <td>
                     @if (guardando() === a.gesto.id) {
-                      <span class="texto-suave">Guardando…</span>
+                      <span class="dato texto-suave">GUARDANDO…</span>
                     } @else if (a.esPredeterminada) {
                       <span class="etiqueta etiqueta--apagada">Inicial</span>
                     } @else {
@@ -68,8 +70,10 @@ import { ApiConfiguracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/s
   styles: `
     td:first-child { white-space: nowrap; }
     .icono { margin-right: 0.6rem; }
+    .codigo { font-family: var(--fuente-dato); font-size: 0.8rem; color: var(--tinta-tenue); }
     select { max-width: 22rem; }
     td:last-child { width: 9rem; }
+    @media (max-width: 640px) { .codigo, th:nth-child(2) { display: none; } }
   `,
 })
 export class Configuracion implements OnInit {

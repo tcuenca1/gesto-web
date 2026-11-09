@@ -97,7 +97,6 @@ import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salid
     .filtros { display: flex; flex-wrap: wrap; gap: 0 1.5rem; align-items: flex-end; margin-bottom: 1.5rem; padding-bottom: 0.25rem; border-bottom: var(--trazo) solid var(--regla-fuerte); }
     .filtros .campo { min-width: 10rem; flex: 1; }
     .filtros__botones { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
-    .hoja-tabla { background: var(--hoja); }
     .paginacion { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
     .paginacion div { display: flex; gap: 0.5rem; }
     td:first-child { white-space: nowrap; }

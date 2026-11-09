@@ -31,8 +31,6 @@
 }
 .lecturas__veces { font-family: var(--fuente-dato); font-size: 0.85rem; font-weight: 400; color: var(--tinta-media); }
 
-.hoja-tabla { background: var(--hoja); }
-
 @media (max-width: 760px) {
   .lecturas { grid-template-columns: 1fr 1fr; }
   .lecturas__gesto { grid-column: 1 / -1; }
