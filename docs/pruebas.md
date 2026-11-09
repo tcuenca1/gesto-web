@@ -21,12 +21,12 @@ Resultado de la última ejecución: **83 de 83 pruebas aprobadas**. Cobertura de
 | **P-01 Precisión** | Pendiente: requiere personas y cámara | Procedimiento abajo. Depende del modelo de MediaPipe, no del código del equipo. |
 | **P-02 Velocidad** | Pendiente: requiere cámara | En desarrollo (`npm start`) la pantalla Reconocer muestra "img/s" arriba a la derecha del video. Meta: 15 o más en 2 laptops. |
 | **P-03 Respuesta** | Lógica comprobada; falta medir con cámara | Las pruebas del frontend confirman que la acción ocurre a los 500 ms de estabilidad. Con cámara, grabar la pantalla y medir: meta ≤ 1 s. |
-| **P-04 Privacidad** | ✔ Aprobada | Prueba de extremo a extremo: se registraron todas las peticiones del navegador durante una sesión; 13 llevaban cuerpo y la mayor pesaba **103 bytes**. Ninguna contiene imágenes. Además el servidor rechaza cuerpos de más de 20 KB (prueba automática, HTTP 413). |
-| **P-05 Permisos** | ✔ Aprobada | Automática (`http.prueba.ts`): ruta de administrador sin token → 401; con usuario normal → 403; token alterado → 401. En el navegador, un usuario normal que abre `/admin` vuelve a `/reconocer`. |
-| **P-06 Contraseñas** | ✔ Aprobada | Automática (`base-datos.prueba.ts`): toda `contrasena_hash` es un hash bcrypt `$2b$10$…` y no contiene la contraseña. |
-| **P-07 Base de datos** | ✔ Aprobada | Automática: al crear un usuario se crean 7 asignaciones; una detección en una sesión cerrada se rechaza con el error `GW001`. |
+| **P-04 Privacidad** | Aprobada | Prueba de extremo a extremo: se registraron todas las peticiones del navegador durante una sesión; 13 llevaban cuerpo y la mayor pesaba **103 bytes**. Ninguna contiene imágenes. Además el servidor rechaza cuerpos de más de 20 KB (prueba automática, HTTP 413). |
+| **P-05 Permisos** | Aprobada | Automática (`http.prueba.ts`): ruta de administrador sin token → 401; con usuario normal → 403; token alterado → 401. En el navegador, un usuario normal que abre `/admin` vuelve a `/reconocer`. |
+| **P-06 Contraseñas** | Aprobada | Automática (`base-datos.prueba.ts`): toda `contrasena_hash` es un hash bcrypt `$2b$10$…` y no contiene la contraseña. |
+| **P-07 Base de datos** | Aprobada | Automática: al crear un usuario se crean 7 asignaciones; una detección en una sesión cerrada se rechaza con el error `GW001`. |
 | **P-08 Usuario nuevo** | Pendiente: requiere una persona externa | La pantalla de registro lleva directo a Reconocer con el botón "Encender cámara" y la guía de gestos a la vista. |
-| **P-09 Hexagonal** | ✔ Aprobada | Automática (`contrato.prueba.ts`): las mismas pruebas pasan con adaptadores PostgreSQL y en memoria sin tocar el núcleo. También `REPOSITORIOS=memoria` en el `.env`. |
+| **P-09 Hexagonal** | Aprobada | Automática (`contrato.prueba.ts`): las mismas pruebas pasan con adaptadores PostgreSQL y en memoria sin tocar el núcleo. También `REPOSITORIOS=memoria` en el `.env`. |
 | **P-10 Navegadores** | Parcial | El flujo completo (CU-03 en modo simulado) pasó en Chromium 153. Falta repetir con cámara real en Chrome, Edge y Firefox. |
 
 ### Otras comprobaciones hechas
@@ -50,7 +50,7 @@ El entorno donde se construyó el proyecto no tiene cámara y no permite descarg
 Primera prueba sugerida con cámara (10 minutos):
 1. `cd frontend && npm run modelo && npm start`, abrir http://localhost:4200/?simulado=0.
 2. Encender la cámara: debe pedir permiso, mostrar el video espejado y dibujar los puntos de la mano.
-3. Hacer ☝️: el anillo se llena y el panel avanza. Revisar que el contador "img/s" esté en 15 o más (P-02).
+3. Hacer índice arriba: el estado llega a `ACEPTADO` y el panel avanza. Revisar que el contador "img/s" esté en 15 o más (P-02).
 4. Con la mano derecha, el historial debe decir "Derecha" (si dice "Izquierda", invertir la línea de `mano` en `reconocedor-mediapipe.ts`).
 5. Negar el permiso de cámara: debe aparecer el mensaje de cómo activarla (flujo 2a).
 

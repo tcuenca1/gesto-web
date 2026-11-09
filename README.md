@@ -37,7 +37,7 @@ npm start                     # abre http://localhost:4200
 ### 3. Entrar
 - Crea una cuenta en **Crear cuenta**, o usa el administrador de prueba:
   **admin@gestoweb.local** / **Admin123!** (cámbiala antes de publicar).
-- Ve a **Reconocer**, pulsa **Encender cámara** y haz un gesto. ☝️ pasa a la siguiente imagen.
+- Ve a **Reconocer**, pulsa **Encender cámara** y haz un gesto: índice arriba pasa a la siguiente imagen.
 
 > **Sin PostgreSQL:** pon `REPOSITORIOS=memoria` en `backend/.env` y salta `db:crear`. Los datos se pierden al reiniciar.
 > **Sin cámara:** abre `http://localhost:4200/?simulado=1`. La cámara y el modelo se reemplazan por adaptadores de prueba y los gestos se "hacen" con botones o con las teclas 1 a 7. Se desactiva con `?simulado=0`.
