@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Avisos } from '../../compartido/servicios/avisos';
 import { infoGesto } from '../../nucleo/dominio/gesto';
 import { Accion, Gesto } from '../../nucleo/dominio/modelos';
-import { ApiAdministracion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb';
+import { ApiAdministracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
 interface FilaGesto extends Gesto {
   cambiado: boolean;
@@ -51,7 +51,7 @@ interface FilaGesto extends Gesto {
   styleUrl: './admin.scss',
 })
 export class AdminGestos implements OnInit {
-  private readonly api: ApiAdministracion = inject(ApiGestoWeb);
+  private readonly api: ApiAdministracion = inject(PuertoSalidaApiGestoWeb);
   private readonly avisos = inject(Avisos);
   protected readonly filas = signal<FilaGesto[]>([]);
   private acciones: Accion[] = [];

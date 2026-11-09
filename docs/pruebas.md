@@ -45,7 +45,7 @@ Resultado de la última ejecución: **83 de 83 pruebas aprobadas**. Cobertura de
 
 ## 3. Lo que no se pudo probar aquí (y por qué)
 
-El entorno donde se construyó el proyecto no tiene cámara y no permite descargar el modelo desde los servidores de Google. Por eso **no se ejecutó MediaPipe con una mano real**: el adaptador `ReconocedorMediaPipe` está escrito según la API oficial de `@mediapipe/tasks-vision` 1.0.1 y compila, pero su primera prueba real debe hacerla el equipo (German es el responsable). Todo lo que está detrás del puerto `ReconocedorGestos` sí está probado.
+El entorno donde se construyó el proyecto no tiene cámara y no permite descargar el modelo desde los servidores de Google. Por eso **no se ejecutó MediaPipe con una mano real**: el adaptador `AdapSalida_ReconocedorMediaPipe` está escrito según la API oficial de `@mediapipe/tasks-vision` 1.0.1 y compila, pero su primera prueba real debe hacerla el equipo (German es el responsable). Todo lo que está detrás del puerto `PuertoSalidaReconocedor` sí está probado.
 
 Primera prueba sugerida con cámara (10 minutos):
 1. `cd frontend && npm run modelo && npm start`, abrir http://localhost:4200/?simulado=0.

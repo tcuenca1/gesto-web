@@ -44,10 +44,10 @@ La regla de oro: **las dependencias siempre apuntan hacia adentro**. Infraestruc
 
 No se eligió por moda; resuelve problemas concretos de GestoWeb:
 
-1. **El modelo de IA es la pieza más inestable.** MediaPipe cambia de versión (en 2026 pasó de 0.10 a 1.x) y en el futuro se quiere entrenar gestos propios (SRS §13.3). Con un puerto `ReconocedorGestos`, cambiar de modelo es cambiar **un archivo**.
+1. **El modelo de IA es la pieza más inestable.** MediaPipe cambia de versión (en 2026 pasó de 0.10 a 1.x) y en el futuro se quiere entrenar gestos propios (SRS §13.3). Con un puerto `PuertoSalidaReconocedor`, cambiar de modelo es cambiar **un archivo**.
 2. **La cámara no siempre está disponible.** Para desarrollar, probar y para el plan B de la demo, la cámara y el modelo se reemplazan por adaptadores simulados (`?simulado=1`) sin tocar el resto.
 3. **Probar sin infraestructura.** Las reglas de aceptación (medio segundo, pausa de 1 s, umbral) y los casos de uso se prueban con datos falsos, sin base de datos ni navegador: 51 pruebas del backend corren en ~6 segundos.
-4. **Cuatro personas trabajando en paralelo.** Los puertos y el contrato de la API son el acuerdo de la semana 1 (SRS §11). Juan programa casos de uso contra el puerto `PuertoSalidaDeteccion` usando el adaptador en memoria mientras Terry termina el de PostgreSQL; Neils avanza pantallas contra `ApiGestoWeb`.
+4. **Cuatro personas trabajando en paralelo.** Los puertos y el contrato de la API son el acuerdo de la semana 1 (SRS §11). Juan programa casos de uso contra el puerto `PuertoSalidaDeteccion` usando el adaptador en memoria mientras Terry termina el de PostgreSQL; Neils avanza pantallas contra `PuertoSalidaApiGestoWeb`.
 5. **La privacidad queda en la estructura.** El único adaptador que toca la imagen (la cámara) vive en el navegador; el núcleo del frontend solo recibe `{ codigo, confianza, mano, puntos }`. No existe un camino en el código por donde una imagen llegue al servidor (y la API rechaza cuerpos de más de 20 KB).
 6. **Es un requisito medible:** RNF-12 y la prueba de aceptación P-09.
 
@@ -234,19 +234,19 @@ La SRS §7.4 pide que el frontend también aísle la cámara y el modelo. La est
 | Capa | Archivos |
 |---|---|
 | Dominio | `nucleo/dominio/gesto.ts` (códigos, `ResultadoReconocimiento`, puntos de la mano), `modelos.ts` |
-| Puertos | `ReconocedorGestos`, `Camara`, `ApiGestoWeb` (clases abstractas: Angular las usa como token de inyección) |
-| Servicios del núcleo | `ReglasAceptacion`, `EjecutorAcciones`, `ColaDetecciones` (TypeScript puro) y `MotorReconocimiento` (coordina) |
-| Adaptadores | `ReconocedorMediaPipe`, `CamaraNavegador`, `ApiGestoWebHttp` + interceptor, y los simulados |
+| Puertos | `PuertoSalidaReconocedor`, `PuertoSalidaCamara`, `PuertoSalidaApiGestoWeb`, `PuertoSalidaSimuladorGestos` (clases abstractas: Angular las usa como token de inyección) |
+| Casos de uso del núcleo | `CasoUso_ReglasAceptacion`, `CasoUso_EjecutorAcciones`, `CasoUso_ColaDetecciones` (TypeScript puro) y `CasoUso_MotorReconocimiento` (coordina) |
+| Adaptadores | `AdapSalida_ReconocedorMediaPipe`, `AdapSalida_CamaraNavegador`, `AdapSalida_ApiHttp` + interceptor, y los simulados |
 | Raíz de composición | `app.config.ts` |
 
 ```ts
 // frontend/src/app/app.config.ts
-{ provide: ApiGestoWeb,       useClass: ApiGestoWebHttp },
-{ provide: Camara,            useFactory: () => (simulado ? new CamaraSimulada()     : new CamaraNavegador()) },
-{ provide: ReconocedorGestos, useFactory: () => (simulado ? new ReconocedorSimulado() : new ReconocedorMediaPipe()) },
+{ provide: PuertoSalidaApiGestoWeb,       useClass: AdapSalida_ApiHttp },
+{ provide: PuertoSalidaCamara,            useFactory: () => (simulado ? new AdapSalida_CamaraSimulada()     : new AdapSalida_CamaraNavegador()) },
+{ provide: PuertoSalidaReconocedor, useFactory: () => (simulado ? new AdapSalida_ReconocedorSimulado() : new AdapSalida_ReconocedorMediaPipe()) },
 ```
 
-`ReconocedorMediaPipe` es el **único archivo** del frontend que importa `@mediapipe/tasks-vision`. Las pantallas tampoco lo conocen: el dibujo de los puntos usa `CONEXIONES_MANO` del dominio, no la utilidad de dibujo de MediaPipe.
+`AdapSalida_ReconocedorMediaPipe` es el **único archivo** del frontend que importa `@mediapipe/tasks-vision`. Las pantallas tampoco lo conocen: el dibujo de los puntos usa `CONEXIONES_MANO` del dominio, no la utilidad de dibujo de MediaPipe.
 
 ## 5. ¿Cómo sabemos que funciona? (P-09)
 
@@ -265,7 +265,7 @@ La SRS §7.4 pide que el frontend también aísle la cámara y el modelo. La est
 - **Un método = una tarea, una clase = un módulo**: `registrarUsuario`, `iniciarSesion`, `cambiarAsignacion`, `exportarHistorial`… Si cambia la regla de exportar, solo se toca ese método de `CasoUso_HistorialLectura`.
 - Lectura y escritura están en clases separadas (`CasoUso_AdministracionLectura` y `…Escritura`): consultar y modificar cambian por motivos distintos.
 - Una clase por archivo: cada adaptador de salida, de entrada y cada puerto tiene el suyo.
-- En el frontend, `ReglasAceptacion` solo decide si un gesto se acepta; `EjecutorAcciones` solo ejecuta; `ColaDetecciones` solo envía y reintenta; `MotorReconocimiento` solo coordina; `PanelDemostracion` solo sabe mover imágenes.
+- En el frontend, `CasoUso_ReglasAceptacion` solo decide si un gesto se acepta; `CasoUso_EjecutorAcciones` solo ejecuta; `CasoUso_ColaDetecciones` solo envía y reintenta; `CasoUso_MotorReconocimiento` solo coordina; `PanelDemostracion` solo sabe mover imágenes.
 - Los adaptadores de entrada no tienen reglas; el manejador de errores es el único que conoce los códigos HTTP.
 
 **Por qué importa aquí:** con cuatro integrantes, archivos con una sola responsabilidad significan menos conflictos de Git y revisiones más cortas.
@@ -273,7 +273,7 @@ La SRS §7.4 pide que el frontend también aísle la cámara y el modelo. La est
 ### O — Abierto/cerrado
 *En simple: se puede agregar comportamiento nuevo sin modificar lo que ya funciona.*
 
-- **`EjecutorAcciones`** es un registro de manejadores. El panel agrega sus acciones así, sin modificar el ejecutor:
+- **`CasoUso_EjecutorAcciones`** es un registro de manejadores. El panel agrega sus acciones así, sin modificar el ejecutor:
   ```ts
   this.motor.ejecutor.registrarVarios({
     SIGUIENTE: () => this.mover(1),
@@ -290,7 +290,7 @@ La SRS §7.4 pide que el frontend también aísle la cámara y el modelo. La est
 *En simple: cualquier implementación de un contrato debe poder reemplazar a otra sin que el sistema note la diferencia.*
 
 - `AdapSalida_UsuarioMemoria` y `AdapSalida_UsuarioPostgres` cumplen exactamente el mismo comportamiento, **incluidas las reglas que en PostgreSQL hacen los triggers**: el adaptador en memoria también crea las 7 asignaciones al crear un usuario, rechaza detecciones en sesiones cerradas y cierra la sesión anterior con la hora de su última detección. Las pruebas de contrato lo verifican.
-- `CamaraSimulada` y `ReconocedorSimulado` sustituyen a la cámara y a MediaPipe; el motor y las pantallas no cambian.
+- `AdapSalida_CamaraSimulada` y `AdapSalida_ReconocedorSimulado` sustituyen a la cámara y a MediaPipe; el motor y las pantallas no cambian.
 - `RelojFalso` sustituye a `AdapSalida_RelojSistema` en las pruebas.
 
 **Ojo:** Liskov no es solo "compila con la misma interfaz", es "se comporta igual". Por eso el adaptador en memoria imita los triggers: si no lo hiciera, el núcleo funcionaría distinto según el adaptador y la prueba P-09 no demostraría nada.
@@ -298,9 +298,9 @@ La SRS §7.4 pide que el frontend también aísle la cámara y el modelo. La est
 ### I — Segregación de interfaces
 *En simple: nadie debe depender de métodos que no usa.*
 
-- El puerto `ApiGestoWeb` del frontend tiene unos 25 métodos. En vez de que todos dependan de todo, se divide en `ApiAutenticacion`, `ApiConfiguracion`, `ApiReconocimiento`, `ApiHistorial` y `ApiAdministracion`, y cada parte pide solo la suya:
+- El puerto `PuertoSalidaApiGestoWeb` del frontend tiene unos 25 métodos. En vez de que todos dependan de todo, se divide en `ApiAutenticacion`, `ApiConfiguracion`, `ApiReconocimiento`, `ApiHistorial` y `ApiAdministracion`, y cada parte pide solo la suya:
   ```ts
-  private readonly api: ApiReconocimiento = inject(ApiGestoWeb); // el motor no ve métodos de administración
+  private readonly api: ApiReconocimiento = inject(PuertoSalidaApiGestoWeb); // el motor no ve métodos de administración
   ```
 - En el backend, cada clase de casos de uso recibe **solo los puertos que usa**: `CasoUso_UsuarioLectura` recibe dos; `CasoUso_ReconocimientoEscritura`, seis. Los puertos de salida están separados por agregado (`PuertoSalidaUsuario`, `PuertoSalidaGesto`…), no en un "repositorio general", y los de entrada por módulo y por lectura/escritura.
 - `RepositoriosTransaccionales` expone solo los cuatro repositorios que usan las operaciones de administración.

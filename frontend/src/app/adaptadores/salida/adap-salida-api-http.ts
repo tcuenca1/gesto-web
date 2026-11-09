@@ -2,32 +2,17 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import {
-  Accion,
-  Asignacion,
-  Deteccion,
-  EntradaBitacora,
-  ErrorApi,
-  Estadisticas,
-  EstadisticasGenerales,
-  FiltroHistorial,
-  Gesto,
-  NuevaDeteccion,
-  Paginado,
-  ResultadoLogin,
-  SesionReconocimiento,
-  Usuario,
-} from '../../nucleo/dominio/modelos';
-import { ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb';
+import { Accion, Asignacion, Deteccion, EntradaBitacora, ErrorApi, Estadisticas, EstadisticasGenerales, FiltroHistorial, Gesto, NuevaDeteccion, Paginado, ResultadoLogin, SesionReconocimiento, Usuario } from '../../nucleo/dominio/modelos';
+import { PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
 /**
- * Adaptador del puerto ApiGestoWeb con el cliente HTTP de Angular.
+ * Adaptador de PuertoSalidaApiGestoWeb con el cliente HTTP de Angular.
  * Convierte cada respuesta en una promesa y cada error en un ErrorApi con
  * un mensaje en español listo para mostrar. El token lo agrega el
  * interceptor (interceptor-token.ts).
  */
 @Injectable()
-export class ApiGestoWebHttp extends ApiGestoWeb {
+export class AdapSalida_ApiHttp extends PuertoSalidaApiGestoWeb {
   private readonly http = inject(HttpClient);
   private readonly base = environment.apiUrl;
 

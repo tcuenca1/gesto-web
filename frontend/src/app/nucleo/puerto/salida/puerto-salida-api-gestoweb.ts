@@ -1,21 +1,7 @@
-import {
-  Accion,
-  Asignacion,
-  Deteccion,
-  EntradaBitacora,
-  Estadisticas,
-  EstadisticasGenerales,
-  FiltroHistorial,
-  Gesto,
-  NuevaDeteccion,
-  Paginado,
-  ResultadoLogin,
-  SesionReconocimiento,
-  Usuario,
-} from '../dominio/modelos';
+import { Accion, Asignacion, Deteccion, EntradaBitacora, Estadisticas, EstadisticasGenerales, FiltroHistorial, Gesto, NuevaDeteccion, Paginado, ResultadoLogin, SesionReconocimiento, Usuario } from '../../dominio/modelos';
 
 /*
- * Puerto ApiGestoWeb (SRS §7.4): todo lo que el frontend necesita del backend.
+ * Puerto de salida hacia la API (SRS §7.4): todo lo que el frontend necesita del backend.
  *
  * Principio de segregación de interfaces (la "I" de SOLID): en vez de una
  * sola lista enorme de métodos, el contrato se divide en interfaces pequeñas.
@@ -65,7 +51,7 @@ export interface ApiAdministracion {
 }
 
 /** El puerto completo, usado como token de inyección en Angular. */
-export abstract class ApiGestoWeb
+export abstract class PuertoSalidaApiGestoWeb
   implements ApiAutenticacion, ApiConfiguracion, ApiReconocimiento, ApiHistorial, ApiAdministracion
 {
   abstract iniciarSesion(correo: string, contrasena: string): Promise<ResultadoLogin>;

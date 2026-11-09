@@ -3,7 +3,7 @@ import { Grafico } from '../../compartido/componentes/grafico';
 import { Avisos } from '../../compartido/servicios/avisos';
 import { diaCorto, haceDias, porcentaje } from '../../compartido/utilidades';
 import { EstadisticasGenerales } from '../../nucleo/dominio/modelos';
-import { ApiAdministracion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb';
+import { ApiAdministracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
 /** RF-21 · Estadísticas de todo el sistema. */
 @Component({
@@ -50,7 +50,7 @@ import { ApiAdministracion, ApiGestoWeb } from '../../nucleo/puertos/api-gestowe
   styleUrl: './admin.scss',
 })
 export class AdminEstadisticas implements OnInit {
-  private readonly api: ApiAdministracion = inject(ApiGestoWeb);
+  private readonly api: ApiAdministracion = inject(PuertoSalidaApiGestoWeb);
   private readonly avisos = inject(Avisos);
   protected readonly datos = signal<EstadisticasGenerales | null>(null);
   protected readonly porcentaje = porcentaje;

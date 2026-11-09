@@ -1,10 +1,10 @@
 import { ErrorApi, NuevaDeteccion } from '../dominio/modelos';
-import { ColaDetecciones, Temporizador } from './cola-detecciones';
-import { EjecutorAcciones } from './ejecutor-acciones';
+import { CasoUso_ColaDetecciones, Temporizador } from './caso-uso-cola-detecciones';
+import { CasoUso_EjecutorAcciones } from './caso-uso-ejecutor-acciones';
 
-describe('EjecutorAcciones', () => {
+describe('CasoUso_EjecutorAcciones', () => {
   it('ejecuta el manejador registrado para cada código', () => {
-    const ejecutor = new EjecutorAcciones();
+    const ejecutor = new CasoUso_EjecutorAcciones();
     let siguiente = 0;
     ejecutor.registrar('SIGUIENTE', () => siguiente++);
     expect(ejecutor.ejecutar('SIGUIENTE')).toBe('ejecutada');
@@ -12,21 +12,21 @@ describe('EjecutorAcciones', () => {
   });
 
   it('distingue NINGUNA de una acción sin manejador', () => {
-    const ejecutor = new EjecutorAcciones();
+    const ejecutor = new CasoUso_EjecutorAcciones();
     expect(ejecutor.ejecutar('NINGUNA')).toBe('ninguna');
     expect(ejecutor.ejecutar(null)).toBe('ninguna');
     expect(ejecutor.ejecutar('SUBIR_VOLUMEN')).toBe('sin-manejador');
   });
 
   it('permite quitar los manejadores (al salir de la página)', () => {
-    const ejecutor = new EjecutorAcciones();
+    const ejecutor = new CasoUso_EjecutorAcciones();
     const quitar = ejecutor.registrarVarios({ A: () => undefined, B: () => undefined });
     quitar();
     expect(ejecutor.ejecutar('A')).toBe('sin-manejador');
   });
 });
 
-describe('ColaDetecciones (flujo 8a: el servidor no responde)', () => {
+describe('CasoUso_ColaDetecciones (flujo 8a: el servidor no responde)', () => {
   const deteccion = (n: number): NuevaDeteccion => ({ codigoGesto: 'Victory', confianza: 0.9, mano: 'Derecha', fechaHora: `2026-10-09T15:00:0${n}Z` });
 
   /** Temporizador manual: la prueba decide cuándo "pasa el tiempo". */
@@ -39,7 +39,7 @@ describe('ColaDetecciones (flujo 8a: el servidor no responde)', () => {
 
   it('envía en orden y vacía la cola', async () => {
     const enviadas: string[] = [];
-    const cola = new ColaDetecciones(async (d) => void enviadas.push(d.fechaHora));
+    const cola = new CasoUso_ColaDetecciones(async (d) => void enviadas.push(d.fechaHora));
     cola.agregar(deteccion(1));
     cola.agregar(deteccion(2));
     await cola.vaciar();
@@ -52,7 +52,7 @@ describe('ColaDetecciones (flujo 8a: el servidor no responde)', () => {
     let caido = true;
     const enviadas: NuevaDeteccion[] = [];
     const reloj = temporizadorManual();
-    const cola = new ColaDetecciones(
+    const cola = new CasoUso_ColaDetecciones(
       async (d) => {
         if (caido) throw new ErrorApi(0, 'sin conexión');
         enviadas.push(d);
@@ -73,7 +73,7 @@ describe('ColaDetecciones (flujo 8a: el servidor no responde)', () => {
   });
 
   it('descarta las detecciones con errores permanentes (por ejemplo, 400)', async () => {
-    const cola = new ColaDetecciones(async () => {
+    const cola = new CasoUso_ColaDetecciones(async () => {
       throw new ErrorApi(400, 'gesto desactivado');
     });
     cola.agregar(deteccion(1));

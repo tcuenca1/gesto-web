@@ -1,12 +1,13 @@
 import { inject, Injectable, NgZone, OnDestroy, signal } from '@angular/core';
 import { ResultadoReconocimiento } from '../dominio/gesto';
 import { Asignacion, ErrorApi, NuevaDeteccion } from '../dominio/modelos';
-import { ApiGestoWeb, ApiReconocimiento } from '../puertos/api-gestoweb';
-import { Camara, ErrorCamara } from '../puertos/camara';
-import { ReconocedorGestos } from '../puertos/reconocedor-gestos';
-import { ColaDetecciones } from './cola-detecciones';
-import { EjecutorAcciones, ResultadoEjecucion } from './ejecutor-acciones';
-import { EstadoReconocimiento, ReglasAceptacion } from './reglas-aceptacion';
+import { PuertoSalidaApiGestoWeb, ApiReconocimiento } from '../puerto/salida/puerto-salida-api-gestoweb';
+import { PuertoSalidaCamara } from '../puerto/salida/puerto-salida-camara';
+import { ErrorCamara } from '../dominio/error-camara';
+import { PuertoSalidaReconocedor } from '../puerto/salida/puerto-salida-reconocedor';
+import { CasoUso_ColaDetecciones } from './caso-uso-cola-detecciones';
+import { CasoUso_EjecutorAcciones, ResultadoEjecucion } from './caso-uso-ejecutor-acciones';
+import { EstadoReconocimiento, CasoUso_ReglasAceptacion } from './caso-uso-reglas-aceptacion';
 
 export type EstadoMotor = 'apagado' | 'cargando' | 'activo' | 'error';
 
@@ -22,7 +23,7 @@ export interface UltimaAccion {
 /**
  * Motor de reconocimiento: el caso de uso CU-03 del lado del navegador.
  *
- * Coordina los puertos (Camara, ReconocedorGestos, ApiReconocimiento) con
+ * Coordina los puertos (PuertoSalidaCamara, PuertoSalidaReconocedor, ApiReconocimiento) con
  * las reglas del núcleo. No sabe que la cámara es getUserMedia ni que el
  * modelo es MediaPipe: solo conoce los contratos. Por eso en modo simulado
  * funciona igual con adaptadores falsos.
@@ -31,14 +32,14 @@ export interface UltimaAccion {
  * página está abierta y se apaga solo al salir.
  */
 @Injectable()
-export class MotorReconocimiento implements OnDestroy {
-  private readonly camara = inject(Camara);
-  private readonly reconocedor = inject(ReconocedorGestos);
-  private readonly api: ApiReconocimiento = inject(ApiGestoWeb); // solo la parte que necesita (ISP)
+export class CasoUso_MotorReconocimiento implements OnDestroy {
+  private readonly camara = inject(PuertoSalidaCamara);
+  private readonly reconocedor = inject(PuertoSalidaReconocedor);
+  private readonly api: ApiReconocimiento = inject(PuertoSalidaApiGestoWeb); // solo la parte que necesita (ISP)
   private readonly zona = inject(NgZone);
 
   /** Las páginas registran aquí lo que sabe hacer cada acción. */
-  readonly ejecutor = new EjecutorAcciones();
+  readonly ejecutor = new CasoUso_EjecutorAcciones();
 
   readonly estado = signal<EstadoMotor>('apagado');
   readonly mensajeError = signal<string | null>(null);
@@ -53,8 +54,8 @@ export class MotorReconocimiento implements OnDestroy {
   /** Se llama con cada resultado del modelo (para dibujar los puntos de la mano). */
   alAnalizar: ((resultado: ResultadoReconocimiento | null) => void) | null = null;
 
-  private reglas = new ReglasAceptacion(new Map());
-  private cola: ColaDetecciones | null = null;
+  private reglas = new CasoUso_ReglasAceptacion(new Map());
+  private cola: CasoUso_ColaDetecciones | null = null;
   private idSesion: Promise<number> | null = null;
   private cuadro = 0;
   private ultimoTiempoVideo = -1;
@@ -77,10 +78,10 @@ export class MotorReconocimiento implements OnDestroy {
       // Pasos 2 y 3 de CU-03: permiso de cámara, modelo y configuración del usuario.
       const [asignaciones] = await Promise.all([this.api.asignaciones(), this.reconocedor.cargar()]);
       this.asignaciones.set(asignaciones);
-      this.reglas = new ReglasAceptacion(new Map(asignaciones.map((a) => [a.gesto.codigo, a.gesto.umbralConfianza])));
+      this.reglas = new CasoUso_ReglasAceptacion(new Map(asignaciones.map((a) => [a.gesto.codigo, a.gesto.umbralConfianza])));
       await this.camara.encender(video);
 
-      this.cola = new ColaDetecciones(
+      this.cola = new CasoUso_ColaDetecciones(
         (d) => this.enviar(d),
         (n) => this.pendientes.set(n),
       );

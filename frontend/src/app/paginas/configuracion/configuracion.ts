@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { Avisos } from '../../compartido/servicios/avisos';
 import { infoGesto } from '../../nucleo/dominio/gesto';
 import { Accion, Asignacion } from '../../nucleo/dominio/modelos';
-import { ApiConfiguracion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb';
+import { ApiConfiguracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
 /** RF-12 · El usuario elige qué acción hace cada gesto, o vuelve a la configuración inicial. */
 @Component({
@@ -72,7 +72,7 @@ import { ApiConfiguracion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb
   `,
 })
 export class Configuracion implements OnInit {
-  private readonly api: ApiConfiguracion = inject(ApiGestoWeb);
+  private readonly api: ApiConfiguracion = inject(PuertoSalidaApiGestoWeb);
   private readonly avisos = inject(Avisos);
 
   protected readonly asignaciones = signal<Asignacion[]>([]);

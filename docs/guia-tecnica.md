@@ -164,13 +164,13 @@ Detalles a tener en cuenta:
 frontend/src/app/
 ├── nucleo/
 │   ├── dominio/      gesto.ts (códigos, puntos de la mano, guía) · modelos.ts (datos de la API, ErrorApi)
-│   ├── puertos/      ReconocedorGestos · Camara · ApiGestoWeb (dividido en 5 interfaces)
-│   └── servicios/    reglas-aceptacion.ts · ejecutor-acciones.ts · cola-detecciones.ts · motor-reconocimiento.ts
-├── adaptadores/
-│   ├── mediapipe/    ReconocedorMediaPipe (único archivo que importa MediaPipe)
-│   ├── camara/       CamaraNavegador (getUserMedia y mensajes de error)
-│   ├── http/         ApiGestoWebHttp + interceptor del token
-│   └── simulado/     CamaraSimulada + ReconocedorSimulado (?simulado=1)
+│   ├── puerto/salida/ PuertoSalidaApiGestoWeb (dividido en 5 interfaces) · PuertoSalidaCamara · PuertoSalidaReconocedor · PuertoSalidaSimuladorGestos
+│   └── caso_uso/     CasoUso_ReglasAceptacion · CasoUso_EjecutorAcciones · CasoUso_ColaDetecciones · CasoUso_MotorReconocimiento
+├── adaptadores/salida/
+│   ├── adap-salida-reconocedor-mediapipe.ts  AdapSalida_ReconocedorMediaPipe (único archivo que importa MediaPipe)
+│   ├── adap-salida-camara-navegador.ts       AdapSalida_CamaraNavegador (getUserMedia y mensajes de error)
+│   ├── adap-salida-api-http.ts               AdapSalida_ApiHttp + interceptor-token.ts
+│   └── adap-salida-*-simulad*.ts             AdapSalida_CamaraSimulada · AdapSalida_ReconocedorSimulado (?simulado=1)
 ├── paginas/          inicio, auth, reconocer (+ panel de demostración), guia, configuracion, historial, estadisticas, perfil, admin/*
 ├── compartido/       guards, SesionUsuario, Avisos, Grafico (Chart.js), utilidades
 └── app.config.ts     raíz de composición: puerto → adaptador
@@ -178,17 +178,17 @@ frontend/src/app/
 
 ### 6.2 El ciclo de reconocimiento (CU-03)
 
-`MotorReconocimiento` coordina todo y vive solo mientras la pantalla Reconocer está abierta:
+`CasoUso_MotorReconocimiento` coordina todo y vive solo mientras la pantalla Reconocer está abierta:
 
 1. **Encender:** en paralelo carga las asignaciones del usuario y el modelo; luego enciende la cámara.
 2. **Bucle** con `requestAnimationFrame`, fuera de la zona de Angular para no redibujar de más. Solo analiza cuando el video trae una imagen nueva.
-3. Cada resultado pasa por **`ReglasAceptacion`** (TypeScript puro):
+3. Cada resultado pasa por **`CasoUso_ReglasAceptacion`** (TypeScript puro):
    - confianza ≥ umbral **de ese gesto** (lo define el administrador);
    - el mismo gesto **500 ms** seguidos (estabilidad);
    - **1 s** de pausa antes de repetir el mismo gesto;
    - tolera parpadeos de hasta 150 ms (un cuadro borroso no reinicia la cuenta);
    - `None` y los gestos desactivados se ignoran.
-4. Gesto aceptado → **`EjecutorAcciones`** ejecuta el manejador registrado para su código (el panel registró los suyos al iniciar) → la detección entra a la **`ColaDetecciones`**.
+4. Gesto aceptado → **`CasoUso_EjecutorAcciones`** ejecuta el manejador registrado para su código (el panel registró los suyos al iniciar) → la detección entra a la **`CasoUso_ColaDetecciones`**.
 5. La cola envía en orden. Si el servidor no responde, reintenta cada 3 s sin detener el reconocimiento (flujo 8a); cada detección conserva la hora en que ocurrió. Si la sesión se cerró en el servidor (código `SESION_CERRADA`), abre otra y reintenta.
 6. **Apagar:** intenta enviar lo pendiente (máx. 3 s) y cierra la sesión.
 
@@ -261,7 +261,7 @@ Requisito: **https** (la cámara no funciona en http, salvo localhost).
 
 **Agregar un endpoint o un caso de uso:** seguir la receta de la skill `arquitectura-hexagonal` (§5): dominio → DTO → puerto de salida → puerto de entrada → `CasoUso_…` → `AdapSalida_…Postgres` y `…Memoria` → SQL → `AdapEntrada_…Web` → contenedor → una línea en `app.ts` → frontend → pruebas.
 
-**Usar otro modelo de gestos** (por ejemplo, uno entrenado con gestos propios): crear un adaptador que extienda `ReconocedorGestos` y registrarlo en `app.config.ts`. Si reconoce gestos nuevos, agregarlos a la tabla `gestos` y a `GUIA_GESTOS`.
+**Usar otro modelo de gestos** (por ejemplo, uno entrenado con gestos propios): crear un adaptador que extienda `PuertoSalidaReconocedor` y registrarlo en `app.config.ts`. Si reconoce gestos nuevos, agregarlos a la tabla `gestos` y a `GUIA_GESTOS`.
 
 ## 11. Problemas comunes
 

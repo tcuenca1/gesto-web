@@ -23,7 +23,7 @@ const temporizadorNavegador: Temporizador = {
   cancelar: (id) => clearTimeout(id as ReturnType<typeof setTimeout>),
 };
 
-export class ColaDetecciones {
+export class CasoUso_ColaDetecciones {
   private readonly pendientes: NuevaDeteccion[] = [];
   private proceso: Promise<void> | null = null;
   private reintento: unknown = null;

@@ -5,7 +5,7 @@ import { Avisos } from '../../compartido/servicios/avisos';
 import { descargarArchivo, fechaHora, finDelDia, inicioDelDia, porcentaje } from '../../compartido/utilidades';
 import { GUIA_GESTOS, infoGesto } from '../../nucleo/dominio/gesto';
 import { Deteccion, FiltroHistorial } from '../../nucleo/dominio/modelos';
-import { ApiGestoWeb, ApiHistorial } from '../../nucleo/puertos/api-gestoweb';
+import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
 /** RF-15 y RF-17 · Historial propio con filtros por fecha y gesto, y descarga en CSV. */
 @Component({
@@ -101,7 +101,7 @@ import { ApiGestoWeb, ApiHistorial } from '../../nucleo/puertos/api-gestoweb';
   `,
 })
 export class Historial implements OnInit {
-  private readonly api: ApiHistorial = inject(ApiGestoWeb);
+  private readonly api: ApiHistorial = inject(PuertoSalidaApiGestoWeb);
   private readonly avisos = inject(Avisos);
 
   protected readonly gestos = GUIA_GESTOS;

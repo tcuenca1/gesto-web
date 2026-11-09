@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { MotorReconocimiento } from '../../nucleo/servicios/motor-reconocimiento';
+import { CasoUso_MotorReconocimiento } from '../../nucleo/caso_uso/caso-uso-motor-reconocimiento';
 import { SesionUsuario } from '../../compartido/servicios/sesion-usuario';
 
 interface Imagen {
@@ -80,7 +80,7 @@ const SEGUNDOS_POR_IMAGEN = 3;
   styleUrl: './panel-demostracion.scss',
 })
 export class PanelDemostracion implements OnInit, OnDestroy {
-  private readonly motor = inject(MotorReconocimiento);
+  private readonly motor = inject(CasoUso_MotorReconocimiento);
   private readonly sesion = inject(SesionUsuario);
 
   protected readonly imagenes = IMAGENES;

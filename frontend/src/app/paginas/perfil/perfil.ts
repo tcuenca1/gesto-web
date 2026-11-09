@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Avisos } from '../../compartido/servicios/avisos';
 import { SesionUsuario } from '../../compartido/servicios/sesion-usuario';
 import { fechaHora } from '../../compartido/utilidades';
-import { ApiAutenticacion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb';
+import { ApiAutenticacion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
 /** RF-05 · Editar el nombre y cambiar la contraseña. */
 @Component({
@@ -56,7 +56,7 @@ import { ApiAutenticacion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb
 })
 export class Perfil {
   protected readonly sesion = inject(SesionUsuario);
-  private readonly api: ApiAutenticacion = inject(ApiGestoWeb);
+  private readonly api: ApiAutenticacion = inject(PuertoSalidaApiGestoWeb);
   private readonly avisos = inject(Avisos);
   private readonly fb = inject(FormBuilder).nonNullable;
 

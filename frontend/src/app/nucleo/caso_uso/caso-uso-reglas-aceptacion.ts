@@ -28,7 +28,7 @@ export type EstadoReconocimiento =
   | { tipo: 'en-pausa'; codigo: string; confianza: number }
   | { tipo: 'aceptado'; codigo: string; confianza: number; mano: Mano };
 
-export class ReglasAceptacion {
+export class CasoUso_ReglasAceptacion {
   private candidato: string | null = null;
   private desdeMs = 0;
   private ultimaCoincidenciaMs = 0;

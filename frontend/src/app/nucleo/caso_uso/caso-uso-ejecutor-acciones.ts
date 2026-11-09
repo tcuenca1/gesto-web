@@ -10,7 +10,7 @@
 export type ManejadorAccion = () => void;
 export type ResultadoEjecucion = 'ejecutada' | 'ninguna' | 'sin-manejador';
 
-export class EjecutorAcciones {
+export class CasoUso_EjecutorAcciones {
   private readonly manejadores = new Map<string, ManejadorAccion>();
 
   /** Registra un manejador. Devuelve una función para quitarlo. */

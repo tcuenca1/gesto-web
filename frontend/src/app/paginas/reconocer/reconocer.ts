@@ -10,13 +10,12 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { ReconocedorSimulado } from '../../adaptadores/simulado/adaptadores-simulados';
 import { MODO_SIMULADO } from '../../compartido/modo-simulado';
 import { Avisos } from '../../compartido/servicios/avisos';
 import { porcentaje } from '../../compartido/utilidades';
 import { CONEXIONES_MANO, GUIA_GESTOS, infoGesto, ResultadoReconocimiento } from '../../nucleo/dominio/gesto';
-import { ReconocedorGestos } from '../../nucleo/puertos/reconocedor-gestos';
-import { MotorReconocimiento } from '../../nucleo/servicios/motor-reconocimiento';
+import { PuertoSalidaSimuladorGestos } from '../../nucleo/puerto/salida/puerto-salida-simulador-gestos';
+import { CasoUso_MotorReconocimiento } from '../../nucleo/caso_uso/caso-uso-motor-reconocimiento';
 import { PanelDemostracion } from './panel-demostracion';
 
 /**
@@ -26,14 +25,14 @@ import { PanelDemostracion } from './panel-demostracion';
 @Component({
   selector: 'app-reconocer',
   imports: [PanelDemostracion, RouterLink],
-  providers: [MotorReconocimiento],
+  providers: [CasoUso_MotorReconocimiento],
   templateUrl: './reconocer.html',
   styleUrl: './reconocer.scss',
 })
 export class Reconocer implements OnDestroy {
-  protected readonly motor = inject(MotorReconocimiento);
+  protected readonly motor = inject(CasoUso_MotorReconocimiento);
   protected readonly simulado = inject(MODO_SIMULADO);
-  private readonly reconocedor = inject(ReconocedorGestos);
+  private readonly simulador = inject(PuertoSalidaSimuladorGestos);
   private readonly avisos = inject(Avisos);
 
   private readonly video = viewChild.required<ElementRef<HTMLVideoElement>>('video');
@@ -100,7 +99,7 @@ export class Reconocer implements OnDestroy {
 
   // ---------- Modo simulado: se "hace" un gesto manteniendo presionado un botón o una tecla 1-7 ----------
   protected simular(codigo: string | null): void {
-    if (this.reconocedor instanceof ReconocedorSimulado) this.reconocedor.gestoActual = codigo;
+    this.simulador.simular(codigo);
   }
 
   @HostListener('window:keydown', ['$event'])

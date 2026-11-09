@@ -1,12 +1,13 @@
-import { Camara, ErrorCamara } from '../../nucleo/puertos/camara';
+import { PuertoSalidaCamara } from '../../nucleo/puerto/salida/puerto-salida-camara';
+import { ErrorCamara } from '../../nucleo/dominio/error-camara';
 
 /**
- * Adaptador del puerto Camara con la API del navegador (getUserMedia).
+ * Adaptador de PuertoSalidaCamara con la API del navegador (getUserMedia).
  *
  * La imagen solo se muestra en el <video> de la página y la lee el modelo
  * en el mismo navegador: nunca se envía ni se guarda (RNF-01).
  */
-export class CamaraNavegador extends Camara {
+export class AdapSalida_CamaraNavegador extends PuertoSalidaCamara {
   private flujo: MediaStream | null = null;
 
   get encendida(): boolean {

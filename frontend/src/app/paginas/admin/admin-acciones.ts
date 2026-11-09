@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Avisos } from '../../compartido/servicios/avisos';
 import { Accion } from '../../nucleo/dominio/modelos';
-import { ApiAdministracion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb';
+import { ApiAdministracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
 /** RF-19 · Gestionar el catálogo de acciones. */
 @Component({
@@ -58,7 +58,7 @@ import { ApiAdministracion, ApiGestoWeb } from '../../nucleo/puertos/api-gestowe
   styleUrl: './admin.scss',
 })
 export class AdminAcciones implements OnInit {
-  private readonly api: ApiAdministracion = inject(ApiGestoWeb);
+  private readonly api: ApiAdministracion = inject(PuertoSalidaApiGestoWeb);
   private readonly avisos = inject(Avisos);
   protected readonly acciones = signal<Accion[]>([]);
   protected nueva = { codigo: '', nombre: '', descripcion: '' };

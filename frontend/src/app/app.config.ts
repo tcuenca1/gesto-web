@@ -5,14 +5,16 @@ import {
   provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
-import { CamaraNavegador } from './adaptadores/camara/camara-navegador';
-import { ApiGestoWebHttp } from './adaptadores/http/api-gestoweb-http';
-import { interceptorToken } from './adaptadores/http/interceptor-token';
-import { ReconocedorMediaPipe } from './adaptadores/mediapipe/reconocedor-mediapipe';
-import { CamaraSimulada, ReconocedorSimulado } from './adaptadores/simulado/adaptadores-simulados';
-import { ApiGestoWeb } from './nucleo/puertos/api-gestoweb';
-import { Camara } from './nucleo/puertos/camara';
-import { ReconocedorGestos } from './nucleo/puertos/reconocedor-gestos';
+import { AdapSalida_CamaraNavegador } from './adaptadores/salida/adap-salida-camara-navegador';
+import { AdapSalida_ApiHttp } from './adaptadores/salida/adap-salida-api-http';
+import { interceptorToken } from './adaptadores/salida/interceptor-token';
+import { AdapSalida_ReconocedorMediaPipe } from './adaptadores/salida/adap-salida-reconocedor-mediapipe';
+import { AdapSalida_CamaraSimulada } from './adaptadores/salida/adap-salida-camara-simulada';
+import { AdapSalida_ReconocedorSimulado } from './adaptadores/salida/adap-salida-reconocedor-simulado';
+import { PuertoSalidaApiGestoWeb } from './nucleo/puerto/salida/puerto-salida-api-gestoweb';
+import { PuertoSalidaCamara } from './nucleo/puerto/salida/puerto-salida-camara';
+import { PuertoSalidaReconocedor } from './nucleo/puerto/salida/puerto-salida-reconocedor';
+import { PuertoSalidaSimuladorGestos } from './nucleo/puerto/salida/puerto-salida-simulador-gestos';
 import { routes } from './app.routes';
 import { MODO_SIMULADO } from './compartido/modo-simulado';
 
@@ -32,6 +34,11 @@ function decidirModoSimulado(): boolean {
 
 const simulado = decidirModoSimulado();
 
+/** En modo simulado el mismo adaptador cumple dos puertos: reconocedor y simulador. */
+let reconocedorSimulado: AdapSalida_ReconocedorSimulado | null = null;
+const obtenerSimulado = () => (reconocedorSimulado ??= new AdapSalida_ReconocedorSimulado());
+const simuladorInactivo: PuertoSalidaSimuladorGestos = { simular: () => undefined };
+
 /**
  * Raíz de composición del frontend: el equivalente a main.ts del backend.
  * Aquí, y solo aquí, se decide qué adaptador cumple cada puerto.
@@ -44,9 +51,10 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([interceptorToken])),
 
     // Puerto → adaptador
-    { provide: ApiGestoWeb, useClass: ApiGestoWebHttp },
-    { provide: Camara, useFactory: () => (simulado ? new CamaraSimulada() : new CamaraNavegador()) },
-    { provide: ReconocedorGestos, useFactory: () => (simulado ? new ReconocedorSimulado() : new ReconocedorMediaPipe()) },
+    { provide: PuertoSalidaApiGestoWeb, useClass: AdapSalida_ApiHttp },
+    { provide: PuertoSalidaCamara, useFactory: () => (simulado ? new AdapSalida_CamaraSimulada() : new AdapSalida_CamaraNavegador()) },
+    { provide: PuertoSalidaReconocedor, useFactory: () => (simulado ? obtenerSimulado() : new AdapSalida_ReconocedorMediaPipe()) },
+    { provide: PuertoSalidaSimuladorGestos, useFactory: () => (simulado ? obtenerSimulado() : simuladorInactivo) },
     { provide: MODO_SIMULADO, useValue: simulado },
   ],
 };

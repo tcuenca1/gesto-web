@@ -1,10 +1,10 @@
 import type { GestureRecognizer, GestureRecognizerOptions } from '@mediapipe/tasks-vision';
 import { environment } from '../../../environments/environment';
 import { CODIGO_NINGUNO, Mano, ResultadoReconocimiento } from '../../nucleo/dominio/gesto';
-import { ReconocedorGestos } from '../../nucleo/puertos/reconocedor-gestos';
+import { PuertoSalidaReconocedor } from '../../nucleo/puerto/salida/puerto-salida-reconocedor';
 
 /**
- * Adaptador del puerto ReconocedorGestos con MediaPipe Gesture Recognizer.
+ * Adaptador de PuertoSalidaReconocedor con MediaPipe Gesture Recognizer.
  *
  * Es el ÚNICO archivo del frontend que importa @mediapipe/tasks-vision.
  * Si mañana se cambia de modelo, solo se reemplaza este archivo (RNF-12).
@@ -12,7 +12,7 @@ import { ReconocedorGestos } from '../../nucleo/puertos/reconocedor-gestos';
  * La librería se carga con import() dinámico: así no pesa en la primera
  * carga de la aplicación, solo cuando alguien enciende la cámara.
  */
-export class ReconocedorMediaPipe extends ReconocedorGestos {
+export class AdapSalida_ReconocedorMediaPipe extends PuertoSalidaReconocedor {
   private modelo: GestureRecognizer | null = null;
   private carga: Promise<void> | null = null;
 

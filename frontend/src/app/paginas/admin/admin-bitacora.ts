@@ -2,7 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Avisos } from '../../compartido/servicios/avisos';
 import { fechaHora } from '../../compartido/utilidades';
 import { EntradaBitacora } from '../../nucleo/dominio/modelos';
-import { ApiAdministracion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb';
+import { ApiAdministracion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
 const OPERACIONES: Record<string, string> = { INSERT: 'Creó', UPDATE: 'Cambió', DELETE: 'Desactivó' };
 
@@ -44,7 +44,7 @@ const OPERACIONES: Record<string, string> = { INSERT: 'Creó', UPDATE: 'Cambió'
   styles: `.paginacion { margin-top: 1rem; } td:first-child { white-space: nowrap; }`,
 })
 export class AdminBitacora implements OnInit {
-  private readonly api: ApiAdministracion = inject(ApiGestoWeb);
+  private readonly api: ApiAdministracion = inject(PuertoSalidaApiGestoWeb);
   private readonly avisos = inject(Avisos);
   protected readonly entradas = signal<EntradaBitacora[]>([]);
   protected readonly pagina = signal(1);

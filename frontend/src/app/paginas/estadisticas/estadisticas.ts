@@ -5,7 +5,7 @@ import { Grafico } from '../../compartido/componentes/grafico';
 import { diaCorto, haceDias, porcentaje } from '../../compartido/utilidades';
 import { infoGesto } from '../../nucleo/dominio/gesto';
 import { Estadisticas } from '../../nucleo/dominio/modelos';
-import { ApiGestoWeb, ApiHistorial } from '../../nucleo/puertos/api-gestoweb';
+import { PuertoSalidaApiGestoWeb, ApiHistorial } from '../../nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
 /** RF-16 · Estadísticas propias: gesto más usado, total por gesto, confianza promedio y uso por día. */
 @Component({
@@ -94,7 +94,7 @@ import { ApiGestoWeb, ApiHistorial } from '../../nucleo/puertos/api-gestoweb';
   styleUrl: './estadisticas.scss',
 })
 export class EstadisticasPagina implements OnInit {
-  private readonly api: ApiHistorial = inject(ApiGestoWeb);
+  private readonly api: ApiHistorial = inject(PuertoSalidaApiGestoWeb);
 
   protected periodo = 30;
   protected readonly datos = signal<Estadisticas | null>(null);
