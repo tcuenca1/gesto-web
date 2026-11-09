@@ -42,7 +42,7 @@ Excepción aceptada: `dominio/compartido/errores.ts` contiene la jerarquía de 6
 | U-08 | Aviso flotante centrado, pestañas subrayadas, etiquetas píldora | global |
 | U-09 | Logs con `✔`/`✖` en el backend | `main.ts`, scripts |
 
-## 3. Plan de commits
+## 3. Plan de commits (ejecutado)
 
 Cada commit compila y pasa las pruebas. Los refactors no cambian aserciones (skill `pruebas-por-capa` §2.7).
 
@@ -67,3 +67,7 @@ Cada commit compila y pasa las pruebas. Los refactors no cambian aserciones (ski
 | 17 | `ui(frontend): rediseñar administración` | U-08 |
 | 18 | `docs: regenerar capturas y manual de usuario` | OBS-02 |
 | 19 | `docs: cerrar observaciones OBS-01 y OBS-02` | — |
+
+## 4. Resultado
+
+El plan se ejecutó en el orden previsto, con dos commits agregados durante la revisión visual: `ui(frontend): eliminar los alias de tokens anteriores` y `ui(frontend): pasar el menú a su propia fila en tabletas`. Los hallazgos A-01 a A-10 y U-01 a U-09 quedan resueltos; el detalle por observación está en `docs/observaciones.md`.
