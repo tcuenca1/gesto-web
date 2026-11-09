@@ -10,8 +10,8 @@
 import { Pool } from 'pg';
 import { crearCasosDeUso } from '../../src/aplicacion/casos-uso';
 import { CasosDeUso } from '../../src/aplicacion/puertos/entrada';
-import { CifradorBcrypt } from '../../src/infraestructura/seguridad/CifradorBcrypt';
-import { GeneradorTokensJwt } from '../../src/infraestructura/seguridad/GeneradorTokensJwt';
+import { AdapSalida_CifradorBcrypt } from '../../src/infraestructura/adaptadores/salida/AdapSalida_CifradorBcrypt';
+import { AdapSalida_TokensJwt } from '../../src/infraestructura/adaptadores/salida/AdapSalida_TokensJwt';
 import { persistenciaMemoria, persistenciaPostgres } from '../../src/main';
 import { ADMIN, RelojFalso, SECRETO_PRUEBAS } from '../ayudantes';
 import { poolDePruebas, reiniciarBase } from './preparar';
@@ -38,8 +38,8 @@ const fabricas: Array<[string, Fabrica]> = [
 function armar(persistencia: ReturnType<typeof persistenciaMemoria>, reloj: RelojFalso): CasosDeUso {
   return crearCasosDeUso({
     ...persistencia,
-    cifrador: new CifradorBcrypt(4),
-    tokens: new GeneradorTokensJwt(SECRETO_PRUEBAS),
+    cifrador: new AdapSalida_CifradorBcrypt(4),
+    tokens: new AdapSalida_TokensJwt(SECRETO_PRUEBAS),
     reloj,
     zonaHoraria: 'America/Guayaquil',
   });

@@ -1,15 +1,15 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
-import { ErrorNoAutenticado } from '../../dominio/compartido/errores';
-import { ROLES, Rol } from '../../dominio/usuario/Usuario';
-import { DatosToken } from '../../aplicacion/puerto/salida/PuertoSalidaTokens';
-import { PuertoSalidaTokens } from '../../aplicacion/puerto/salida/PuertoSalidaTokens';
+import { ErrorNoAutenticado } from '../../../dominio/compartido/errores';
+import { ROLES, Rol } from '../../../dominio/usuario/Usuario';
+import { DatosToken, PuertoSalidaTokens } from '../../../aplicacion/puerto/salida/PuertoSalidaTokens';
 
 /** Adaptador del puerto PuertoSalidaTokens con JSON Web Tokens (RNF-07: vencen a las 8 horas). */
-export class GeneradorTokensJwt implements PuertoSalidaTokens {
+export class AdapSalida_TokensJwt extends PuertoSalidaTokens {
   constructor(
     private readonly secreto: string,
     private readonly duracionSegundos = 8 * 60 * 60,
   ) {
+    super();
     if (secreto.length < 16) throw new Error('El secreto JWT debe tener al menos 16 caracteres');
   }
 

@@ -3,8 +3,8 @@ import { CasosDeUso } from '../src/aplicacion/puertos/entrada';
 import { PuertoSalidaReloj } from '../src/aplicacion/puerto/salida/PuertoSalidaReloj';
 import { AlmacenMemoria } from '../src/infraestructura/base_dato/AlmacenMemoria';
 import { datosInicialesMemoria } from '../src/infraestructura/base_dato/datosInicialesMemoria';
-import { CifradorBcrypt } from '../src/infraestructura/seguridad/CifradorBcrypt';
-import { GeneradorTokensJwt } from '../src/infraestructura/seguridad/GeneradorTokensJwt';
+import { AdapSalida_CifradorBcrypt } from '../src/infraestructura/adaptadores/salida/AdapSalida_CifradorBcrypt';
+import { AdapSalida_TokensJwt } from '../src/infraestructura/adaptadores/salida/AdapSalida_TokensJwt';
 import { persistenciaMemoria } from '../src/main';
 
 /** PuertoSalidaReloj falso: la hora la controla la prueba. */
@@ -30,8 +30,8 @@ export function entornoMemoria(reloj = new RelojFalso()) {
   const persistencia = persistenciaMemoria(reloj, almacen);
   const casos: CasosDeUso = crearCasosDeUso({
     ...persistencia,
-    cifrador: new CifradorBcrypt(4),
-    tokens: new GeneradorTokensJwt(SECRETO_PRUEBAS),
+    cifrador: new AdapSalida_CifradorBcrypt(4),
+    tokens: new AdapSalida_TokensJwt(SECRETO_PRUEBAS),
     reloj,
     zonaHoraria: 'America/Guayaquil',
   });

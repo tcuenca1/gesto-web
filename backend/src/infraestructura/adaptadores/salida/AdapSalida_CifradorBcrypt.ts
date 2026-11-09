@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { PuertoSalidaCifrador } from '../../aplicacion/puerto/salida/PuertoSalidaCifrador';
+import { PuertoSalidaCifrador } from '../../../aplicacion/puerto/salida/PuertoSalidaCifrador';
 
 /**
  * Adaptador del puerto PuertoSalidaCifrador con bcrypt (RNF-06).
@@ -9,8 +9,10 @@ import { PuertoSalidaCifrador } from '../../aplicacion/puerto/salida/PuertoSalid
  * compiladores de C++. Si algún día se quiere el paquete nativo "bcrypt",
  * solo cambia este archivo.
  */
-export class CifradorBcrypt implements PuertoSalidaCifrador {
-  constructor(private readonly costo = 10) {}
+export class AdapSalida_CifradorBcrypt extends PuertoSalidaCifrador {
+  constructor(private readonly costo = 10) {
+    super();
+  }
 
   cifrar(contrasena: string): Promise<string> {
     return bcrypt.hash(contrasena, this.costo);

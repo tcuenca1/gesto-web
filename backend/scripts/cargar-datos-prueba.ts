@@ -9,7 +9,7 @@ import { performance } from 'node:perf_hooks';
 import { leerConfiguracion } from '../src/config/entorno';
 import { crearPool } from '../src/infraestructura/base_dato/ConexionPostgresql';
 import { AdapSalida_DeteccionPostgres } from '../src/infraestructura/adaptadores/salida/AdapSalida_DeteccionPostgres';
-import { CifradorBcrypt } from '../src/infraestructura/seguridad/CifradorBcrypt';
+import { AdapSalida_CifradorBcrypt } from '../src/infraestructura/adaptadores/salida/AdapSalida_CifradorBcrypt';
 
 async function medir<T>(nombre: string, fn: () => Promise<T>): Promise<number> {
   await fn(); // calentamiento
@@ -26,7 +26,7 @@ async function main(): Promise<void> {
   const pool = crearPool({ urlConexion: config.baseDatos.url, ssl: config.baseDatos.ssl });
 
   try {
-    const hash = await new CifradorBcrypt().cifrar('Carga1234');
+    const hash = await new AdapSalida_CifradorBcrypt().cifrar('Carga1234');
     const { rows } = await pool.query<{ id_usuario: number }>(
       `INSERT INTO usuarios (nombre, correo, contrasena_hash) VALUES ('Usuario de carga', 'carga@gestoweb.local', $1)
        ON CONFLICT (correo) DO UPDATE SET nombre = EXCLUDED.nombre RETURNING id_usuario`,

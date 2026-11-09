@@ -5,8 +5,8 @@
  * adaptadores concretos. Aquí se decide qué adaptador cumple cada puerto:
  *
  *    puerto PuertoSalidaUsuario  ← AdapSalida_UsuarioPostgres   (o …Memoria)
- *    puerto PuertoSalidaCifrador ← CifradorBcrypt
- *    puerto PuertoSalidaTokens     ← GeneradorTokensJwt
+ *    puerto PuertoSalidaCifrador ← AdapSalida_CifradorBcrypt
+ *    puerto PuertoSalidaTokens     ← AdapSalida_TokensJwt
  *    …
  *
  * Cambiar PostgreSQL por otra base de datos, o por memoria (prueba P-09),
@@ -38,9 +38,9 @@ import { crearPool } from './infraestructura/base_dato/ConexionPostgresql';
 import { AdapSalida_DeteccionPostgres } from './infraestructura/adaptadores/salida/AdapSalida_DeteccionPostgres';
 import { AdapSalida_SesionPostgres } from './infraestructura/adaptadores/salida/AdapSalida_SesionPostgres';
 import { AdapSalida_UsuarioPostgres } from './infraestructura/adaptadores/salida/AdapSalida_UsuarioPostgres';
-import { CifradorBcrypt } from './infraestructura/seguridad/CifradorBcrypt';
-import { GeneradorTokensJwt } from './infraestructura/seguridad/GeneradorTokensJwt';
-import { RelojSistema } from './infraestructura/sistema/RelojSistema';
+import { AdapSalida_CifradorBcrypt } from './infraestructura/adaptadores/salida/AdapSalida_CifradorBcrypt';
+import { AdapSalida_TokensJwt } from './infraestructura/adaptadores/salida/AdapSalida_TokensJwt';
+import { AdapSalida_RelojSistema } from './infraestructura/adaptadores/salida/AdapSalida_RelojSistema';
 
 type Persistencia = Pick<
   PuertosDeSalida,
@@ -81,12 +81,12 @@ export function persistenciaMemoria(reloj: PuertoSalidaReloj, almacen = new Alma
 
 /** Conecta cada puerto con su adaptador y devuelve los casos de uso listos. */
 export function componer(config: Configuracion, pool?: Pool): CasosDeUso {
-  const reloj = new RelojSistema();
+  const reloj = new AdapSalida_RelojSistema();
   const persistencia = config.repositorios === 'memoria' ? persistenciaMemoria(reloj) : persistenciaPostgres(pool!);
   return crearCasosDeUso({
     ...persistencia,
-    cifrador: new CifradorBcrypt(),
-    tokens: new GeneradorTokensJwt(config.jwt.secreto, config.jwt.duracionSegundos),
+    cifrador: new AdapSalida_CifradorBcrypt(),
+    tokens: new AdapSalida_TokensJwt(config.jwt.secreto, config.jwt.duracionSegundos),
     reloj,
     zonaHoraria: config.zonaHoraria,
   });
