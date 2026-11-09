@@ -135,7 +135,7 @@ main { outline: none; }
 .aviso--error { border-top-color: var(--senal); .aviso__tipo { color: var(--senal); } }
 .aviso--info { border-top-color: var(--atencion); .aviso__tipo { color: var(--atencion); } }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .barra__interior { flex-wrap: wrap; gap: 0 1rem; }
   .marca { min-height: 3rem; }
   .menu { order: 3; flex-basis: 100%; padding-bottom: 0.25rem; }
