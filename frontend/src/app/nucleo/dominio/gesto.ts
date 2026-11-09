@@ -49,7 +49,6 @@ export const CONEXIONES_MANO: ReadonlyArray<readonly [number, number]> = [
 
 export interface InfoGesto {
   codigo: CodigoGesto;
-  icono: string;
   nombre: string;
   comoSeHace: string;
   consejo: string;
@@ -57,13 +56,13 @@ export interface InfoGesto {
 
 /** Guía visual de los 7 gestos (RF-13). */
 export const GUIA_GESTOS: readonly InfoGesto[] = [
-  { codigo: 'Open_Palm', icono: '🖐️', nombre: 'Palma abierta', comoSeHace: 'Mano abierta con los cinco dedos extendidos.', consejo: 'Muestra la palma de frente, sin juntar los dedos.' },
-  { codigo: 'Closed_Fist', icono: '✊', nombre: 'Puño cerrado', comoSeHace: 'Todos los dedos cerrados.', consejo: 'Que se vean los nudillos; no escondas el pulgar.' },
-  { codigo: 'Pointing_Up', icono: '☝️', nombre: 'Índice arriba', comoSeHace: 'Solo el índice extendido hacia arriba.', consejo: 'Mantén los otros dedos bien cerrados para no confundirlo con victoria.' },
-  { codigo: 'Victory', icono: '✌️', nombre: 'Victoria', comoSeHace: 'Índice y medio abiertos en V.', consejo: 'Separa bien los dos dedos.' },
-  { codigo: 'Thumb_Up', icono: '👍', nombre: 'Pulgar arriba', comoSeHace: 'Puño con el pulgar hacia arriba.', consejo: 'Pon la mano de lado, con el pulgar bien vertical.' },
-  { codigo: 'Thumb_Down', icono: '👎', nombre: 'Pulgar abajo', comoSeHace: 'Puño con el pulgar hacia abajo.', consejo: 'Gira la muñeca hasta que el pulgar apunte al suelo.' },
-  { codigo: 'ILoveYou', icono: '🤟', nombre: 'Te quiero', comoSeHace: 'Pulgar, índice y meñique extendidos.', consejo: 'Medio y anular doblados contra la palma.' },
+  { codigo: 'Open_Palm', nombre: 'Palma abierta', comoSeHace: 'Mano abierta con los cinco dedos extendidos.', consejo: 'Muestra la palma de frente, sin juntar los dedos.' },
+  { codigo: 'Closed_Fist', nombre: 'Puño cerrado', comoSeHace: 'Todos los dedos cerrados.', consejo: 'Que se vean los nudillos; no escondas el pulgar.' },
+  { codigo: 'Pointing_Up', nombre: 'Índice arriba', comoSeHace: 'Solo el índice extendido hacia arriba.', consejo: 'Mantén los otros dedos bien cerrados para no confundirlo con victoria.' },
+  { codigo: 'Victory', nombre: 'Victoria', comoSeHace: 'Índice y medio abiertos en V.', consejo: 'Separa bien los dos dedos.' },
+  { codigo: 'Thumb_Up', nombre: 'Pulgar arriba', comoSeHace: 'Puño con el pulgar hacia arriba.', consejo: 'Pon la mano de lado, con el pulgar bien vertical.' },
+  { codigo: 'Thumb_Down', nombre: 'Pulgar abajo', comoSeHace: 'Puño con el pulgar hacia abajo.', consejo: 'Gira la muñeca hasta que el pulgar apunte al suelo.' },
+  { codigo: 'ILoveYou', nombre: 'Te quiero', comoSeHace: 'Pulgar, índice y meñique extendidos.', consejo: 'Medio y anular doblados contra la palma.' },
 ];
 
 export function infoGesto(codigo: string): InfoGesto | undefined {

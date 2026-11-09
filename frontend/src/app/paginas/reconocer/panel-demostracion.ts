@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { MotorReconocimiento } from '../../nucleo/servicios/motor-reconocimiento';
+import { CasoUso_MotorReconocimiento } from '../../nucleo/caso_uso/caso-uso-motor-reconocimiento';
 import { SesionUsuario } from '../../compartido/servicios/sesion-usuario';
 
 interface Imagen {
@@ -33,15 +33,15 @@ const SEGUNDOS_POR_IMAGEN = 3;
 
       <figcaption class="visor__pie">
         <span class="visor__titulo">{{ actual().titulo }}</span>
-        <span class="visor__contador">{{ indice() + 1 }} de {{ imagenes.length }}</span>
+        <span class="visor__contador">{{ contador() }}</span>
       </figcaption>
 
       <div class="visor__estado">
         @if (reproduciendo()) {
-          <span class="chip chip--vivo">Pase automático</span>
+          <span class="chip chip--vivo">PASE AUTOMÁTICO</span>
         }
         @if (esFavorita()) {
-          <span class="chip chip--favorita">★ Favorita</span>
+          <span class="chip chip--favorita">FAVORITA</span>
         }
       </div>
 
@@ -53,7 +53,7 @@ const SEGUNDOS_POR_IMAGEN = 3;
       }
 
       @for (c of corazones(); track c.id) {
-        <span class="corazon" [style.left.%]="c.x" aria-hidden="true">❤️</span>
+        <span class="corazon" [style.left.%]="c.x" aria-hidden="true"><svg viewBox="0 0 24 24" width="44" height="44"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 4.3 2.5h2c.7-1.3 2.2-2.5 4.3-2.5 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" style="fill: var(--senal)" /></svg></span>
       }
       <span class="oculto-visual" aria-live="polite">{{ anuncio() }}</span>
     </figure>
@@ -71,7 +71,7 @@ const SEGUNDOS_POR_IMAGEN = 3;
         >
           <img [src]="img.archivo" alt="" loading="lazy" />
           @if (favoritas().has(i)) {
-            <span class="miniatura__estrella" aria-hidden="true">★</span>
+            <span class="miniatura__estrella" aria-hidden="true"></span>
           }
         </button>
       }
@@ -80,13 +80,14 @@ const SEGUNDOS_POR_IMAGEN = 3;
   styleUrl: './panel-demostracion.scss',
 })
 export class PanelDemostracion implements OnInit, OnDestroy {
-  private readonly motor = inject(MotorReconocimiento);
+  private readonly motor = inject(CasoUso_MotorReconocimiento);
   private readonly sesion = inject(SesionUsuario);
 
   protected readonly imagenes = IMAGENES;
   protected readonly segundos = SEGUNDOS_POR_IMAGEN;
   protected readonly indice = signal(0);
   protected readonly reproduciendo = signal(false);
+  protected readonly contador = computed(() => `${String(this.indice() + 1).padStart(2, '0')} / ${String(this.imagenes.length).padStart(2, '0')}`);
   protected readonly favoritas = signal<Set<number>>(this.leerFavoritas());
   protected readonly corazones = signal<Array<{ id: number; x: number }>>([]);
   protected readonly anuncio = signal('');

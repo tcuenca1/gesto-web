@@ -6,17 +6,17 @@
  * Crea el usuario "carga@gestoweb.local" (contraseña Carga1234) con sus datos.
  */
 import { performance } from 'node:perf_hooks';
-import { leerConfiguracion } from '../src/config/entorno';
-import { crearPool } from '../src/infraestructura/persistencia/postgres/conexion';
-import { DeteccionRepositorioPg } from '../src/infraestructura/persistencia/postgres/ReconocimientoRepositoriosPg';
-import { CifradorBcrypt } from '../src/infraestructura/seguridad/CifradorBcrypt';
+import { leerConfiguracion } from '../src/infraestructura/util/entorno';
+import { crearPool } from '../src/infraestructura/base_dato/ConexionPostgresql';
+import { AdapSalida_DeteccionPostgres } from '../src/infraestructura/adaptadores/salida/AdapSalida_DeteccionPostgres';
+import { AdapSalida_CifradorBcrypt } from '../src/infraestructura/adaptadores/salida/AdapSalida_CifradorBcrypt';
 
 async function medir<T>(nombre: string, fn: () => Promise<T>): Promise<number> {
   await fn(); // calentamiento
   const inicio = performance.now();
   await fn();
   const ms = performance.now() - inicio;
-  console.log(`  ${ms < 500 ? '✔' : '✖'} ${nombre.padEnd(40)} ${ms.toFixed(1)} ms`);
+  console.log(`  ${ms < 500 ? 'OK   ' : 'LENTO'} ${nombre.padEnd(40)} ${ms.toFixed(1)} ms`);
   return ms;
 }
 
@@ -26,7 +26,7 @@ async function main(): Promise<void> {
   const pool = crearPool({ urlConexion: config.baseDatos.url, ssl: config.baseDatos.ssl });
 
   try {
-    const hash = await new CifradorBcrypt().cifrar('Carga1234');
+    const hash = await new AdapSalida_CifradorBcrypt().cifrar('Carga1234');
     const { rows } = await pool.query<{ id_usuario: number }>(
       `INSERT INTO usuarios (nombre, correo, contrasena_hash) VALUES ('Usuario de carga', 'carga@gestoweb.local', $1)
        ON CONFLICT (correo) DO UPDATE SET nombre = EXCLUDED.nombre RETURNING id_usuario`,
@@ -78,7 +78,7 @@ async function main(): Promise<void> {
 
     const total = (await pool.query<{ total: number }>('SELECT COUNT(*) AS total FROM detecciones')).rows[0].total;
     console.log(`\nTiempos de consulta con ${total.toLocaleString('es')} detecciones en total (RNF-04, meta < 500 ms):`);
-    const repo = new DeteccionRepositorioPg(pool);
+    const repo = new AdapSalida_DeteccionPostgres(pool);
     const hace30 = new Date(Date.now() - 30 * 86400000);
     const tiempos = [
       await medir('Historial, página 1 (20 filas)', () => repo.historial({ idUsuario, pagina: 1, limite: 20 })),
@@ -95,6 +95,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error('✖', (error as Error).message);
+  console.error('[ERROR]', (error as Error).message);
   process.exit(1);
 });

@@ -1,8 +1,9 @@
 <section class="pagina">
   <div class="pagina__titulo">
     <div>
-      <h1>Reconocer gestos</h1>
-      <p>Haz un gesto frente a la cámara y mantenlo medio segundo. La imagen se analiza en tu navegador y nunca sale de tu computador.</p>
+      <span class="pagina__ruta">01 / Reconocer</span>
+      <h1>Reconocer</h1>
+      <p>Mantén el gesto 0,5 s frente a la cámara. La imagen se analiza en tu navegador; no sale de tu computador.</p>
     </div>
     @if (motor.estado() === 'activo') {
       <button type="button" class="boton boton--fantasma" (click)="apagar()">Apagar cámara</button>
@@ -10,72 +11,89 @@
   </div>
 
   <div class="rejilla">
-    <!-- Cámara y lectura del gesto -->
+    <!-- Visor de la cámara y panel de lectura -->
     <div class="columna-camara">
       <div class="escenario">
         <video #video class="escenario__video" playsinline muted aria-label="Vista de tu cámara"></video>
         <canvas #lienzo class="escenario__lienzo" aria-hidden="true"></canvas>
+        <span class="escenario__esquina escenario__esquina--1" aria-hidden="true"></span>
+        <span class="escenario__esquina escenario__esquina--2" aria-hidden="true"></span>
+        <span class="escenario__esquina escenario__esquina--3" aria-hidden="true"></span>
+        <span class="escenario__esquina escenario__esquina--4" aria-hidden="true"></span>
 
         @switch (motor.estado()) {
           @case ('apagado') {
             <div class="escenario__capa">
-              <p class="escenario__titulo">La cámara está apagada</p>
-              <button type="button" class="boton boton--grande boton--marcador" (click)="encender()">Encender cámara</button>
-              <small>El navegador te pedirá permiso la primera vez.</small>
+              <span class="escenario__estado">CÁMARA APAGADA</span>
+              <button type="button" class="boton boton--grande boton--senal" (click)="encender()">Encender cámara</button>
+              <small>El navegador pide permiso la primera vez.</small>
             </div>
           }
           @case ('cargando') {
             <div class="escenario__capa">
-              <span class="girador" aria-hidden="true"></span>
-              <p class="escenario__titulo">Preparando el modelo y la cámara…</p>
+              <span class="escenario__estado escenario__estado--parpadeo">CARGANDO MODELO Y CÁMARA</span>
               <small>La primera vez puede tardar unos segundos.</small>
             </div>
           }
           @case ('error') {
             <div class="escenario__capa" role="alert">
-              <p class="escenario__titulo">No se pudo empezar</p>
+              <span class="escenario__estado escenario__estado--error">ERROR</span>
               <p class="escenario__error">{{ motor.mensajeError() }}</p>
-              <button type="button" class="boton boton--marcador" (click)="encender()">Intentar de nuevo</button>
+              <button type="button" class="boton boton--senal" (click)="encender()">Intentar de nuevo</button>
             </div>
           }
         }
 
+        @if (motor.estado() === 'activo') {
+          <span class="escenario__rec" aria-hidden="true">REC</span>
+        }
         @if (mostrarFps && motor.estado() === 'activo') {
           <span class="fps" title="Imágenes analizadas por segundo (meta: 15 o más)">{{ motor.fps() }} img/s</span>
         }
       </div>
 
-      <div class="lectura" [class]="'lectura lectura--' + lectura().clase" aria-live="polite">
-        <div class="anillo" aria-hidden="true">
-          <svg viewBox="0 0 44 44">
-            <circle class="anillo__fondo" cx="22" cy="22" r="20" />
-            <circle class="anillo__avance" cx="22" cy="22" r="20" [style.stroke-dashoffset]="125.66 * (1 - lectura().progreso)" />
-          </svg>
-          <span class="anillo__icono">{{ lectura().icono || '✋' }}</span>
-        </div>
-        <div class="lectura__texto">
+      <div [class]="'lectura lectura--' + lectura().clase" aria-live="polite">
+        <app-icono-gesto class="lectura__icono" [codigo]="lectura().codigo" [tamano]="72" [decorativo]="true" />
+        <div class="lectura__gesto">
+          <span class="etiqueta-dato">Gesto</span>
           <strong class="lectura__titulo">{{ lectura().titulo }}</strong>
-          @if (lectura().detalle) {
-            <span class="lectura__detalle">{{ lectura().detalle }}</span>
-          }
-          @if (motor.lectura().tipo !== 'sin-mano') {
-            <div class="confianza">
-              <div class="confianza__barra" role="meter" aria-label="Confianza" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="redondear(lectura().confianza * 100)">
-                <span [style.width.%]="lectura().confianza * 100"></span>
-              </div>
-              <span class="confianza__valor">{{ porcentaje(lectura().confianza) }}</span>
-            </div>
-          }
+          <span class="lectura__codigo">{{ lectura().codigo ? lectura().codigo!.toUpperCase() : '—' }}</span>
         </div>
+        <dl class="lectura__datos">
+          <div>
+            <dt>Estado</dt>
+            <dd class="lectura__estado">{{ lectura().estado }}</dd>
+          </div>
+          <div>
+            <dt>Confianza</dt>
+            <dd>{{ motor.lectura().tipo === 'sin-mano' ? '—' : porcentaje(lectura().confianza) }}</dd>
+          </div>
+        </dl>
+        <div
+          class="tramos"
+          role="meter"
+          aria-label="Confianza"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          [attr.aria-valuenow]="redondear(lectura().confianza * 100)"
+        >
+          @for (t of tramos; track t) {
+            <span class="tramo" [class.tramo--lleno]="t < tramosLlenos()" [class.tramo--umbral]="t === tramoUmbral()"></span>
+          }
+          <span class="tramos__umbral">umbral {{ porcentaje(umbral()) }}</span>
+        </div>
+        @if (lectura().detalle) {
+          <p class="lectura__detalle">{{ lectura().detalle }}</p>
+        }
       </div>
 
       @if (motor.estado() === 'activo') {
         <p class="guardado">
           @if (motor.sinConexion()) {
             <span class="etiqueta etiqueta--alerta">Sin conexión</span>
-            {{ motor.pendientes() }} detecciones esperando para guardarse. El reconocimiento sigue funcionando.
+            {{ motor.pendientes() }} detecciones esperan para guardarse. El reconocimiento sigue funcionando.
           } @else {
-            {{ motor.guardadas() }} detecciones guardadas en tu historial en esta sesión.
+            <span class="dato">{{ motor.guardadas() }}</span> detecciones guardadas en esta sesión.
           }
         </p>
       }
@@ -85,22 +103,23 @@
     <div class="columna-panel">
       <app-panel-demostracion />
       <p class="ultima" aria-live="polite">
+        <span class="etiqueta-dato">Última acción</span>
         @if (motor.ultimaAccion(); as u) {
-          Último gesto: <strong>{{ u.nombreGesto }}</strong>, que hizo «{{ u.nombreAccion }}» con {{ porcentaje(u.confianza) }} de confianza.
+          <span><strong>{{ u.nombreGesto }}</strong> → {{ u.nombreAccion }} <span class="dato">· {{ porcentaje(u.confianza) }}</span></span>
         } @else {
-          Cuando aceptemos un gesto, aquí verás qué acción hizo.
+          <span class="texto-suave">Ninguna todavía.</span>
         }
       </p>
     </div>
   </div>
 
-  <!-- Leyenda: qué hace cada gesto para este usuario -->
+  <!-- Regla numerada de gestos: qué hace cada uno para este usuario -->
   <section class="leyenda" aria-labelledby="titulo-leyenda">
     <div class="leyenda__cabecera">
       <h2 id="titulo-leyenda">Tus gestos</h2>
-      <a routerLink="/configuracion">Cambiar qué hace cada gesto</a>
+      <a routerLink="/configuracion">Cambiar acciones</a>
     </div>
-    <ul class="leyenda__lista">
+    <ol class="leyenda__lista">
       @for (g of leyenda(); track g.codigo; let i = $index) {
         <li>
           @if (simulado) {
@@ -114,25 +133,26 @@
               (pointerleave)="simular(null)"
               [attr.aria-label]="'Simular ' + g.nombre + ' (tecla ' + (i + 1) + ')'"
             >
-              <span class="tarjeta-gesto__icono" aria-hidden="true">{{ g.icono }}</span>
+              <span class="tarjeta-gesto__num">{{ i + 1 }}</span>
+              <app-icono-gesto class="tarjeta-gesto__icono" [codigo]="g.codigo" [tamano]="44" [decorativo]="true" />
               <span class="tarjeta-gesto__nombre">{{ g.nombre }}</span>
               <span class="tarjeta-gesto__accion">{{ g.accion }}</span>
-              <kbd>{{ i + 1 }}</kbd>
             </button>
           } @else {
             <div class="tarjeta-gesto" [class.tarjeta-gesto--ultima]="motor.ultimaAccion()?.codigoGesto === g.codigo">
-              <span class="tarjeta-gesto__icono" aria-hidden="true">{{ g.icono }}</span>
+              <span class="tarjeta-gesto__num">{{ i + 1 }}</span>
+              <app-icono-gesto class="tarjeta-gesto__icono" [codigo]="g.codigo" [tamano]="44" [decorativo]="true" />
               <span class="tarjeta-gesto__nombre">{{ g.nombre }}</span>
               <span class="tarjeta-gesto__accion">{{ g.accion }}</span>
             </div>
           }
         </li>
       }
-    </ul>
+    </ol>
     @if (simulado) {
-      <p class="texto-suave">Modo simulado: enciende la cámara y mantén presionada una tarjeta (o las teclas 1 a 7) para "hacer" ese gesto.</p>
+      <p class="texto-suave">Modo simulado: con la cámara encendida, mantén presionado un gesto o las teclas <kbd>1</kbd>–<kbd>7</kbd>.</p>
     } @else {
-      <p class="texto-suave">¿Dudas sobre cómo hacer un gesto? Mira la <a routerLink="/guia">guía de gestos</a>.</p>
+      <p class="texto-suave">Cómo se hace cada gesto: <a routerLink="/guia">guía de gestos</a>.</p>
     }
   </section>
 </section>

@@ -1,3 +1,4 @@
+import { IconoGesto } from '../../compartido/componentes/icono-gesto';
 import {
   Component,
   computed,
@@ -10,13 +11,13 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { ReconocedorSimulado } from '../../adaptadores/simulado/adaptadores-simulados';
 import { MODO_SIMULADO } from '../../compartido/modo-simulado';
 import { Avisos } from '../../compartido/servicios/avisos';
 import { porcentaje } from '../../compartido/utilidades';
 import { CONEXIONES_MANO, GUIA_GESTOS, infoGesto, ResultadoReconocimiento } from '../../nucleo/dominio/gesto';
-import { ReconocedorGestos } from '../../nucleo/puertos/reconocedor-gestos';
-import { MotorReconocimiento } from '../../nucleo/servicios/motor-reconocimiento';
+import { PuertoSalidaSimuladorGestos } from '../../nucleo/puerto/salida/puerto-salida-simulador-gestos';
+import { REGLAS_SRS } from '../../nucleo/caso_uso/caso-uso-reglas-aceptacion';
+import { CasoUso_MotorReconocimiento } from '../../nucleo/caso_uso/caso-uso-motor-reconocimiento';
 import { PanelDemostracion } from './panel-demostracion';
 
 /**
@@ -25,15 +26,15 @@ import { PanelDemostracion } from './panel-demostracion';
  */
 @Component({
   selector: 'app-reconocer',
-  imports: [PanelDemostracion, RouterLink],
-  providers: [MotorReconocimiento],
+  imports: [IconoGesto, PanelDemostracion, RouterLink],
+  providers: [CasoUso_MotorReconocimiento],
   templateUrl: './reconocer.html',
   styleUrl: './reconocer.scss',
 })
 export class Reconocer implements OnDestroy {
-  protected readonly motor = inject(MotorReconocimiento);
+  protected readonly motor = inject(CasoUso_MotorReconocimiento);
   protected readonly simulado = inject(MODO_SIMULADO);
-  private readonly reconocedor = inject(ReconocedorGestos);
+  private readonly simulador = inject(PuertoSalidaSimuladorGestos);
   private readonly avisos = inject(Avisos);
 
   private readonly video = viewChild.required<ElementRef<HTMLVideoElement>>('video');
@@ -52,29 +53,42 @@ export class Reconocer implements OnDestroy {
     });
   });
 
-  /** Texto y datos que se muestran bajo la cámara, según el estado de las reglas. */
+  /** Texto y datos del panel de lectura, según el estado de las reglas de aceptación. */
   protected readonly lectura = computed(() => {
     const l = this.motor.lectura();
+    const nombre = (c: string) => infoGesto(c)?.nombre ?? c;
     switch (l.tipo) {
       case 'sin-mano':
-        return { titulo: 'Muestra tu mano a la cámara', icono: '', confianza: 0, progreso: 0, clase: 'espera' };
+        return { titulo: 'Sin mano', detalle: 'Muestra tu mano a la cámara.', estado: 'ESPERANDO', codigo: null, confianza: 0, clase: 'espera' };
       case 'buscando':
         return {
-          titulo: 'Buscando gesto',
-          detalle: l.codigo ? `Parece ${infoGesto(l.codigo)?.nombre.toLowerCase() ?? l.codigo}, pero con poca seguridad` : 'Veo tu mano, pero no un gesto conocido',
-          icono: l.codigo ? (infoGesto(l.codigo)?.icono ?? '') : '',
+          titulo: l.codigo ? nombre(l.codigo) : 'Sin gesto',
+          detalle: l.codigo ? 'Confianza bajo el umbral: acerca la mano o mejora la luz.' : 'Se ve una mano, pero no un gesto conocido.',
+          estado: 'DESCARTADO',
+          codigo: l.codigo ?? null,
           confianza: l.confianza,
-          progreso: 0,
           clase: 'espera',
         };
-      case 'estabilizando':
-        return { titulo: infoGesto(l.codigo)?.nombre ?? l.codigo, detalle: 'Mantén el gesto…', icono: infoGesto(l.codigo)?.icono ?? '', confianza: l.confianza, progreso: l.progreso, clase: 'cargando' };
+      case 'estabilizando': {
+        const ms = Math.round(l.progreso * REGLAS_SRS.estabilidadMs);
+        return { titulo: nombre(l.codigo), detalle: 'Mantén el gesto.', estado: `ESTABILIZANDO ${ms}/${REGLAS_SRS.estabilidadMs} ms`, codigo: l.codigo, confianza: l.confianza, clase: 'cargando' };
+      }
       case 'en-pausa':
-        return { titulo: infoGesto(l.codigo)?.nombre ?? l.codigo, detalle: 'Listo. Mantenlo para repetir', icono: infoGesto(l.codigo)?.icono ?? '', confianza: l.confianza, progreso: 1, clase: 'aceptado' };
+        return { titulo: nombre(l.codigo), detalle: 'Pausa de 1 s antes de repetir.', estado: 'EN PAUSA', codigo: l.codigo, confianza: l.confianza, clase: 'aceptado' };
       case 'aceptado':
-        return { titulo: infoGesto(l.codigo)?.nombre ?? l.codigo, detalle: 'Gesto aceptado', icono: infoGesto(l.codigo)?.icono ?? '', confianza: l.confianza, progreso: 1, clase: 'aceptado' };
+        return { titulo: nombre(l.codigo), detalle: '', estado: 'ACEPTADO', codigo: l.codigo, confianza: l.confianza, clase: 'aceptado' };
     }
   });
+
+  /** Barra de confianza en 10 tramos, con el umbral del gesto marcado. */
+  protected readonly tramos = Array.from({ length: 10 }, (_, i) => i);
+  protected readonly tramosLlenos = computed(() => Math.round(this.lectura().confianza * 10));
+  protected readonly umbral = computed(() => {
+    const codigo = this.lectura().codigo;
+    const gesto = this.motor.asignaciones().find((a) => a.gesto.codigo === codigo)?.gesto;
+    return gesto?.umbralConfianza ?? 0.7;
+  });
+  protected readonly tramoUmbral = computed(() => Math.min(9, Math.ceil(this.umbral() * 10) - 1));
 
   constructor() {
     void this.motor.cargarAsignaciones();
@@ -100,7 +114,7 @@ export class Reconocer implements OnDestroy {
 
   // ---------- Modo simulado: se "hace" un gesto manteniendo presionado un botón o una tecla 1-7 ----------
   protected simular(codigo: string | null): void {
-    if (this.reconocedor instanceof ReconocedorSimulado) this.reconocedor.gestoActual = codigo;
+    this.simulador.simular(codigo);
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -132,7 +146,11 @@ export class Reconocer implements OnDestroy {
     const p = resultado.puntos.map((pt) => ({ x: pt.x * lienzo.width, y: pt.y * lienzo.height }));
     ctx.lineCap = 'round';
     ctx.lineWidth = Math.max(3, lienzo.width / 160);
-    ctx.strokeStyle = 'rgba(242, 193, 78, 0.9)';
+    // Mismos colores que los íconos: huesos en papel y puntas de los dedos en rojo señal.
+    const estilos = getComputedStyle(document.documentElement);
+    const papel = estilos.getPropertyValue('--papel').trim();
+    const senal = estilos.getPropertyValue('--senal').trim();
+    ctx.strokeStyle = papel;
     for (const [a, b] of CONEXIONES_MANO) {
       if (!p[a] || !p[b]) continue;
       ctx.beginPath();
@@ -140,11 +158,12 @@ export class Reconocer implements OnDestroy {
       ctx.lineTo(p[b].x, p[b].y);
       ctx.stroke();
     }
-    ctx.fillStyle = '#ffffff';
-    for (const punto of p) {
+    const puntas = new Set([4, 8, 12, 16, 20]);
+    p.forEach((punto, i) => {
+      ctx.fillStyle = puntas.has(i) ? senal : papel;
       ctx.beginPath();
-      ctx.arc(punto.x, punto.y, Math.max(3, lienzo.width / 200), 0, Math.PI * 2);
+      ctx.arc(punto.x, punto.y, Math.max(3, lienzo.width / (puntas.has(i) ? 130 : 200)), 0, Math.PI * 2);
       ctx.fill();
-    }
+    });
   }
 }

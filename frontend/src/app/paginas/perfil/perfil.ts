@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Avisos } from '../../compartido/servicios/avisos';
 import { SesionUsuario } from '../../compartido/servicios/sesion-usuario';
 import { fechaHora } from '../../compartido/utilidades';
-import { ApiAutenticacion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb';
+import { ApiAutenticacion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
 /** RF-05 · Editar el nombre y cambiar la contraseña. */
 @Component({
@@ -21,7 +21,7 @@ import { ApiAutenticacion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb
       </div>
 
       <div class="columnas">
-        <form class="panel" [formGroup]="nombre" (ngSubmit)="guardarNombre()">
+        <form class="hoja" [formGroup]="nombre" (ngSubmit)="guardarNombre()">
           <h2>Nombre</h2>
           <div class="campo">
             <label for="nombre">Cómo quieres que te llamemos</label>
@@ -30,7 +30,7 @@ import { ApiAutenticacion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb
           <button class="boton" type="submit" [disabled]="nombre.invalid || guardando()">Guardar nombre</button>
         </form>
 
-        <form class="panel" [formGroup]="claves" (ngSubmit)="cambiarContrasena()">
+        <form class="hoja" [formGroup]="claves" (ngSubmit)="cambiarContrasena()">
           <h2>Contraseña</h2>
           @if (errorClave()) {
             <p class="alerta alerta--error" role="alert">{{ errorClave() }}</p>
@@ -56,7 +56,7 @@ import { ApiAutenticacion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb
 })
 export class Perfil {
   protected readonly sesion = inject(SesionUsuario);
-  private readonly api: ApiAutenticacion = inject(ApiGestoWeb);
+  private readonly api: ApiAutenticacion = inject(PuertoSalidaApiGestoWeb);
   private readonly avisos = inject(Avisos);
   private readonly fb = inject(FormBuilder).nonNullable;
 

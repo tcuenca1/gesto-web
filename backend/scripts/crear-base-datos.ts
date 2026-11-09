@@ -10,7 +10,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { Client } from 'pg';
-import { leerConfiguracion } from '../src/config/entorno';
+import { leerConfiguracion } from '../src/infraestructura/util/entorno';
 
 async function main(): Promise<void> {
   const { baseDatos } = leerConfiguracion();
@@ -28,11 +28,11 @@ async function main(): Promise<void> {
     const { rowCount } = await admin.query('SELECT 1 FROM pg_database WHERE datname = $1', [nombreBase]);
     if (!rowCount) {
       await admin.query(`CREATE DATABASE ${nombreBase} ENCODING 'UTF8'`);
-      console.log(`✔ Base de datos "${nombreBase}" creada`);
+      console.log(`[OK] Base de datos "${nombreBase}" creada`);
     }
   } catch (error) {
     // En la nube a veces no hay permiso para crear bases: se asume que ya existe.
-    console.warn(`⚠ No se pudo comprobar/crear la base (${(error as Error).message}). Se intentará usarla igual.`);
+    console.warn(`[AVISO] No se pudo comprobar/crear la base (${(error as Error).message}). Se intentará usarla igual.`);
   } finally {
     await admin.end().catch(() => undefined);
   }
@@ -46,7 +46,7 @@ async function main(): Promise<void> {
   try {
     for (const archivo of archivos) {
       await cliente.query(fs.readFileSync(path.join(carpeta, archivo), 'utf8'));
-      console.log(`✔ ${archivo}`);
+      console.log(`[OK] ${archivo}`);
     }
     console.log('Listo. Administrador de prueba: admin@gestoweb.local / Admin123!');
   } finally {
@@ -55,6 +55,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error('✖ Error al crear la base de datos:', (error as Error).message);
+  console.error('[ERROR] Error al crear la base de datos:', (error as Error).message);
   process.exit(1);
 });

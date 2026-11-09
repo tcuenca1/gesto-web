@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { Avisos } from '../../compartido/servicios/avisos';
 import { SesionUsuario } from '../../compartido/servicios/sesion-usuario';
-import { ApiAutenticacion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb';
+import { ApiAutenticacion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
 /** RF-02 · Iniciar sesión. */
 @Component({
@@ -12,11 +12,12 @@ import { ApiAutenticacion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb
   imports: [ReactiveFormsModule, RouterLink],
   template: `
     <section class="auth">
-      <h1>Iniciar sesión</h1>
+      <span class="pagina__ruta">Acceso</span>
+      <h1>Entrar</h1>
       @if (vencida()) {
         <p class="alerta alerta--info">Tu sesión venció. Vuelve a iniciar sesión para continuar.</p>
       }
-      <form class="panel" [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+      <form class="hoja" [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
         @if (error()) {
           <p class="alerta alerta--error" role="alert">{{ error() }}</p>
         }
@@ -46,7 +47,7 @@ export class Login {
   /** ?vencida=1 → la sesión anterior venció. */
   readonly vencida = input<string>();
 
-  private readonly api: ApiAutenticacion = inject(ApiGestoWeb);
+  private readonly api: ApiAutenticacion = inject(PuertoSalidaApiGestoWeb);
   private readonly sesion = inject(SesionUsuario);
   private readonly router = inject(Router);
   private readonly avisos = inject(Avisos);

@@ -3,12 +3,12 @@
  * Incluye la prueba de aceptación P-05 (permisos) y comprobaciones del contrato de la API.
  */
 import request from 'supertest';
-import { crearApp } from '../src/infraestructura/http/app';
+import { crearApp } from '../src/app';
 import { ADMIN, entornoMemoria } from './ayudantes';
 
 function app() {
-  const { casos } = entornoMemoria();
-  return crearApp(casos, { corsOrigenes: ['http://localhost:4200'], registrarErrores: () => undefined });
+  const { contenedores } = entornoMemoria();
+  return crearApp(contenedores, { corsOrigenes: ['http://localhost:4200'], registrarErrores: () => undefined });
 }
 
 async function token(servidor: ReturnType<typeof app>, credenciales: { correo: string; contrasena: string }) {

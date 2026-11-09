@@ -3,7 +3,7 @@
 Aplicación web que reconoce **7 gestos de la mano** con la cámara del computador y los convierte en acciones dentro de la página (pasar de imagen, pausar, marcar favoritas…). El reconocimiento ocurre en el navegador con **MediaPipe**: la imagen de la cámara nunca sale del computador; al servidor solo viaja qué gesto fue, con qué confianza y a qué hora.
 
 Proyecto de Programación Web — Equipo: Terry, Juan, German y Neils.
-Stack: **Angular 20 · Node.js + Express · PostgreSQL 16 · TypeScript**, con **arquitectura hexagonal** y principios **SOLID**.
+Stack: **Angular 20 · Node.js + Express · PostgreSQL 16 · TypeScript**, con **arquitectura hexagonal** (misma estructura y nomenclatura que el proyecto de clase) y principios **SOLID**.
 
 ![Pantalla Reconocer](docs/capturas/05-reconocer-aceptado.png)
 
@@ -37,7 +37,7 @@ npm start                     # abre http://localhost:4200
 ### 3. Entrar
 - Crea una cuenta en **Crear cuenta**, o usa el administrador de prueba:
   **admin@gestoweb.local** / **Admin123!** (cámbiala antes de publicar).
-- Ve a **Reconocer**, pulsa **Encender cámara** y haz un gesto. ☝️ pasa a la siguiente imagen.
+- Ve a **Reconocer**, pulsa **Encender cámara** y haz un gesto: índice arriba pasa a la siguiente imagen.
 
 > **Sin PostgreSQL:** pon `REPOSITORIOS=memoria` en `backend/.env` y salta `db:crear`. Los datos se pierden al reiniciar.
 > **Sin cámara:** abre `http://localhost:4200/?simulado=1`. La cámara y el modelo se reemplazan por adaptadores de prueba y los gestos se "hacen" con botones o con las teclas 1 a 7. Se desactiva con `?simulado=0`.
@@ -74,9 +74,10 @@ gestoweb/
 ├── base-datos/                01_tablas · 02_funciones_triggers · 03_vistas · 04_datos_iniciales
 ├── backend/                   API REST con arquitectura hexagonal
 │   ├── src/dominio/           entidades y reglas (sin librerías)
-│   ├── src/aplicacion/        casos de uso y puertos (contratos)
-│   ├── src/infraestructura/   Express, PostgreSQL, memoria, bcrypt, JWT
-│   ├── src/main.ts            conecta cada adaptador con su puerto
+│   ├── src/aplicacion/        dto · puerto/entrada · puerto/salida · caso_uso/lectura · caso_uso/escritura
+│   ├── src/infraestructura/   adaptadores/entrada (AdapEntrada_*Web) · adaptadores/salida (AdapSalida_*) · base_dato · util
+│   ├── src/contenedor/        conecta cada adaptador con su puerto (Contenedor<Modulo>.ts)
+│   ├── src/app.ts             rutas, una línea por endpoint
 │   └── pruebas/               Jest
 └── frontend/                  Angular
     └── src/app/
@@ -93,6 +94,7 @@ gestoweb/
 | [Manual de usuario](docs/manual-de-usuario.md) | Cualquier persona que use la aplicación |
 | [Guía técnica](docs/guia-tecnica.md) | El equipo: cómo está construido, API, base de datos, configuración, publicación y problemas comunes |
 | [Arquitectura hexagonal y SOLID](docs/arquitectura-hexagonal-y-solid.md) | Cómo y por qué se aplicaron, con ejemplos del código |
+| [Skills del proyecto](.claude/skills/) | Reglas para Claude Code y el equipo: arquitectura hexagonal, interfaz, pruebas y trazabilidad |
 | [Pruebas](docs/pruebas.md) | Estado de las pruebas P-01 a P-10 y cómo ejecutarlas |
 | [Colección de Postman](docs/GestoWeb.postman_collection.json) | Probar la API sin el frontend |
 | [SRS](docs/SRS_GestoWeb.pdf) | La especificación original |

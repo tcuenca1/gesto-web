@@ -1,14 +1,13 @@
-import { crearCasosDeUso } from '../src/aplicacion/casos-uso';
-import { CasosDeUso } from '../src/aplicacion/puertos/entrada';
-import { Reloj } from '../src/aplicacion/puertos/salida/servicios';
-import { AlmacenMemoria } from '../src/infraestructura/persistencia/memoria/AlmacenMemoria';
-import { datosInicialesMemoria } from '../src/infraestructura/persistencia/memoria/datosIniciales';
-import { CifradorBcrypt } from '../src/infraestructura/seguridad/CifradorBcrypt';
-import { GeneradorTokensJwt } from '../src/infraestructura/seguridad/GeneradorTokensJwt';
-import { persistenciaMemoria } from '../src/main';
+import { Contenedores, crearContenedores } from '../src/contenedor';
+import { PuertoSalidaReloj } from '../src/aplicacion/puerto/salida/PuertoSalidaReloj';
+import { AlmacenMemoria } from '../src/infraestructura/base_dato/AlmacenMemoria';
+import { datosInicialesMemoria } from '../src/infraestructura/base_dato/datosInicialesMemoria';
+import { AdapSalida_CifradorBcrypt } from '../src/infraestructura/adaptadores/salida/AdapSalida_CifradorBcrypt';
+import { AdapSalida_TokensJwt } from '../src/infraestructura/adaptadores/salida/AdapSalida_TokensJwt';
+import { crearPersistenciaMemoria } from '../src/contenedor/ContenedorPersistencia';
 
 /** Reloj falso: la hora la controla la prueba. */
-export class RelojFalso implements Reloj {
+export class RelojFalso implements PuertoSalidaReloj {
   constructor(public actual = new Date('2026-10-09T15:00:00Z')) {}
   ahora(): Date {
     return new Date(this.actual);
@@ -27,19 +26,19 @@ export const ADMIN = { correo: 'admin@gestoweb.local', contrasena: 'Admin123!' }
  */
 export function entornoMemoria(reloj = new RelojFalso()) {
   const almacen = new AlmacenMemoria(datosInicialesMemoria(reloj.ahora()));
-  const persistencia = persistenciaMemoria(reloj, almacen);
-  const casos: CasosDeUso = crearCasosDeUso({
+  const persistencia = crearPersistenciaMemoria(reloj, almacen);
+  const contenedores: Contenedores = crearContenedores({
     ...persistencia,
-    cifrador: new CifradorBcrypt(4),
-    tokens: new GeneradorTokensJwt(SECRETO_PRUEBAS),
+    cifrador: new AdapSalida_CifradorBcrypt(4),
+    tokens: new AdapSalida_TokensJwt(SECRETO_PRUEBAS),
     reloj,
     zonaHoraria: 'America/Guayaquil',
   });
-  return { casos, persistencia, almacen, reloj };
+  return { contenedores, persistencia, almacen, reloj };
 }
 
 /** Registra un usuario y devuelve su id. */
-export async function registrar(casos: CasosDeUso, correo = 'ana@correo.com'): Promise<number> {
-  const u = await casos.usuarios.registrar.ejecutar({ nombre: 'Ana', correo, contrasena: 'Clave1234' });
+export async function registrar(contenedores: Contenedores, correo = 'ana@correo.com'): Promise<number> {
+  const u = await contenedores.usuario.cuEscritura.registrarUsuario({ nombre: 'Ana', correo, contrasena: 'Clave1234' });
   return u.id;
 }

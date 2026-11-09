@@ -59,27 +59,31 @@ backend/src/
 │   ├── accion/Accion.ts, Asignacion.ts (regla resolverAccionEfectiva)
 │   └── deteccion/SesionReconocimiento.ts, Deteccion.ts, Estadisticas.ts
 ├── aplicacion/
-│   ├── puertos/entrada/        contratos de los casos de uso (CasoDeUso<Entrada, Salida>)
-│   ├── puertos/salida/         UsuarioRepositorio, DeteccionRepositorio, CifradorContrasenas, GeneradorTokens, Reloj, UnidadDeTrabajo…
-│   └── casos-uso/              una clase por caso de uso (SRS §7.2) + index.ts que los arma
+│   ├── dto/                    Dto<Modulo>.ts (datos de entrada y salida) y Respuesta<Modulo>.ts
+│   ├── puerto/entrada/         PuertoEntrada<Modulo>Lectura / Escritura (clases abstractas)
+│   ├── puerto/salida/          PuertoSalidaUsuario, PuertoSalidaDeteccion, PuertoSalidaCifrador, PuertoSalidaReloj…
+│   └── caso_uso/
+│       ├── lectura/            CasoUso_UsuarioLectura, CasoUso_AccionLectura, CasoUso_HistorialLectura, CasoUso_AdministracionLectura
+│       ├── escritura/          CasoUso_UsuarioEscritura, CasoUso_ReconocimientoEscritura, CasoUso_AccionEscritura, CasoUso_AdministracionEscritura
+│       └── comun.ts, csv.ts    lectura de parámetros y generador de CSV
 ├── infraestructura/
-│   ├── http/                   app.ts, rutas, middlewares (token, rol, errores)
-│   ├── persistencia/postgres/  adaptadores PostgreSQL
-│   ├── persistencia/memoria/   adaptadores en memoria (pruebas y P-09)
-│   ├── seguridad/              CifradorBcrypt, GeneradorTokensJwt
-│   └── sistema/RelojSistema.ts
-├── config/entorno.ts           lee .env
-└── main.ts                     raíz de composición: elige un adaptador para cada puerto
+│   ├── adaptadores/entrada/    AdapEntrada_<Modulo>Web (Express: los únicos que tocan req/res)
+│   ├── adaptadores/salida/     AdapSalida_<Recurso>Postgres, AdapSalida_<Recurso>Memoria, AdapSalida_CifradorBcrypt, AdapSalida_TokensJwt, AdapSalida_RelojSistema
+│   ├── base_dato/              ConexionPostgresql, AlmacenMemoria, datosInicialesMemoria
+│   └── util/                   entorno.ts (lee .env) y middlewares.ts (token, rol, límite de intentos, errores)
+├── contenedor/                 raíz de composición: Contenedor<Modulo>.ts → { cuLectura, cuEscritura, adap }
+├── app.ts                      rutas de Express, una línea por endpoint
+└── main.ts                     arranque del servidor
 ```
 
 ### 3.2 Recorrido de una petición
 
 Ejemplo: el navegador envía `POST /api/sesiones/12/detecciones` con `{ "codigoGesto": "Thumb_Up", "confianza": 0.91, "mano": "Derecha" }`.
 
-1. **Middleware de token** (`infraestructura/http/middlewares`) lee `Authorization: Bearer …` y llama al caso de uso `AutenticarSolicitud`, que valida el JWT y vuelve a leer al usuario (si un admin lo desactivó, se rechaza al instante).
-2. **Controlador** (`rutasUsuario.ts`) solo traduce la petición a una entrada del caso de uso y llama `casos.reconocimiento.registrarDeteccion.ejecutar(...)`.
-3. **Caso de uso `RegistrarDeteccion`** busca la sesión y el gesto por los puertos, calcula la acción del usuario con `resolverAccionEfectiva` y pide a `ReglasDeteccion.crear` que valide: sesión propia y abierta, gesto activo, confianza ≥ umbral, mano válida, hora razonable.
-4. **Adaptador `DeteccionRepositorioPg`** hace el `INSERT`. En la base, `trg_validar_sesion_abierta` vuelve a comprobar la sesión y `trg_contar_detecciones` suma 1 al total.
+1. **Middleware de token** (`infraestructura/util/middlewares.ts`) lee `Authorization: Bearer …` y llama a `CasoUso_UsuarioLectura.autenticarSolicitud`, que valida el JWT y vuelve a leer al usuario (si un admin lo desactivó, se rechaza al instante).
+2. **Adaptador de entrada** (`AdapEntrada_ReconocimientoWeb.registrarDeteccion`) solo traduce la petición a un `DtoRegistrarDeteccion` y llama al caso de uso. La ruta en `app.ts` es una sola línea.
+3. **Caso de uso `CasoUso_ReconocimientoEscritura.registrarDeteccion`** valida el id de la URL, busca la sesión y el gesto por los puertos, calcula la acción del usuario con `resolverAccionEfectiva` y pide a `ReglasDeteccion.crear` que valide: sesión propia y abierta, gesto activo, confianza ≥ umbral, mano válida, hora razonable.
+4. **Adaptador `AdapSalida_DeteccionPostgres`** hace el `INSERT`. En la base, `trg_validar_sesion_abierta` vuelve a comprobar la sesión y `trg_contar_detecciones` suma 1 al total.
 5. Si algo falla en cualquier capa se lanza un `ErrorDominio`; el **manejador de errores** lo convierte a HTTP:
 
 | Tipo de error | HTTP | Ejemplo |
@@ -160,13 +164,13 @@ Detalles a tener en cuenta:
 frontend/src/app/
 ├── nucleo/
 │   ├── dominio/      gesto.ts (códigos, puntos de la mano, guía) · modelos.ts (datos de la API, ErrorApi)
-│   ├── puertos/      ReconocedorGestos · Camara · ApiGestoWeb (dividido en 5 interfaces)
-│   └── servicios/    reglas-aceptacion.ts · ejecutor-acciones.ts · cola-detecciones.ts · motor-reconocimiento.ts
-├── adaptadores/
-│   ├── mediapipe/    ReconocedorMediaPipe (único archivo que importa MediaPipe)
-│   ├── camara/       CamaraNavegador (getUserMedia y mensajes de error)
-│   ├── http/         ApiGestoWebHttp + interceptor del token
-│   └── simulado/     CamaraSimulada + ReconocedorSimulado (?simulado=1)
+│   ├── puerto/salida/ PuertoSalidaApiGestoWeb (dividido en 5 interfaces) · PuertoSalidaCamara · PuertoSalidaReconocedor · PuertoSalidaSimuladorGestos
+│   └── caso_uso/     CasoUso_ReglasAceptacion · CasoUso_EjecutorAcciones · CasoUso_ColaDetecciones · CasoUso_MotorReconocimiento
+├── adaptadores/salida/
+│   ├── adap-salida-reconocedor-mediapipe.ts  AdapSalida_ReconocedorMediaPipe (único archivo que importa MediaPipe)
+│   ├── adap-salida-camara-navegador.ts       AdapSalida_CamaraNavegador (getUserMedia y mensajes de error)
+│   ├── adap-salida-api-http.ts               AdapSalida_ApiHttp + interceptor-token.ts
+│   └── adap-salida-*-simulad*.ts             AdapSalida_CamaraSimulada · AdapSalida_ReconocedorSimulado (?simulado=1)
 ├── paginas/          inicio, auth, reconocer (+ panel de demostración), guia, configuracion, historial, estadisticas, perfil, admin/*
 ├── compartido/       guards, SesionUsuario, Avisos, Grafico (Chart.js), utilidades
 └── app.config.ts     raíz de composición: puerto → adaptador
@@ -174,17 +178,17 @@ frontend/src/app/
 
 ### 6.2 El ciclo de reconocimiento (CU-03)
 
-`MotorReconocimiento` coordina todo y vive solo mientras la pantalla Reconocer está abierta:
+`CasoUso_MotorReconocimiento` coordina todo y vive solo mientras la pantalla Reconocer está abierta:
 
 1. **Encender:** en paralelo carga las asignaciones del usuario y el modelo; luego enciende la cámara.
 2. **Bucle** con `requestAnimationFrame`, fuera de la zona de Angular para no redibujar de más. Solo analiza cuando el video trae una imagen nueva.
-3. Cada resultado pasa por **`ReglasAceptacion`** (TypeScript puro):
+3. Cada resultado pasa por **`CasoUso_ReglasAceptacion`** (TypeScript puro):
    - confianza ≥ umbral **de ese gesto** (lo define el administrador);
    - el mismo gesto **500 ms** seguidos (estabilidad);
    - **1 s** de pausa antes de repetir el mismo gesto;
    - tolera parpadeos de hasta 150 ms (un cuadro borroso no reinicia la cuenta);
    - `None` y los gestos desactivados se ignoran.
-4. Gesto aceptado → **`EjecutorAcciones`** ejecuta el manejador registrado para su código (el panel registró los suyos al iniciar) → la detección entra a la **`ColaDetecciones`**.
+4. Gesto aceptado → **`CasoUso_EjecutorAcciones`** ejecuta el manejador registrado para su código (el panel registró los suyos al iniciar) → la detección entra a la **`CasoUso_ColaDetecciones`**.
 5. La cola envía en orden. Si el servidor no responde, reintenta cada 3 s sin detener el reconocimiento (flujo 8a); cada detección conserva la hora en que ocurrió. Si la sesión se cerró en el servidor (código `SESION_CERRADA`), abre otra y reintenta.
 6. **Apagar:** intenta enviar lo pendiente (máx. 3 s) y cierra la sesión.
 
@@ -237,12 +241,12 @@ Requisito: **https** (la cámara no funciona en http, salvo localhost).
 
 | Tema | Decisión | Motivo |
 |---|---|---|
-| Librería bcrypt | `bcryptjs` en vez de `bcrypt` | Mismo algoritmo y hashes compatibles, pero no necesita compilar C++ (en Windows `bcrypt` suele fallar al instalar). Cambiarla solo toca `CifradorBcrypt.ts`. |
+| Librería bcrypt | `bcryptjs` en vez de `bcrypt` | Mismo algoritmo y hashes compatibles, pero no necesita compilar C++ (en Windows `bcrypt` suele fallar al instalar). Cambiarla solo toca `AdapSalida_CifradorBcrypt.ts`. |
 | Rutas extra | `GET /api/admin/gestos`, `GET /api/admin/acciones`, `GET /api/salud` | El panel de administración necesita ver también lo inactivo. No cambian el contrato existente. |
 | Cerrar sesión (RF-03) | Se hace en el navegador | Con JWT el servidor no guarda sesiones; basta con olvidar el token. |
-| Puerto `Reloj` y `UnidadDeTrabajo` | Puertos adicionales | Probar reglas con tiempo falso y escribir la bitácora en la misma transacción sin que el núcleo conozca PostgreSQL. |
+| `PuertoSalidaReloj` y `PuertoSalidaUnidadDeTrabajo` | Puertos adicionales | Probar reglas con tiempo falso y escribir la bitácora en la misma transacción sin que el núcleo conozca PostgreSQL. |
 | Tolerancia de 150 ms | Agregada a las reglas de aceptación | Sin ella, un solo cuadro borroso reinicia el medio segundo y el gesto cuesta más en la demo. No cambia las tres reglas de la SRS. |
-| La acción la decide el servidor | `RegistrarDeteccion` resuelve la acción con la configuración del usuario | Así el historial no depende de lo que diga el navegador. |
+| La acción la decide el servidor | `CasoUso_ReconocimientoEscritura.registrarDeteccion` resuelve la acción con la configuración del usuario | Así el historial no depende de lo que diga el navegador. |
 | Modo simulado | `?simulado=1` | Desarrollo sin cámara, plan B de la demo y demostración de la arquitectura. |
 | Fechas en UTC | Ver §5 | Evitar errores de zona horaria entre Railway y Ecuador. |
 
@@ -253,9 +257,11 @@ Requisito: **https** (la cámara no funciona en http, salvo localhost).
 2. En `panel-demostracion.ts`, dentro de `registrarVarios({...})`, agregar `ZOOM: () => this.acercar()`.
    No se toca el motor, ni el ejecutor, ni el backend (principio abierto/cerrado).
 
-**Cambiar PostgreSQL por MySQL:** escribir `persistencia/mysql/*RepositorioMysql.ts` que implementen los mismos puertos y cambiar `persistenciaPostgres(pool)` por `persistenciaMysql(...)` en `main.ts`. Las pruebas de contrato (`pruebas/postgres/contrato.prueba.ts`) dicen si el nuevo adaptador se comporta igual.
+**Cambiar PostgreSQL por MySQL:** escribir `infraestructura/adaptadores/salida/AdapSalida_<Recurso>Mysql.ts` que hereden de los mismos `PuertoSalida*` y cambiar `crearPersistenciaPostgres(pool)` por `crearPersistenciaMysql(...)` en `contenedor/index.ts`. Las pruebas de contrato (`pruebas/postgres/contrato.prueba.ts`) dicen si el nuevo adaptador se comporta igual.
 
-**Usar otro modelo de gestos** (por ejemplo, uno entrenado con gestos propios): crear un adaptador que extienda `ReconocedorGestos` y registrarlo en `app.config.ts`. Si reconoce gestos nuevos, agregarlos a la tabla `gestos` y a `GUIA_GESTOS`.
+**Agregar un endpoint o un caso de uso:** seguir la receta de la skill `arquitectura-hexagonal` (§5): dominio → DTO → puerto de salida → puerto de entrada → `CasoUso_…` → `AdapSalida_…Postgres` y `…Memoria` → SQL → `AdapEntrada_…Web` → contenedor → una línea en `app.ts` → frontend → pruebas.
+
+**Usar otro modelo de gestos** (por ejemplo, uno entrenado con gestos propios): crear un adaptador que extienda `PuertoSalidaReconocedor` y registrarlo en `app.config.ts`. Si reconoce gestos nuevos, agregarlos a la tabla `gestos` y a `GUIA_GESTOS`.
 
 ## 11. Problemas comunes
 

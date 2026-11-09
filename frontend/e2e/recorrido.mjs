@@ -19,7 +19,7 @@ const BASE = process.env.BASE ?? 'http://localhost:3000';
 const OUT = resolve(dirname(fileURLToPath(import.meta.url)), '../../docs/capturas');
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
 const resultados = [];
-const ok = (nombre, cond, extra = '') => { resultados.push(`${cond ? '✔' : '✖'} ${nombre} ${extra}`); };
+const ok = (nombre, cond, extra = '') => { resultados.push(`${cond ? 'OK   ' : 'ERROR'} ${nombre} ${extra}`); };
 
 const b = await puppeteer.launch({ headless: true, defaultViewport: { width: 1366, height: 860 } });
 const p = await b.newPage();
@@ -97,7 +97,7 @@ await soltar();
 await esperar(300);
 
 soltar = await hacerGesto('Puño cerrado', 1000); await soltar(); await esperar(300);
-ok('Puño cerrado → detener y volver al inicio', (await contador()).startsWith('1 de') && !(await p.$('.chip--vivo')));
+ok('Puño cerrado → detener y volver al inicio', (await contador()).startsWith('01 /') && !(await p.$('.chip--vivo')));
 
 // Repetición manteniendo el gesto: índice arriba 2.7 s → 3 avances
 const c0 = await contador();
@@ -143,7 +143,7 @@ const r403 = await p.evaluate(async (t) => (await fetch('/api/admin/usuarios', {
 ok('P-05 API de admin con usuario normal = 403', r403 === 403);
 
 // Admin
-await clic('Cerrar sesión', 'button');
+await clic('Salir', 'button');
 await p.goto(BASE + '/entrar', { waitUntil: 'networkidle0' });
 await p.type('#correo', 'admin@gestoweb.local');
 await p.type('#contrasena', 'Admin123!');
@@ -181,7 +181,7 @@ await clic('Encender cámara', 'button');
 await p.waitForFunction(() => document.querySelector('[role=alert]'), { timeout: 20000 }).catch(() => null);
 await esperar(300);
 const msg = await p.$eval('.escenario', (e) => e.textContent).catch(() => '');
-ok('RF-10 Mensaje claro si falla el modelo o la cámara', /No se pudo empezar/.test(msg), `(${msg.split('\n').slice(1, 2).join('')})`);
+ok('RF-10 Mensaje claro si falla el modelo o la cámara', /ERROR/.test(msg) && msg.length > 20, `(${msg.replace(/\s+/g, ' ').trim().slice(0, 70)})`);
 await shot('16-error-camara');
 
 console.log(resultados.join('\n'));

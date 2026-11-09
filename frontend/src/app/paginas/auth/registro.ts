@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Avisos } from '../../compartido/servicios/avisos';
 import { SesionUsuario } from '../../compartido/servicios/sesion-usuario';
-import { ApiAutenticacion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb';
+import { ApiAutenticacion, PuertoSalidaApiGestoWeb } from '../../nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
 /** RF-01 · Crear una cuenta. Al terminar, la sesión queda iniciada. */
 @Component({
@@ -11,8 +11,9 @@ import { ApiAutenticacion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb
   imports: [ReactiveFormsModule, RouterLink],
   template: `
     <section class="auth">
+      <span class="pagina__ruta">Acceso</span>
       <h1>Crear cuenta</h1>
-      <form class="panel" [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+      <form class="hoja" [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
         @if (error()) {
           <p class="alerta alerta--error" role="alert">{{ error() }}</p>
         }
@@ -39,7 +40,7 @@ import { ApiAutenticacion, ApiGestoWeb } from '../../nucleo/puertos/api-gestoweb
   styleUrl: './auth.scss',
 })
 export class Registro {
-  private readonly api: ApiAutenticacion = inject(ApiGestoWeb);
+  private readonly api: ApiAutenticacion = inject(PuertoSalidaApiGestoWeb);
   private readonly sesion = inject(SesionUsuario);
   private readonly router = inject(Router);
   private readonly avisos = inject(Avisos);

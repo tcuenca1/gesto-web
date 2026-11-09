@@ -18,7 +18,7 @@ GestoWeb te deja controlar una página con gestos de tu mano, usando la cámara 
 2. Escribe tu nombre, tu correo y una contraseña de **al menos 8 caracteres con letras y números**.
 3. Al terminar entras directo a la pantalla **Reconocer**.
 
-La próxima vez usa **Iniciar sesión** con tu correo y contraseña. Tu sesión dura 8 horas; después el sistema te pide entrar de nuevo. Para salir, pulsa **Cerrar sesión** arriba a la derecha.
+La próxima vez usa **Entrar** con tu correo y contraseña. Tu sesión dura 8 horas; después el sistema te pide entrar de nuevo. Para salir, pulsa **Salir** arriba a la derecha.
 
 ![Crear cuenta](capturas/02-registro.png)
 
@@ -28,23 +28,24 @@ La próxima vez usa **Iniciar sesión** con tu correo y contraseña. Tu sesión 
 
 1. Pulsa **Encender cámara**. La primera vez el navegador te pregunta si GestoWeb puede usar la cámara: elige **Permitir**.
 2. Pon tu mano frente a la cámara, completa y a unos 40–70 cm.
-3. Haz un gesto y **mantenlo quieto medio segundo**. El anillo alrededor del ícono se va llenando; cuando se completa, el gesto se acepta.
-4. El panel de imágenes de la derecha hace la acción de ese gesto, y abajo aparece qué gesto fue y qué hizo.
+3. Haz un gesto y **mantenlo quieto medio segundo**. En el panel de lectura, el estado cuenta los milisegundos (`ESTABILIZANDO 320/500 ms`); al llegar a 500 el gesto se acepta.
+4. El panel de imágenes de la derecha hace la acción de ese gesto, y en **Última acción** aparece qué gesto fue y qué hizo.
 5. Si mantienes el gesto, la acción se repite cada segundo (por ejemplo, para avanzar varias imágenes).
 6. Cuando termines, pulsa **Apagar cámara**.
 
 ![Gesto en proceso de aceptación](capturas/04-reconocer-estabilizando.png)
 
-**Qué significa cada mensaje bajo la cámara:**
+**Qué significa cada estado del panel de lectura:**
 
-| Mensaje | Qué pasa |
+| Estado | Qué pasa |
 |---|---|
-| Muestra tu mano a la cámara | No se ve ninguna mano. |
-| Buscando gesto | Se ve tu mano, pero no un gesto conocido o con poca seguridad. |
-| *Nombre del gesto* · Mantén el gesto… | Reconoció el gesto; mantenlo hasta que el anillo se llene. |
-| Gesto aceptado / Listo. Mantenlo para repetir | Se hizo la acción. |
+| `ESPERANDO` | No se ve ninguna mano. |
+| `DESCARTADO` | Se ve tu mano, pero no un gesto conocido o con confianza bajo el umbral. |
+| `ESTABILIZANDO 320/500 ms` | Reconoció el gesto; mantenlo hasta llegar a 500 ms. |
+| `ACEPTADO` | Se hizo la acción. |
+| `EN PAUSA` | Espera de 1 s antes de repetir la acción si mantienes el gesto. |
 
-La barra azul muestra la **confianza**: qué tan seguro está el sistema. Un gesto solo se acepta si la confianza llega al mínimo (normalmente 70 %).
+La barra de 10 tramos muestra la **confianza**: qué tan seguro está el sistema. La marca roja es el **umbral** del gesto (normalmente 70 %): un gesto solo se acepta si la confianza lo alcanza.
 
 Debajo de la cámara también verás cuántos gestos se guardaron en tu historial. Si se corta la conexión con el servidor, el reconocimiento **sigue funcionando** y los gestos se guardan cuando vuelve la conexión.
 
@@ -52,26 +53,26 @@ Debajo de la cámara también verás cuántos gestos se guardaron en tu historia
 
 | Gesto | Cómo se hace | Qué hace al inicio |
 |---|---|---|
-| 🖐️ Palma abierta | Mano abierta, cinco dedos extendidos | Reproducir o pausar el pase automático |
-| ✊ Puño cerrado | Todos los dedos cerrados | Detener y volver a la primera imagen |
-| ☝️ Índice arriba | Solo el índice hacia arriba | Siguiente imagen |
-| ✌️ Victoria | Índice y medio en V | Imagen anterior |
-| 👍 Pulgar arriba | Puño con el pulgar hacia arriba | Marcar la imagen como favorita |
-| 👎 Pulgar abajo | Puño con el pulgar hacia abajo | Quitar la imagen de favoritas |
-| 🤟 Te quiero | Pulgar, índice y meñique extendidos | Mostrar un corazón en pantalla |
+| Palma abierta | Mano abierta, cinco dedos extendidos | Reproducir o pausar el pase automático |
+| Puño cerrado | Todos los dedos cerrados | Detener y volver a la primera imagen |
+| Índice arriba | Solo el índice hacia arriba | Siguiente imagen |
+| Victoria | Índice y medio en V | Imagen anterior |
+| Pulgar arriba | Puño con el pulgar hacia arriba | Marcar la imagen como favorita |
+| Pulgar abajo | Puño con el pulgar hacia abajo | Quitar la imagen de favoritas |
+| Te quiero | Pulgar, índice y meñique extendidos | Mostrar un corazón en pantalla |
 
-En el menú **Guía** tienes cada gesto con consejos para que se reconozca a la primera.
+En el menú **Guía** tienes cada gesto dibujado con sus 21 puntos, cómo se hace y el error típico.
 
 ## 5. Cambiar qué hace cada gesto
 
-En **Mis gestos** elige, para cada gesto, la acción que prefieras. Se guarda al instante. Con **Volver a la configuración inicial** todo regresa a la tabla de arriba.
+En **Mis gestos** elige, para cada gesto, la acción que prefieras. Se guarda al instante. Con **Restaurar acciones iniciales** todo regresa a la tabla de arriba.
 
 ![Mis gestos](capturas/09-configuracion.png)
 
 ## 6. Historial y estadísticas
 
-- **Historial:** cada gesto aceptado, con fecha, acción, confianza y mano. Puedes filtrar por fechas y por gesto, y **Descargar CSV** para abrirlo en Excel.
-- **Estadísticas:** tu gesto más usado, cuántos gestos hiciste, la confianza promedio, un gráfico por gesto y otro por día. Elige el periodo arriba a la derecha.
+- **Historial:** cada gesto aceptado, con fecha, acción, confianza y mano. Puedes filtrar por fechas y por gesto, y **Exportar CSV** para abrirlo en Excel.
+- **Estadísticas:** las lecturas del periodo (gestos aceptados, confianza promedio y gesto más usado), un gráfico por gesto con el más usado en rojo y otro por día. Elige el periodo arriba a la derecha.
 
 ![Estadísticas](capturas/08-estadisticas.png)
 

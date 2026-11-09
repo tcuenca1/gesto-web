@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { Client, Pool } from 'pg';
-import { crearPool } from '../../src/infraestructura/persistencia/postgres/conexion';
+import { crearPool } from '../../src/infraestructura/base_dato/ConexionPostgresql';
 
 /**
  * Las pruebas con PostgreSQL usan una base aparte ("gestoweb_pruebas") para

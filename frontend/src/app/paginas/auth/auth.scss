@@ -1,16 +1,18 @@
+/* Acceso: formulario angosto alineado a la izquierda de la retícula. */
 .auth {
-  max-width: 26rem;
-  margin: clamp(2rem, 6vw, 4rem) auto;
-  padding: 0 var(--margen);
+  max-width: var(--ancho-max);
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 4rem) var(--margen);
+
+  > * { max-width: 28rem; }
 }
 
-.auth h1 { font-size: 2rem; }
-.auth .panel { padding: 1.75rem; }
+.auth h1 { padding-bottom: 0.75rem; border-bottom: var(--trazo-fuerte) solid var(--tinta); }
 .auth .boton { width: 100%; margin-top: 0.5rem; }
-.auth__pie { margin-top: 1.25rem; text-align: center; color: var(--tinta-suave); }
+.auth__pie { margin-top: 1.25rem; color: var(--tinta-media); }
 .auth__prueba {
   margin-top: 1.25rem;
   font-size: 0.9rem;
-  color: var(--tinta-suave);
-  code { background: #e9edf5; padding: 0.05rem 0.35rem; border-radius: 4px; }
+  color: var(--tinta-media);
+  code { background: var(--papel-hundido); padding: 0.05rem 0.35rem; }
 }
