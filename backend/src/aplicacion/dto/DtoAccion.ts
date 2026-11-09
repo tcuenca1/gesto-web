@@ -26,6 +26,7 @@ export interface DtoAsignacion {
 
 export interface DtoCambiarAsignacion {
   idUsuario: number;
-  idGesto: number;
+  /** Llega de la URL: lo valida el caso de uso. */
+  idGesto: SinValidar;
   idAccion: SinValidar;
 }

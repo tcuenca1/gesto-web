@@ -13,6 +13,7 @@ import { PuertoSalidaDeteccion } from '../../puerto/salida/PuertoSalidaDeteccion
 import { PuertoSalidaGesto } from '../../puerto/salida/PuertoSalidaGesto';
 import { PuertoSalidaReloj } from '../../puerto/salida/PuertoSalidaReloj';
 import { PuertoSalidaSesion } from '../../puerto/salida/PuertoSalidaSesion';
+import { leerEnteroPositivo } from '../comun';
 
 /** CU-03 · Sesiones de reconocimiento y registro de detecciones. */
 export class CasoUso_ReconocimientoEscritura extends PuertoEntradaReconocimientoEscritura {
@@ -46,7 +47,7 @@ export class CasoUso_ReconocimientoEscritura extends PuertoEntradaReconocimiento
    * La acción la decide el servidor según la configuración del usuario.
    */
   async registrarDeteccion(dto: DtoRegistrarDeteccion): Promise<DtoDeteccion> {
-    const sesion = await this.sesiones.buscarPorId(dto.idSesion);
+    const sesion = await this.sesiones.buscarPorId(leerEnteroPositivo(dto.idSesion, 'id'));
     if (!sesion) throw new ErrorNoEncontrado('La sesión de reconocimiento no existe');
 
     if (typeof dto.codigoGesto !== 'string' || dto.codigoGesto === '') {
@@ -84,7 +85,7 @@ export class CasoUso_ReconocimientoEscritura extends PuertoEntradaReconocimiento
 
   /** CU-03 paso 9 · Cierra la sesión de reconocimiento al apagar la cámara. */
   async cerrarSesion(dto: DtoCerrarSesion): Promise<DtoSesion> {
-    const sesion = await this.sesiones.buscarPorId(dto.idSesion);
+    const sesion = await this.sesiones.buscarPorId(leerEnteroPositivo(dto.idSesion, 'id'));
     if (!sesion) throw new ErrorNoEncontrado('La sesión de reconocimiento no existe');
     sesion.asegurarDueno(dto.idUsuario);
 

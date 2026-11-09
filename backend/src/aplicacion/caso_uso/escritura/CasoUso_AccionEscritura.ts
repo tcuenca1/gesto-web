@@ -22,9 +22,10 @@ export class CasoUso_AccionEscritura extends PuertoEntradaAccionEscritura {
 
   /** RF-12 · El usuario cambia qué acción hace un gesto. */
   async cambiarAsignacion(dto: DtoCambiarAsignacion): Promise<DtoAsignacion> {
+    const idGesto = leerEnteroPositivo(dto.idGesto, 'id');
     const idAccion = leerEnteroPositivo(dto.idAccion, 'idAccion');
 
-    const gesto = await this.gestos.buscarPorId(dto.idGesto);
+    const gesto = await this.gestos.buscarPorId(idGesto);
     if (!gesto) throw new ErrorNoEncontrado('El gesto no existe');
     if (!gesto.activo) throw new ErrorConflicto('Ese gesto está desactivado');
 

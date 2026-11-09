@@ -8,17 +8,17 @@ export interface DtoConAdministrador {
 }
 
 export interface DtoEditarGesto extends DtoConAdministrador {
-  idGesto: number;
+  idGesto: SinValidar;
   cambios: { nombre?: SinValidar; descripcion?: SinValidar; umbralConfianza?: SinValidar; activo?: SinValidar };
 }
 
 export type DtoOperacionAccion =
   | { tipo: 'crear'; datos: { codigo?: SinValidar; nombre?: SinValidar; descripcion?: SinValidar } }
-  | { tipo: 'editar'; idAccion: number; datos: { nombre?: SinValidar; descripcion?: SinValidar; activa?: SinValidar } }
-  | { tipo: 'desactivar'; idAccion: number };
+  | { tipo: 'editar'; idAccion: SinValidar; datos: { nombre?: SinValidar; descripcion?: SinValidar; activa?: SinValidar } }
+  | { tipo: 'desactivar'; idAccion: SinValidar };
 
 export interface DtoGestionarUsuario extends DtoConAdministrador {
-  idUsuario: number;
+  idUsuario: SinValidar;
   cambios: { rol?: SinValidar; activo?: SinValidar };
 }
 

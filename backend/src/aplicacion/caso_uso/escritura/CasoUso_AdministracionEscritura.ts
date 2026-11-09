@@ -6,6 +6,7 @@ import { DtoConAdministrador, DtoEditarGesto, DtoGestionarUsuario, DtoOperacionA
 import { accionARespuesta, gestoARespuesta } from '../../dto/RespuestaAccion';
 import { usuarioARespuesta } from '../../dto/RespuestaUsuario';
 import { PuertoEntradaAdministracionEscritura } from '../../puerto/entrada/PuertoEntradaAdministracionEscritura';
+import { leerEnteroPositivo } from '../comun';
 import { PuertoSalidaUnidadDeTrabajo, RepositoriosTransaccionales } from '../../puerto/salida/PuertoSalidaUnidadDeTrabajo';
 
 /**
@@ -23,7 +24,7 @@ export class CasoUso_AdministracionEscritura extends PuertoEntradaAdministracion
    */
   editarGesto(dto: DtoEditarGesto): Promise<DtoGesto> {
     return this.unidad.ejecutar(async ({ gestos, bitacora }) => {
-      const gesto = await gestos.buscarPorId(dto.idGesto);
+      const gesto = await gestos.buscarPorId(leerEnteroPositivo(dto.idGesto, 'id'));
       if (!gesto) throw new ErrorNoEncontrado('El gesto no existe');
 
       const antes = gesto.aDatos();
@@ -47,14 +48,15 @@ export class CasoUso_AdministracionEscritura extends PuertoEntradaAdministracion
    * siguen apuntando a la acción, así el historial nunca pierde información.
    */
   gestionarAccion(dto: DtoOperacionAccion & DtoConAdministrador): Promise<DtoAccion> {
+    const idAccion = dto.tipo === 'crear' ? 0 : leerEnteroPositivo(dto.idAccion, 'id');
     return this.unidad.ejecutar(async (repos) => {
       switch (dto.tipo) {
         case 'crear':
           return this.crearAccion(repos, dto.idAdministrador, dto.datos);
         case 'editar':
-          return this.editarAccion(repos, dto.idAdministrador, dto.idAccion, dto.datos, 'UPDATE');
+          return this.editarAccion(repos, dto.idAdministrador, idAccion, dto.datos, 'UPDATE');
         case 'desactivar':
-          return this.editarAccion(repos, dto.idAdministrador, dto.idAccion, { activa: false }, 'DELETE');
+          return this.editarAccion(repos, dto.idAdministrador, idAccion, { activa: false }, 'DELETE');
       }
     });
   }
@@ -66,7 +68,7 @@ export class CasoUso_AdministracionEscritura extends PuertoEntradaAdministracion
    */
   gestionarUsuario(dto: DtoGestionarUsuario): Promise<UsuarioPublico> {
     return this.unidad.ejecutar(async ({ usuarios, bitacora }) => {
-      const usuario = await usuarios.buscarPorId(dto.idUsuario);
+      const usuario = await usuarios.buscarPorId(leerEnteroPositivo(dto.idUsuario, 'id'));
       if (!usuario) throw new ErrorNoEncontrado('El usuario no existe');
 
       const { rol, activo } = dto.cambios;

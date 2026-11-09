@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
-import { ErrorDominio, ErrorProhibido, TipoError } from '../../../dominio/compartido/errores';
-import { Rol, UsuarioPublico } from '../../../dominio/usuario/Usuario';
-import { PuertoEntradaUsuarioLectura } from '../../../aplicacion/puerto/entrada/PuertoEntradaUsuarioLectura';
+import { ErrorDominio, ErrorProhibido, TipoError } from '../../dominio/compartido/errores';
+import { Rol, UsuarioPublico } from '../../dominio/usuario/Usuario';
+import { PuertoEntradaUsuarioLectura } from '../../aplicacion/puerto/entrada/PuertoEntradaUsuarioLectura';
 
 /** Express 4 no atrapa errores de funciones async: este envoltorio los pasa al manejador. */
 export const manejar =

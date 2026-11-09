@@ -3,7 +3,7 @@
  * Incluye la prueba de aceptación P-05 (permisos) y comprobaciones del contrato de la API.
  */
 import request from 'supertest';
-import { crearApp } from '../src/infraestructura/http/app';
+import { crearApp } from '../src/app';
 import { ADMIN, entornoMemoria } from './ayudantes';
 
 function app() {

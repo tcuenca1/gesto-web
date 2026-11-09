@@ -18,7 +18,7 @@ import { crearCasosDeUso, PuertosDeSalida } from './aplicacion/caso_uso';
 import { CasosDeUso } from './aplicacion/caso_uso';
 import { PuertoSalidaReloj } from './aplicacion/puerto/salida/PuertoSalidaReloj';
 import { Configuracion, leerConfiguracion } from './config/entorno';
-import { crearApp } from './infraestructura/http/app';
+import { crearApp } from './app';
 import { AlmacenMemoria } from './infraestructura/base_dato/AlmacenMemoria';
 import { datosInicialesMemoria } from './infraestructura/base_dato/datosInicialesMemoria';
 import { AdapSalida_AccionMemoria } from './infraestructura/adaptadores/salida/AdapSalida_AccionMemoria';

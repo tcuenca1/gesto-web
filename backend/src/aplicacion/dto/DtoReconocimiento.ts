@@ -27,7 +27,8 @@ export interface DtoAbrirSesion {
 
 export interface DtoRegistrarDeteccion {
   idUsuario: number;
-  idSesion: number;
+  /** Llega de la URL: lo valida el caso de uso. */
+  idSesion: SinValidar;
   codigoGesto: SinValidar;
   confianza: SinValidar;
   mano: SinValidar;
@@ -36,5 +37,5 @@ export interface DtoRegistrarDeteccion {
 
 export interface DtoCerrarSesion {
   idUsuario: number;
-  idSesion: number;
+  idSesion: SinValidar;
 }
