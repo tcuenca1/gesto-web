@@ -2,9 +2,14 @@
 # Si ya tienes PostgreSQL instalado en tu computador no lo necesitas.
 #
 #   docker compose up -d        → base de datos en localhost:5432
+#                                 y Adminer (ver la base en el navegador) en http://localhost:8080
 #   cd backend && npm run db:crear
 #
+# Si el puerto 5432 ya lo ocupa otro PostgreSQL, elige otro al levantar:
+#   PUERTO_POSTGRES=5433 docker compose up -d     (y usa ese puerto en DATABASE_URL)
+#
 # Usuario: postgres · Contraseña: postgres · Base: gestoweb
+# En Adminer: Sistema "PostgreSQL", Servidor "postgres", Usuario/Contraseña "postgres".
 services:
   postgres:
     image: postgres:16
@@ -15,9 +20,17 @@ services:
       POSTGRES_DB: gestoweb
       TZ: UTC
     ports:
-      - "5432:5432"
+      - "${PUERTO_POSTGRES:-5432}:5432"
     volumes:
       - datos-gestoweb:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    ports:
+      - "${PUERTO_ADMINER:-8080}:8080"
+    depends_on:
+      - postgres
 
 volumes:
   datos-gestoweb:
