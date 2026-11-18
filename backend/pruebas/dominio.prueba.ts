@@ -39,9 +39,25 @@ describe('Usuario', () => {
   it('nunca expone el hash de la contraseña', () => {
     const u = Usuario.reconstruir({
       id: 1, nombre: 'Ana', correo: 'ana@x.com', contrasenaHash: 'HASH', rol: 'USUARIO',
-      activo: true, fechaRegistro: new Date(), ultimoAcceso: null,
+      activo: true, fechaRegistro: new Date(), ultimoAcceso: null, versionToken: 0,
     });
     expect(JSON.stringify(u.aPublico())).not.toContain('HASH');
+  });
+});
+
+describe('Usuario.aceptaToken (RNF-07)', () => {
+  it('acepta solo la versión vigente de una cuenta activa', () => {
+    expect(Usuario.aceptaToken({ activo: true, versionToken: 3 }, 3)).toBe(true);
+    expect(Usuario.aceptaToken({ activo: true, versionToken: 4 }, 3)).toBe(false);
+    expect(Usuario.aceptaToken({ activo: false, versionToken: 3 }, 3)).toBe(false);
+  });
+
+  it('la versión de tokens no forma parte de los datos públicos', () => {
+    const u = Usuario.reconstruir({
+      id: 1, nombre: 'Ana', correo: 'ana@x.com', contrasenaHash: 'HASH', rol: 'USUARIO',
+      activo: true, fechaRegistro: new Date(), ultimoAcceso: null, versionToken: 7,
+    });
+    expect(u.aPublico()).not.toHaveProperty('versionToken');
   });
 });
 

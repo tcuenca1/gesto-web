@@ -11,11 +11,12 @@ interface FilaUsuario {
   activo: boolean;
   fecha_registro: Date;
   ultimo_acceso: Date | null;
+  version_token: number;
 }
 
 const SELECCION = `
   SELECT u.id_usuario, u.nombre, u.correo, u.contrasena_hash, r.nombre AS rol,
-         u.activo, u.fecha_registro, u.ultimo_acceso
+         u.activo, u.fecha_registro, u.ultimo_acceso, u.version_token
     FROM usuarios u
     JOIN roles r ON r.id_rol = u.id_rol`;
 
@@ -29,6 +30,7 @@ const aEntidad = (f: FilaUsuario) =>
     activo: f.activo,
     fechaRegistro: f.fecha_registro,
     ultimoAcceso: f.ultimo_acceso,
+    versionToken: f.version_token,
   });
 
 /** Adaptador PostgreSQL del puerto PuertoSalidaUsuario. */
@@ -74,6 +76,11 @@ export class AdapSalida_UsuarioPostgres extends PuertoSalidaUsuario {
         WHERE id_usuario = $1`,
       [usuario.id, usuario.nombre, usuario.contrasenaHash, usuario.rol, usuario.activo, usuario.ultimoAcceso],
     );
+  }
+
+  async invalidarTokens(idUsuario: number): Promise<void> {
+    // Incremento atómico en la base: no depende de una versión leída antes.
+    await consultar(this.bd, 'UPDATE usuarios SET version_token = version_token + 1 WHERE id_usuario = $1', [idUsuario]);
   }
 
   async contar(): Promise<number> {

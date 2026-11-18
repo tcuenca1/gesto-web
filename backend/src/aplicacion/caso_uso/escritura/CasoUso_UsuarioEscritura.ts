@@ -67,7 +67,7 @@ export class CasoUso_UsuarioEscritura extends PuertoEntradaUsuarioEscritura {
     usuario.registrarAcceso(this.reloj.ahora());
     await this.usuarios.actualizar(usuario);
 
-    const { token, expiraEn } = this.tokens.generar({ idUsuario: usuario.id, rol: usuario.rol });
+    const { token, expiraEn } = this.tokens.generar({ idUsuario: usuario.id, rol: usuario.rol, version: usuario.versionToken });
     return { token, expiraEn, usuario: usuarioARespuesta(usuario) };
   }
 

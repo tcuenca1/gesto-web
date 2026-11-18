@@ -15,7 +15,7 @@ export class AdapSalida_TokensJwt extends PuertoSalidaTokens {
 
   generar(datos: DatosToken): { token: string; expiraEn: Date } {
     const opciones: SignOptions = { algorithm: 'HS256', expiresIn: this.duracionSegundos, subject: String(datos.idUsuario) };
-    const token = jwt.sign({ rol: datos.rol }, this.secreto, opciones);
+    const token = jwt.sign({ rol: datos.rol, ver: datos.version }, this.secreto, opciones);
     const { exp } = jwt.decode(token) as { exp: number };
     return { token, expiraEn: new Date(exp * 1000) };
   }
@@ -24,8 +24,11 @@ export class AdapSalida_TokensJwt extends PuertoSalidaTokens {
     try {
       const carga = jwt.verify(token, this.secreto, { algorithms: ['HS256'] }) as jwt.JwtPayload;
       const idUsuario = Number(carga.sub);
-      if (!Number.isInteger(idUsuario) || !ROLES.includes(carga.rol as Rol)) throw new Error('carga inválida');
-      return { idUsuario, rol: carga.rol as Rol };
+      const version = carga.ver;
+      if (!Number.isInteger(idUsuario) || !ROLES.includes(carga.rol as Rol) || !Number.isInteger(version)) {
+        throw new Error('carga inválida');
+      }
+      return { idUsuario, rol: carga.rol as Rol, version: version as number };
     } catch (error) {
       const vencido = error instanceof jwt.TokenExpiredError;
       throw new ErrorNoAutenticado(vencido ? 'Tu sesión venció. Inicia sesión de nuevo.' : 'Token inválido');
