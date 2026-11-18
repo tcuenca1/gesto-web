@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { Sequelize } from 'sequelize';
 import { PuertoSalidaAccion } from '../aplicacion/puerto/salida/PuertoSalidaAccion';
 import { PuertoSalidaAsignacion } from '../aplicacion/puerto/salida/PuertoSalidaAsignacion';
 import { PuertoSalidaBitacora } from '../aplicacion/puerto/salida/PuertoSalidaBitacora';
@@ -21,6 +22,15 @@ import { AdapSalida_DeteccionPostgres } from '../infraestructura/adaptadores/sal
 import { AdapSalida_GestoMemoria } from '../infraestructura/adaptadores/salida/AdapSalida_GestoMemoria';
 import { AdapSalida_GestoPostgres } from '../infraestructura/adaptadores/salida/AdapSalida_GestoPostgres';
 import { AdapSalida_SesionMemoria } from '../infraestructura/adaptadores/salida/AdapSalida_SesionMemoria';
+import { AdapSalida_AccionSequelize } from '../infraestructura/adaptadores/salida/AdapSalida_AccionSequelize';
+import { AdapSalida_AsignacionSequelize } from '../infraestructura/adaptadores/salida/AdapSalida_AsignacionSequelize';
+import { AdapSalida_BitacoraSequelize } from '../infraestructura/adaptadores/salida/AdapSalida_BitacoraSequelize';
+import { AdapSalida_DeteccionSequelize } from '../infraestructura/adaptadores/salida/AdapSalida_DeteccionSequelize';
+import { AdapSalida_GestoSequelize } from '../infraestructura/adaptadores/salida/AdapSalida_GestoSequelize';
+import { AdapSalida_SesionSequelize } from '../infraestructura/adaptadores/salida/AdapSalida_SesionSequelize';
+import { AdapSalida_UnidadDeTrabajoSequelize } from '../infraestructura/adaptadores/salida/AdapSalida_UnidadDeTrabajoSequelize';
+import { AdapSalida_UsuarioSequelize } from '../infraestructura/adaptadores/salida/AdapSalida_UsuarioSequelize';
+import { ContextoOrm, modelosDe } from '../infraestructura/base_dato/ConexionSequelize';
 import { AdapSalida_SesionPostgres } from '../infraestructura/adaptadores/salida/AdapSalida_SesionPostgres';
 import { AdapSalida_UnidadDeTrabajoMemoria } from '../infraestructura/adaptadores/salida/AdapSalida_UnidadDeTrabajoMemoria';
 import { AdapSalida_UnidadDeTrabajoPostgres } from '../infraestructura/adaptadores/salida/AdapSalida_UnidadDeTrabajoPostgres';
@@ -29,7 +39,7 @@ import { AdapSalida_UsuarioPostgres } from '../infraestructura/adaptadores/salid
 import { AlmacenMemoria } from '../infraestructura/base_dato/AlmacenMemoria';
 import { datosInicialesMemoria } from '../infraestructura/base_dato/datosInicialesMemoria';
 
-/** Puertos de salida de persistencia: los cumple PostgreSQL o la memoria. */
+/** Puertos de salida de persistencia: los cumple el ORM, PostgreSQL directo o la memoria. */
 export interface Persistencia {
   usuarios: PuertoSalidaUsuario;
   gestos: PuertoSalidaGesto;
@@ -53,7 +63,22 @@ export interface Servicios {
 /** Todo lo que el núcleo necesita del exterior: solo puertos. */
 export type PuertosDeSalida = Persistencia & Servicios;
 
-/** Adaptadores PostgreSQL (versión 1 del sistema). */
+/** Adaptadores del ORM Sequelize (modo por defecto, REPOSITORIOS=orm). */
+export function crearPersistenciaSequelize(sequelize: Sequelize): Persistencia {
+  const ctx: ContextoOrm = { modelos: modelosDe(sequelize) };
+  return {
+    usuarios: new AdapSalida_UsuarioSequelize(ctx),
+    gestos: new AdapSalida_GestoSequelize(ctx),
+    acciones: new AdapSalida_AccionSequelize(ctx),
+    asignaciones: new AdapSalida_AsignacionSequelize(ctx),
+    sesiones: new AdapSalida_SesionSequelize(ctx),
+    detecciones: new AdapSalida_DeteccionSequelize(ctx),
+    bitacora: new AdapSalida_BitacoraSequelize(ctx),
+    unidadDeTrabajo: new AdapSalida_UnidadDeTrabajoSequelize(ctx),
+  };
+}
+
+/** Adaptadores PostgreSQL con SQL directo (REPOSITORIOS=postgres). */
 export function crearPersistenciaPostgres(pool: Pool): Persistencia {
   return {
     usuarios: new AdapSalida_UsuarioPostgres(pool),

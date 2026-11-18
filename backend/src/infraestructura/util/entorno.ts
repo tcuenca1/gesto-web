@@ -2,7 +2,8 @@ import { config as cargarEnv } from 'dotenv';
 
 cargarEnv({ quiet: true });
 
-export type ModoRepositorios = 'postgres' | 'memoria';
+/** orm = Sequelize · postgres = SQL directo con pg · memoria = sin base de datos. */
+export type ModoRepositorios = 'orm' | 'postgres' | 'memoria';
 
 export interface Configuracion {
   puerto: number;
@@ -33,8 +34,10 @@ export function leerConfiguracion(env: NodeJS.ProcessEnv = process.env): Configu
   if (produccion && secreto.length < 32) {
     throw new Error('En producción JWT_SECRETO es obligatorio y debe tener al menos 32 caracteres');
   }
-  const repositorios = (env.REPOSITORIOS ?? 'postgres') as ModoRepositorios;
-  if (!['postgres', 'memoria'].includes(repositorios)) throw new Error('REPOSITORIOS debe ser "postgres" o "memoria"');
+  const repositorios = (env.REPOSITORIOS ?? 'orm') as ModoRepositorios;
+  if (!['orm', 'postgres', 'memoria'].includes(repositorios)) {
+    throw new Error('REPOSITORIOS debe ser "orm", "postgres" o "memoria"');
+  }
 
   return {
     puerto: Number(env.PORT ?? env.PUERTO ?? 3000),
