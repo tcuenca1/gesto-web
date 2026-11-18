@@ -2,8 +2,9 @@
  * Pruebas de los contenedores de uso del núcleo (RNF-14: al menos una por caso de uso).
  * Usan los adaptadores en memoria: no hace falta PostgreSQL ni Express.
  */
+import jwt from 'jsonwebtoken';
 import { ErrorConflicto, ErrorNoAutenticado, ErrorNoEncontrado, ErrorValidacion } from '../src/dominio/compartido/errores';
-import { ADMIN, entornoMemoria, registrar } from './ayudantes';
+import { ADMIN, entornoMemoria, registrar, SECRETO_PRUEBAS } from './ayudantes';
 
 describe('Casos de uso · Usuarios', () => {
   it('RegistrarUsuario crea la cuenta con rol USUARIO y contraseña cifrada', async () => {
@@ -55,6 +56,57 @@ describe('Casos de uso · Usuarios', () => {
     const u = await contenedores.usuario.cuEscritura.editarPerfil({ idUsuario: id, nombre: 'Ana María', contrasenaActual: 'Clave1234', contrasenaNueva: 'Nueva1234' });
     expect(u.nombre).toBe('Ana María');
     await expect(contenedores.usuario.cuEscritura.iniciarSesion({ correo: 'ana@correo.com', contrasena: 'Nueva1234' })).resolves.toBeDefined();
+  });
+
+  it('CerrarSesion invalida el token en el servidor y un nuevo login vuelve a funcionar', async () => {
+    const { contenedores } = entornoMemoria();
+    await registrar(contenedores);
+    const credenciales = { correo: 'ana@correo.com', contrasena: 'Clave1234' };
+    const { token, usuario } = await contenedores.usuario.cuEscritura.iniciarSesion(credenciales);
+    await contenedores.usuario.cuEscritura.cerrarSesion({ idUsuario: usuario.id });
+    await expect(contenedores.usuario.cuLectura.autenticarSolicitud({ token })).rejects.toMatchObject({ tipo: 'NO_AUTENTICADO' });
+
+    const nuevo = await contenedores.usuario.cuEscritura.iniciarSesion(credenciales);
+    expect((await contenedores.usuario.cuLectura.autenticarSolicitud({ token: nuevo.token })).id).toBe(usuario.id);
+    // El nuevo login guardó el último acceso sin "revivir" el token cerrado.
+    await expect(contenedores.usuario.cuLectura.autenticarSolicitud({ token })).rejects.toMatchObject({ tipo: 'NO_AUTENTICADO' });
+  });
+
+  it('CerrarSesion cierra todas las sesiones del usuario, no solo una', async () => {
+    const { contenedores } = entornoMemoria();
+    await registrar(contenedores);
+    const credenciales = { correo: 'ana@correo.com', contrasena: 'Clave1234' };
+    const pc = await contenedores.usuario.cuEscritura.iniciarSesion(credenciales);
+    const celular = await contenedores.usuario.cuEscritura.iniciarSesion(credenciales);
+    await contenedores.usuario.cuEscritura.cerrarSesion({ idUsuario: pc.usuario.id });
+    await expect(contenedores.usuario.cuLectura.autenticarSolicitud({ token: celular.token })).rejects.toMatchObject({ tipo: 'NO_AUTENTICADO' });
+  });
+
+  it('EditarPerfil: cambiar la contraseña invalida los tokens; cambiar solo el nombre no', async () => {
+    const { contenedores } = entornoMemoria();
+    const id = await registrar(contenedores);
+    const { token } = await contenedores.usuario.cuEscritura.iniciarSesion({ correo: 'ana@correo.com', contrasena: 'Clave1234' });
+    await contenedores.usuario.cuEscritura.editarPerfil({ idUsuario: id, nombre: 'Ana María' });
+    await expect(contenedores.usuario.cuLectura.autenticarSolicitud({ token })).resolves.toMatchObject({ nombre: 'Ana María' });
+
+    await contenedores.usuario.cuEscritura.editarPerfil({ idUsuario: id, contrasenaActual: 'Clave1234', contrasenaNueva: 'Nueva5678' });
+    await expect(contenedores.usuario.cuLectura.autenticarSolicitud({ token })).rejects.toMatchObject({ tipo: 'NO_AUTENTICADO' });
+  });
+
+  it('GestionarUsuario: desactivar invalida los tokens y reactivar no los revive', async () => {
+    const { contenedores } = entornoMemoria();
+    const id = await registrar(contenedores);
+    const { token } = await contenedores.usuario.cuEscritura.iniciarSesion({ correo: 'ana@correo.com', contrasena: 'Clave1234' });
+    await contenedores.administracion.cuEscritura.gestionarUsuario({ idAdministrador: 1, idUsuario: id, cambios: { activo: false } });
+    await contenedores.administracion.cuEscritura.gestionarUsuario({ idAdministrador: 1, idUsuario: id, cambios: { activo: true } });
+    await expect(contenedores.usuario.cuLectura.autenticarSolicitud({ token })).rejects.toMatchObject({ tipo: 'NO_AUTENTICADO' });
+  });
+
+  it('AutenticarSolicitud rechaza un token bien firmado pero sin versión', async () => {
+    const { contenedores } = entornoMemoria();
+    const id = await registrar(contenedores);
+    const viejo = jwt.sign({ rol: 'USUARIO' }, SECRETO_PRUEBAS, { algorithm: 'HS256', subject: String(id), expiresIn: 3600 });
+    await expect(contenedores.usuario.cuLectura.autenticarSolicitud({ token: viejo })).rejects.toMatchObject({ tipo: 'NO_AUTENTICADO' });
   });
 
   it('ObtenerPerfil devuelve los datos públicos', async () => {

@@ -86,6 +86,8 @@ export class CasoUso_AdministracionEscritura extends PuertoEntradaAdministracion
       if (rol !== undefined) usuario.cambiarRol(rol);
       if (typeof activo === 'boolean') usuario.cambiarEstado(activo);
       await usuarios.actualizar(usuario);
+      // Desactivar una cuenta invalida sus tokens; reactivarla no los revive (RNF-07).
+      if (antes.activo && activo === false) await usuarios.invalidarTokens(usuario.id);
 
       const despues = usuarioARespuesta(usuario);
       await bitacora.registrar({

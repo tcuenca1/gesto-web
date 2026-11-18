@@ -1,6 +1,6 @@
 import { ErrorConflicto, ErrorNoAutenticado, ErrorNoEncontrado, ErrorValidacion } from '../../../dominio/compartido/errores';
 import { Usuario, UsuarioPublico } from '../../../dominio/usuario/Usuario';
-import { DtoEditarPerfil, DtoInicioSesion, DtoRegistroUsuario, DtoResultadoInicioSesion } from '../../dto/DtoUsuario';
+import { DtoCerrarSesionUsuario, DtoEditarPerfil, DtoInicioSesion, DtoRegistroUsuario, DtoResultadoInicioSesion } from '../../dto/DtoUsuario';
 import { usuarioARespuesta } from '../../dto/RespuestaUsuario';
 import { PuertoEntradaUsuarioEscritura } from '../../puerto/entrada/PuertoEntradaUsuarioEscritura';
 import { PuertoSalidaCifrador } from '../../puerto/salida/PuertoSalidaCifrador';
@@ -16,7 +16,7 @@ const MENSAJE_CREDENCIALES = 'Correo o contraseña incorrectos';
  */
 const HASH_DE_RELLENO = '$2b$10$1PUm.xNMrV98XZSzpT1ngeTv3ql14vWBIp.xahgOdZsB7SesB6JyC';
 
-/** Cambios del módulo Usuario: registro, inicio de sesión y perfil. */
+/** Cambios del módulo Usuario: registro, inicio y cierre de sesión y perfil. */
 export class CasoUso_UsuarioEscritura extends PuertoEntradaUsuarioEscritura {
   constructor(
     private readonly usuarios: PuertoSalidaUsuario,
@@ -71,6 +71,14 @@ export class CasoUso_UsuarioEscritura extends PuertoEntradaUsuarioEscritura {
     return { token, expiraEn, usuario: usuarioARespuesta(usuario) };
   }
 
+  /**
+   * RF-03 / RNF-07 · Cerrar sesión. Sube la versión de tokens de la cuenta: el
+   * token usado y los de otros dispositivos dejan de valer de inmediato.
+   */
+  async cerrarSesion(dto: DtoCerrarSesionUsuario): Promise<void> {
+    await this.usuarios.invalidarTokens(dto.idUsuario);
+  }
+
   /** RF-05 · Editar el nombre y cambiar la contraseña (confirmando la actual). */
   async editarPerfil(dto: DtoEditarPerfil): Promise<UsuarioPublico> {
     const usuario = await this.usuarios.buscarPorId(dto.idUsuario);
@@ -92,6 +100,8 @@ export class CasoUso_UsuarioEscritura extends PuertoEntradaUsuarioEscritura {
     }
 
     await this.usuarios.actualizar(usuario);
+    // Cambiar la contraseña cierra todas las sesiones abiertas con la anterior.
+    if (cambiaContrasena) await this.usuarios.invalidarTokens(usuario.id);
     return usuarioARespuesta(usuario);
   }
 }
