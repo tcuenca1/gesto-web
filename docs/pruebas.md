@@ -6,11 +6,11 @@ Resumen de lo que se probó, cómo ejecutarlo y qué falta hacer con una cámara
 
 | Dónde | Comando | Pruebas | Qué cubren |
 |---|---|---|---|
-| Backend | `npm test` | 51 | Dominio (reglas puras), **los 22 casos de uso** (RNF-14) con adaptadores en memoria y la API REST con Supertest |
-| Backend | `npm run test:pg` | 15 | Triggers, procedimientos, función y vistas en PostgreSQL real; P-06, P-07 y P-09 |
+| Backend | `npm test` | 59 | Dominio (reglas puras), **los 22 casos de uso** (RNF-14) con adaptadores en memoria y la API REST con Supertest |
+| Backend | `npm run test:pg` | 21 | Triggers, procedimientos, función y vistas en PostgreSQL real; P-06, P-07 y P-09 |
 | Frontend | `npm test` | 17 | Reglas de aceptación, ejecutor de acciones, cola de reintentos y motor de reconocimiento con adaptadores falsos |
 
-Resultado de la última ejecución: **83 de 83 pruebas aprobadas**. Cobertura del núcleo del backend (dominio + aplicación): 89 % de instrucciones, 94 % de líneas.
+Resultado de la última ejecución sin base de datos: **76 de 76 pruebas aprobadas** (59 del backend y 17 del frontend). Las 21 pruebas con PostgreSQL, que ahora incluyen el ORM, se ejecutan con `npm run test:pg` y requieren una base levantada (`docker compose up -d`). Cobertura del núcleo del backend (dominio + aplicación): 89 % de instrucciones, 94 % de líneas.
 
 `npm run test:pg` usa una base aparte, `gestoweb_pruebas`, y la reinicia en cada prueba: no toca tus datos. Se puede cambiar con `DATABASE_URL_PRUEBAS`.
 
@@ -26,7 +26,7 @@ Resultado de la última ejecución: **83 de 83 pruebas aprobadas**. Cobertura de
 | **P-06 Contraseñas** | Aprobada | Automática (`base-datos.prueba.ts`): toda `contrasena_hash` es un hash bcrypt `$2b$10$…` y no contiene la contraseña. |
 | **P-07 Base de datos** | Aprobada | Automática: al crear un usuario se crean 7 asignaciones; una detección en una sesión cerrada se rechaza con el error `GW001`. |
 | **P-08 Usuario nuevo** | Pendiente: requiere una persona externa | La pantalla de registro lleva directo a Reconocer con el botón "Encender cámara" y la guía de gestos a la vista. |
-| **P-09 Hexagonal** | Aprobada | Automática (`contrato.prueba.ts`): las mismas pruebas pasan con adaptadores PostgreSQL y en memoria sin tocar el núcleo. También `REPOSITORIOS=memoria` en el `.env`. |
+| **P-09 Hexagonal** | Aprobada | Automática (`contrato.prueba.ts`): las mismas pruebas corren con adaptadores ORM (Sequelize), SQL directo (pg) y en memoria sin tocar el núcleo. También `REPOSITORIOS=memoria` en el `.env`. |
 | **P-10 Navegadores** | Parcial | El flujo completo (CU-03 en modo simulado) pasó en Chromium 153. Falta repetir con cámara real en Chrome, Edge y Firefox. |
 
 ### Otras comprobaciones hechas

@@ -46,7 +46,7 @@ No se eligió por moda; resuelve problemas concretos de GestoWeb:
 
 1. **El modelo de IA es la pieza más inestable.** MediaPipe cambia de versión (en 2026 pasó de 0.10 a 1.x) y en el futuro se quiere entrenar gestos propios (SRS §13.3). Con un puerto `PuertoSalidaReconocedor`, cambiar de modelo es cambiar **un archivo**.
 2. **La cámara no siempre está disponible.** Para desarrollar, probar y para el plan B de la demo, la cámara y el modelo se reemplazan por adaptadores simulados (`?simulado=1`) sin tocar el resto.
-3. **Probar sin infraestructura.** Las reglas de aceptación (medio segundo, pausa de 1 s, umbral) y los casos de uso se prueban con datos falsos, sin base de datos ni navegador: 51 pruebas del backend corren en ~6 segundos.
+3. **Probar sin infraestructura.** Las reglas de aceptación (medio segundo, pausa de 1 s, umbral) y los casos de uso se prueban con datos falsos, sin base de datos ni navegador: 59 pruebas del backend corren en ~7 segundos.
 4. **Cuatro personas trabajando en paralelo.** Los puertos y el contrato de la API son el acuerdo de la semana 1 (SRS §11). Juan programa casos de uso contra el puerto `PuertoSalidaDeteccion` usando el adaptador en memoria mientras Terry termina el de PostgreSQL; Neils avanza pantallas contra `PuertoSalidaApiGestoWeb`.
 5. **La privacidad queda en la estructura.** El único adaptador que toca la imagen (la cámara) vive en el navegador; el núcleo del frontend solo recibe `{ codigo, confianza, mano, puntos }`. No existe un camino en el código por donde una imagen llegue al servidor (y la API rechaza cuerpos de más de 20 KB).
 6. **Es un requisito medible:** RNF-12 y la prueba de aceptación P-09.
@@ -126,16 +126,18 @@ Los 16 casos de uso de la SRS §7.2, más 6 de apoyo, son métodos de 8 clases s
 
 ### 3.3 Infraestructura: adaptadores
 
-| Puerto | Adaptador versión 1 | Adaptador alternativo |
+| Puerto | Adaptador por defecto (ORM) | Alternativas |
 |---|---|---|
-| `PuertoSalidaUsuario`, `…Gesto`, `…Accion`, `…Asignacion`, `…Sesion`, `…Deteccion`, `…Bitacora` | `AdapSalida_<Recurso>Postgres` | `AdapSalida_<Recurso>Memoria` |
-| `PuertoSalidaUnidadDeTrabajo` | `AdapSalida_UnidadDeTrabajoPostgres` (BEGIN/COMMIT/ROLLBACK) | `AdapSalida_UnidadDeTrabajoMemoria` (copia y restaura el estado) |
+| `PuertoSalidaUsuario`, `…Gesto`, `…Accion`, `…Asignacion`, `…Sesion`, `…Deteccion`, `…Bitacora` | `AdapSalida_<Recurso>Sequelize` | `AdapSalida_<Recurso>Postgres` (SQL directo) · `AdapSalida_<Recurso>Memoria` |
+| `PuertoSalidaUnidadDeTrabajo` | `AdapSalida_UnidadDeTrabajoSequelize` (`sequelize.transaction`) | `AdapSalida_UnidadDeTrabajoPostgres` (BEGIN/COMMIT/ROLLBACK) · `AdapSalida_UnidadDeTrabajoMemoria` (copia y restaura el estado) |
 | `PuertoSalidaCifrador` | `AdapSalida_CifradorBcrypt` | — |
 | `PuertoSalidaTokens` | `AdapSalida_TokensJwt` | — |
 | `PuertoSalidaReloj` | `AdapSalida_RelojSistema` | `RelojFalso` (pruebas) |
 | `PuertoEntrada*` | `AdapEntrada_<Modulo>Web` (Express) | Las pruebas llaman a los casos de uso directamente |
 
-Cada adaptador vive en su propio archivo en `infraestructura/adaptadores/entrada/` o `infraestructura/adaptadores/salida/`. Las conexiones (`ConexionPostgresql`, `AlmacenMemoria`) están en `infraestructura/base_dato/`.
+Cada adaptador vive en su propio archivo en `infraestructura/adaptadores/entrada/` o `infraestructura/adaptadores/salida/`. Las conexiones (`ConexionSequelize` con los modelos de `ModelosSequelize`, `ConexionPostgresql`, `AlmacenMemoria`) están en `infraestructura/base_dato/`.
+
+Los adaptadores ORM piden siempre columnas explícitas (`attributes: [...]`, `returning: [...]`) y leen con `raw: true`, sin crear instancias de modelo. Los modelos solo describen las tablas: nunca se llama a `sync()`, el esquema lo crean los scripts de `base-datos/`. Los procedimientos y la función de la SRS §9.3 (`sp_abrir_sesion`, `sp_restaurar_asignaciones`, `fn_estadisticas_usuario`), las vistas del historial y el `INSERT … ON CONFLICT` de las asignaciones se invocan con `sequelize.query` parametrizado, porque un ORM no los modela.
 
 Los adaptadores traducen el mundo exterior al idioma del núcleo. Por ejemplo, la conexión de PostgreSQL convierte el error del trigger (`GW001`) y la llave duplicada (`23505`) en errores del dominio:
 
@@ -180,11 +182,14 @@ export function crearContenedorUsuario(p: PuertosDeSalida) {
 Y `contenedor/index.ts` elige los adaptadores de salida:
 
 ```ts
-export function componer(config: Configuracion, pool?: Pool): Contenedores {
+export function componer(config: Configuracion, conexiones: Conexiones = {}): Contenedores {
   const reloj = new AdapSalida_RelojSistema();
-  const persistencia = config.repositorios === 'memoria'
-    ? crearPersistenciaMemoria(reloj)          // ← P-09: cambiar esta línea
-    : crearPersistenciaPostgres(pool!);
+  const persistencia =
+    config.repositorios === 'orm'
+      ? crearPersistenciaSequelize(conexiones.sequelize!)   // ← P-09: REPOSITORIOS elige el adaptador
+      : config.repositorios === 'postgres'
+        ? crearPersistenciaPostgres(conexiones.pool!)
+        : crearPersistenciaMemoria(reloj);
   return crearContenedores({
     ...persistencia,
     cifrador: new AdapSalida_CifradorBcrypt(),
@@ -220,12 +225,12 @@ export abstract class PuertoSalidaUnidadDeTrabajo {
 | `aplicacion/caso_uso/escritura/CasoUso_UsuarioEscritura.js` | `aplicacion/caso_uso/escritura/CasoUso_<Modulo>Escritura.ts` |
 | `aplicacion/dto/DtoUsuario.js`, `RespuestaUsuario.js` | `aplicacion/dto/Dto<Modulo>.ts`, `Respuesta<Modulo>.ts` |
 | `infraestructura/adaptadores/entrada/AdapEntrada_UsuarioWeb.js` | `infraestructura/adaptadores/entrada/AdapEntrada_<Modulo>Web.ts` |
-| `infraestructura/adaptadores/salida/AdapSalida_PostresqlOrm.js` / `AdapSalida_MongoDbOdm.js` | `infraestructura/adaptadores/salida/AdapSalida_<Recurso>Postgres.ts` / `…Memoria.ts` |
+| `infraestructura/adaptadores/salida/AdapSalida_PostresqlOrm.js` / `AdapSalida_MongoDbOdm.js` | `infraestructura/adaptadores/salida/AdapSalida_<Recurso>Sequelize.ts` / `…Postgres.ts` / `…Memoria.ts` |
 | `infraestructura/base_dato/ConexionPostgresql.js` | `infraestructura/base_dato/ConexionPostgresql.ts` |
 | `contenedor/ContenedorUsuario.js` → `{ adapSalida, cuUsuario, cuUsuarioEscritura, adap }` | `contenedor/Contenedor<Modulo>.ts` → `{ cuLectura, cuEscritura, adap }` |
 | `app.js`: `app.get(ruta, (req, res) => contenedor.adap.metodo(req, res))` | `app.ts`: `app.get(ruta, manejar((req, res) => adap.metodo(req, res)))` |
 
-Las diferencias justificadas por la SRS (TypeScript, `pg` sin ORM, adaptadores en memoria en vez de MongoDB, bcrypt y JWT, manejo de errores centralizado, Angular) están en la tabla de desviaciones aceptadas de la skill.
+Las diferencias justificadas por la SRS (TypeScript, ORM Sequelize con alternativa de SQL directo, adaptadores en memoria en vez de MongoDB, bcrypt y JWT, manejo de errores centralizado, Angular) están en la tabla de desviaciones aceptadas de la skill.
 
 ## 4. Cómo se aplicó en el frontend
 
@@ -250,7 +255,7 @@ La SRS §7.4 pide que el frontend también aísle la cámara y el modelo. La est
 
 ## 5. ¿Cómo sabemos que funciona? (P-09)
 
-1. **Pruebas de contrato** (`backend/pruebas/postgres/contrato.prueba.ts`): las mismas pruebas se ejecutan dos veces, con adaptadores PostgreSQL y con adaptadores en memoria, sin tocar el núcleo. Ambas pasan.
+1. **Pruebas de contrato** (`backend/pruebas/postgres/contrato.prueba.ts`): las mismas pruebas se ejecutan tres veces, con adaptadores ORM (Sequelize), con SQL directo (pg) y en memoria, sin tocar el núcleo.
 2. **Modo memoria** (`REPOSITORIOS=memoria`): el backend completo funciona sin base de datos.
 3. **Modo simulado** (`?simulado=1`): el frontend completo funciona sin cámara ni modelo. La prueba de extremo a extremo del proyecto se hizo así: registro, siete gestos, panel, historial, CSV, estadísticas, administración y bitácora, con 14 comprobaciones en verde.
 4. **Pruebas del motor del frontend** con una cámara, un modelo y una API falsos (`motor-reconocimiento.spec.ts`).
