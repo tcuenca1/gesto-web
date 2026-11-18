@@ -175,7 +175,7 @@ AS $$
            COALESCE(ROUND(AVG(d.confianza), 3), 0)       AS confianza_promedio
       FROM gestos g
       LEFT JOIN (
-            SELECT d.*
+            SELECT d.id_deteccion, d.id_gesto, d.confianza
               FROM detecciones d
               JOIN sesiones_reconocimiento s ON s.id_sesion = d.id_sesion
              WHERE s.id_usuario = p_id_usuario
