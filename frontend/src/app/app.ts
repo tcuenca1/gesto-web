@@ -5,6 +5,7 @@ import { IconoGesto } from './compartido/componentes/icono-gesto';
 import { MODO_SIMULADO } from './compartido/modo-simulado';
 import { Avisos } from './compartido/servicios/avisos';
 import { SesionUsuario } from './compartido/servicios/sesion-usuario';
+import { ApiAutenticacion, PuertoSalidaApiGestoWeb } from './nucleo/puerto/salida/puerto-salida-api-gestoweb';
 
 const ETIQUETA_AVISO = { exito: 'OK', error: 'ERROR', info: 'AVISO' } as const;
 
@@ -77,8 +78,11 @@ export class App {
   protected readonly simulado = inject(MODO_SIMULADO);
   protected readonly etiqueta = ETIQUETA_AVISO;
   private readonly router = inject(Router);
+  private readonly api: ApiAutenticacion = inject(PuertoSalidaApiGestoWeb);
 
-  protected salir(): void {
+  protected async salir(): Promise<void> {
+    // Primero se invalida el token en el servidor; si falla (sin red, token vencido) igual se cierra aquí.
+    await this.api.cerrarSesionUsuario().catch(() => undefined);
     this.sesion.cerrar();
     this.avisos.info('Cerraste sesión.');
     void this.router.navigate(['/']);

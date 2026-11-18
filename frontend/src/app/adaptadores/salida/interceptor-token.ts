@@ -15,7 +15,8 @@ export const interceptorToken: HttpInterceptorFn = (peticion, siguiente) => {
   const router = inject(Router);
   const token = sesion.token();
   const esApi = peticion.url.startsWith(environment.apiUrl);
-  const esLogin = peticion.url.includes('/auth/');
+  // Registro e inicio de sesión no llevan token; el cierre de sesión sí.
+  const esLogin = /\/auth\/(login|registro)$/.test(peticion.url);
 
   const conToken = token && esApi && !esLogin
     ? peticion.clone({ setHeaders: { Authorization: `Bearer ${token}` } })

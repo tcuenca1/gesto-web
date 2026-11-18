@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Avisos } from '../../compartido/servicios/avisos';
 import { SesionUsuario } from '../../compartido/servicios/sesion-usuario';
@@ -58,6 +59,7 @@ export class Perfil {
   protected readonly sesion = inject(SesionUsuario);
   private readonly api: ApiAutenticacion = inject(PuertoSalidaApiGestoWeb);
   private readonly avisos = inject(Avisos);
+  private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder).nonNullable;
 
   protected readonly fecha = fechaHora;
@@ -88,7 +90,10 @@ export class Perfil {
       const { actual, nueva } = this.claves.getRawValue();
       await this.api.editarPerfil({ contrasenaActual: actual, contrasenaNueva: nueva });
       this.claves.reset();
-      this.avisos.exito('Contraseña cambiada.');
+      // El servidor cerró todas las sesiones al cambiar la contraseña, incluida esta.
+      this.sesion.cerrar();
+      this.avisos.exito('Contraseña cambiada. Inicia sesión de nuevo.');
+      void this.router.navigate(['/entrar']);
     } catch (e) {
       this.errorClave.set((e as Error).message);
     } finally {

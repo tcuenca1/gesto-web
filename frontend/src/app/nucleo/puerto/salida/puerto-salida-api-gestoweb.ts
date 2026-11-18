@@ -12,6 +12,8 @@ import { Accion, Asignacion, Deteccion, EntradaBitacora, Estadisticas, Estadisti
 export interface ApiAutenticacion {
   iniciarSesion(correo: string, contrasena: string): Promise<ResultadoLogin>;
   registrarse(datos: { nombre: string; correo: string; contrasena: string }): Promise<Usuario>;
+  /** Invalida en el servidor todos los tokens de la cuenta (RF-03, RNF-07). */
+  cerrarSesionUsuario(): Promise<void>;
   perfil(): Promise<Usuario>;
   editarPerfil(datos: { nombre?: string; contrasenaActual?: string; contrasenaNueva?: string }): Promise<Usuario>;
 }
@@ -56,6 +58,7 @@ export abstract class PuertoSalidaApiGestoWeb
 {
   abstract iniciarSesion(correo: string, contrasena: string): Promise<ResultadoLogin>;
   abstract registrarse(datos: { nombre: string; correo: string; contrasena: string }): Promise<Usuario>;
+  abstract cerrarSesionUsuario(): Promise<void>;
   abstract perfil(): Promise<Usuario>;
   abstract editarPerfil(datos: { nombre?: string; contrasenaActual?: string; contrasenaNueva?: string }): Promise<Usuario>;
 
