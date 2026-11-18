@@ -1,32 +1,46 @@
 /**
  * P-09 · Prueba de la arquitectura hexagonal.
  *
- * Las MISMAS pruebas se ejecutan dos veces: una con los adaptadores
- * PostgreSQL y otra con los adaptadores en memoria. El núcleo (dominio y
+ * Las MISMAS pruebas se ejecutan tres veces: con los adaptadores del ORM
+ * (Sequelize), con los de SQL directo (pg) y con los de memoria. El núcleo (dominio y
  * contenedores de uso) no cambia en absoluto; solo cambia qué adaptador se conecta
  * a cada puerto, exactamente como hace contenedor/. Si ambas pasan, los
  * adaptadores son intercambiables (principio de sustitución de Liskov).
  */
 import { Pool } from 'pg';
+import { Sequelize } from 'sequelize';
 import { Contenedores, crearContenedores } from '../../src/contenedor';
 import { AdapSalida_CifradorBcrypt } from '../../src/infraestructura/adaptadores/salida/AdapSalida_CifradorBcrypt';
 import { AdapSalida_TokensJwt } from '../../src/infraestructura/adaptadores/salida/AdapSalida_TokensJwt';
-import { crearPersistenciaMemoria, crearPersistenciaPostgres } from '../../src/contenedor/ContenedorPersistencia';
+import { crearPersistenciaMemoria, crearPersistenciaPostgres, crearPersistenciaSequelize } from '../../src/contenedor/ContenedorPersistencia';
+import { crearSequelize } from '../../src/infraestructura/base_dato/ConexionSequelize';
 import { ADMIN, RelojFalso, SECRETO_PRUEBAS } from '../ayudantes';
-import { poolDePruebas, reiniciarBase } from './preparar';
+import { poolDePruebas, reiniciarBase, URL_PRUEBAS } from './preparar';
 
 let pool: Pool;
+let sequelize: Sequelize;
 beforeAll(async () => {
   pool = await poolDePruebas();
+  sequelize = crearSequelize({ urlConexion: URL_PRUEBAS });
 });
-afterAll(() => pool.end());
+afterAll(async () => {
+  await sequelize.close();
+  await pool.end();
+});
 
 type Fabrica = (reloj: RelojFalso) => Promise<Contenedores>;
 
 const fabricas: Array<[string, Fabrica]> = [
   ['memoria', async (reloj) => armar(crearPersistenciaMemoria(reloj), reloj)],
   [
-    'postgres',
+    'orm (Sequelize)',
+    async (reloj) => {
+      await reiniciarBase(pool);
+      return armar(crearPersistenciaSequelize(sequelize), reloj);
+    },
+  ],
+  [
+    'postgres (pg)',
     async (reloj) => {
       await reiniciarBase(pool);
       return armar(crearPersistenciaPostgres(pool), reloj);
@@ -61,6 +75,16 @@ describe.each(fabricas)('Núcleo con adaptadores de %s', (_nombre, fabrica) => {
     const { token } = await contenedores.usuario.cuEscritura.iniciarSesion({ correo: 'terry@x.com', contrasena: 'Clave1234' });
     expect((await contenedores.usuario.cuLectura.autenticarSolicitud({ token })).id).toBe(u.id);
     expect((await contenedores.accion.cuLectura.obtenerAsignaciones({ idUsuario: u.id }))).toHaveLength(7);
+  });
+
+  it('cerrar sesión invalida el token y un nuevo inicio de sesión vuelve a funcionar (RNF-07)', async () => {
+    const { token, usuario } = await contenedores.usuario.cuEscritura.iniciarSesion(ADMIN);
+    await contenedores.usuario.cuEscritura.cerrarSesion({ idUsuario: usuario.id });
+    await expect(contenedores.usuario.cuLectura.autenticarSolicitud({ token })).rejects.toMatchObject({ tipo: 'NO_AUTENTICADO' });
+    const nuevo = await contenedores.usuario.cuEscritura.iniciarSesion(ADMIN);
+    expect((await contenedores.usuario.cuLectura.autenticarSolicitud({ token: nuevo.token })).id).toBe(usuario.id);
+    // El último acceso se guardó sin devolver la vida al token cerrado.
+    await expect(contenedores.usuario.cuLectura.autenticarSolicitud({ token })).rejects.toMatchObject({ tipo: 'NO_AUTENTICADO' });
   });
 
   it('CU-03 completo con historial y estadísticas', async () => {
