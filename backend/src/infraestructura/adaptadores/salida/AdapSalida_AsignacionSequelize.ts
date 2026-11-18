@@ -1,4 +1,3 @@
-import { Model } from 'sequelize';
 import { Asignacion } from '../../../dominio/accion/Asignacion';
 import { PuertoSalidaAsignacion } from '../../../aplicacion/puerto/salida/PuertoSalidaAsignacion';
 import { consultarOrm, ContextoOrm, ejecutarOrm, orm } from '../../base_dato/ConexionSequelize';
@@ -10,10 +9,12 @@ interface FilaAsignacion {
   fecha_actualizacion: Date;
 }
 
-const aAsignacion = (modelo: Model | FilaAsignacion): Asignacion => {
-  const f = ('get' in modelo ? modelo.get({ plain: true }) : modelo) as FilaAsignacion;
-  return { idUsuario: f.id_usuario, idGesto: f.id_gesto, idAccion: f.id_accion, fechaActualizacion: f.fecha_actualizacion };
-};
+const aAsignacion = (f: FilaAsignacion): Asignacion => ({
+  idUsuario: f.id_usuario,
+  idGesto: f.id_gesto,
+  idAccion: f.id_accion,
+  fechaActualizacion: f.fecha_actualizacion,
+});
 
 /** Adaptador del puerto PuertoSalidaAsignacion con el ORM Sequelize. */
 export class AdapSalida_AsignacionSequelize extends PuertoSalidaAsignacion {
@@ -23,12 +24,14 @@ export class AdapSalida_AsignacionSequelize extends PuertoSalidaAsignacion {
 
   async listarDeUsuario(idUsuario: number): Promise<Asignacion[]> {
     return orm(async () => {
-      const modelos = await this.ctx.modelos.Asignacion.findAll({
+      const filas = (await this.ctx.modelos.Asignacion.findAll({
+        attributes: ['id_usuario', 'id_gesto', 'id_accion', 'fecha_actualizacion'],
         where: { id_usuario: idUsuario },
         order: [['id_gesto', 'ASC']],
+        raw: true,
         transaction: this.ctx.transaccion,
-      });
-      return modelos.map(aAsignacion);
+      })) as unknown as FilaAsignacion[];
+      return filas.map(aAsignacion);
     });
   }
 

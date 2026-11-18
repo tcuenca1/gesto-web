@@ -1,4 +1,3 @@
-import { Model } from 'sequelize';
 import { SesionReconocimiento } from '../../../dominio/deteccion/SesionReconocimiento';
 import { PuertoSalidaSesion } from '../../../aplicacion/puerto/salida/PuertoSalidaSesion';
 import { consultarOrm, ContextoOrm, ejecutarOrm, orm } from '../../base_dato/ConexionSequelize';
@@ -12,9 +11,11 @@ interface FilaSesion {
   total_detecciones: number;
 }
 
-const aEntidad = (modelo: Model) => {
-  const f = modelo.get({ plain: true }) as FilaSesion;
-  return SesionReconocimiento.reconstruir({
+/** Columnas que se piden siempre: nunca SELECT *. */
+const COLUMNAS = ['id_sesion', 'id_usuario', 'fecha_inicio', 'fecha_fin', 'navegador', 'total_detecciones'];
+
+const aEntidad = (f: FilaSesion) =>
+  SesionReconocimiento.reconstruir({
     id: f.id_sesion,
     idUsuario: f.id_usuario,
     fechaInicio: f.fecha_inicio,
@@ -22,7 +23,6 @@ const aEntidad = (modelo: Model) => {
     navegador: f.navegador,
     totalDetecciones: f.total_detecciones,
   });
-};
 
 /** Adaptador del puerto PuertoSalidaSesion con el ORM Sequelize. */
 export class AdapSalida_SesionSequelize extends PuertoSalidaSesion {
@@ -38,8 +38,8 @@ export class AdapSalida_SesionSequelize extends PuertoSalidaSesion {
 
   async buscarPorId(id: number): Promise<SesionReconocimiento | null> {
     return orm(async () => {
-      const modelo = await this.ctx.modelos.Sesion.findByPk(id, { transaction: this.ctx.transaccion });
-      return modelo ? aEntidad(modelo) : null;
+      const fila = (await this.ctx.modelos.Sesion.findByPk(id, { attributes: COLUMNAS, raw: true, transaction: this.ctx.transaccion })) as FilaSesion | null;
+      return fila ? aEntidad(fila) : null;
     });
   }
 

@@ -1,4 +1,3 @@
-import { Model } from 'sequelize';
 import { Gesto } from '../../../dominio/gesto/Gesto';
 import { PuertoSalidaGesto } from '../../../aplicacion/puerto/salida/PuertoSalidaGesto';
 import { ContextoOrm, orm } from '../../base_dato/ConexionSequelize';
@@ -13,9 +12,11 @@ interface FilaGesto {
   activo: boolean;
 }
 
-const aEntidad = (modelo: Model) => {
-  const f = modelo.get({ plain: true }) as FilaGesto;
-  return Gesto.reconstruir({
+/** Columnas que se piden siempre: nunca SELECT *. */
+const COLUMNAS = ['id_gesto', 'codigo', 'nombre', 'descripcion', 'umbral_confianza', 'id_accion_predeterminada', 'activo'];
+
+const aEntidad = (f: FilaGesto) =>
+  Gesto.reconstruir({
     id: f.id_gesto,
     codigo: f.codigo,
     nombre: f.nombre,
@@ -24,7 +25,6 @@ const aEntidad = (modelo: Model) => {
     idAccionPredeterminada: f.id_accion_predeterminada,
     activo: f.activo,
   });
-};
 
 /** Adaptador del puerto PuertoSalidaGesto con el ORM Sequelize. */
 export class AdapSalida_GestoSequelize extends PuertoSalidaGesto {
@@ -34,26 +34,28 @@ export class AdapSalida_GestoSequelize extends PuertoSalidaGesto {
 
   async listar(opciones: { soloActivos?: boolean } = {}): Promise<Gesto[]> {
     return orm(async () => {
-      const modelos = await this.ctx.modelos.Gesto.findAll({
+      const filas = (await this.ctx.modelos.Gesto.findAll({
+        attributes: COLUMNAS,
         where: opciones.soloActivos ? { activo: true } : {},
         order: [['id_gesto', 'ASC']],
+        raw: true,
         transaction: this.ctx.transaccion,
-      });
-      return modelos.map(aEntidad);
+      })) as unknown as FilaGesto[];
+      return filas.map(aEntidad);
     });
   }
 
   async buscarPorId(id: number): Promise<Gesto | null> {
     return orm(async () => {
-      const modelo = await this.ctx.modelos.Gesto.findByPk(id, { transaction: this.ctx.transaccion });
-      return modelo ? aEntidad(modelo) : null;
+      const fila = (await this.ctx.modelos.Gesto.findByPk(id, { attributes: COLUMNAS, raw: true, transaction: this.ctx.transaccion })) as FilaGesto | null;
+      return fila ? aEntidad(fila) : null;
     });
   }
 
   async buscarPorCodigo(codigo: string): Promise<Gesto | null> {
     return orm(async () => {
-      const modelo = await this.ctx.modelos.Gesto.findOne({ where: { codigo }, transaction: this.ctx.transaccion });
-      return modelo ? aEntidad(modelo) : null;
+      const fila = (await this.ctx.modelos.Gesto.findOne({ attributes: COLUMNAS, where: { codigo }, raw: true, transaction: this.ctx.transaccion })) as FilaGesto | null;
+      return fila ? aEntidad(fila) : null;
     });
   }
 

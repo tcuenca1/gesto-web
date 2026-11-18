@@ -1,4 +1,3 @@
-import { Model } from 'sequelize';
 import { NuevoUsuario, Rol, Usuario } from '../../../dominio/usuario/Usuario';
 import { PuertoSalidaUsuario } from '../../../aplicacion/puerto/salida/PuertoSalidaUsuario';
 import { ContextoOrm, orm } from '../../base_dato/ConexionSequelize';
@@ -15,9 +14,11 @@ interface FilaUsuario {
   rol: { nombre: Rol };
 }
 
-const aEntidad = (modelo: Model) => {
-  const f = modelo.get({ plain: true }) as FilaUsuario;
-  return Usuario.reconstruir({
+/** Columnas que se piden siempre: nunca SELECT *. */
+const COLUMNAS = ['id_usuario', 'nombre', 'correo', 'contrasena_hash', 'activo', 'fecha_registro', 'ultimo_acceso', 'version_token'];
+
+const aEntidad = (f: FilaUsuario) =>
+  Usuario.reconstruir({
     id: f.id_usuario,
     nombre: f.nombre,
     correo: f.correo,
@@ -28,7 +29,6 @@ const aEntidad = (modelo: Model) => {
     ultimoAcceso: f.ultimo_acceso,
     versionToken: f.version_token,
   });
-};
 
 /** Adaptador del puerto PuertoSalidaUsuario con el ORM Sequelize. */
 export class AdapSalida_UsuarioSequelize extends PuertoSalidaUsuario {
@@ -38,12 +38,24 @@ export class AdapSalida_UsuarioSequelize extends PuertoSalidaUsuario {
 
   private get opciones() {
     const { Rol: rol } = this.ctx.modelos;
-    return { include: [{ model: rol, as: 'rol', attributes: ['nombre'] }], transaction: this.ctx.transaccion };
+    // raw + nest: filas planas (rol.nombre queda como { rol: { nombre } }), sin instancias de modelo.
+    return {
+      attributes: COLUMNAS,
+      include: [{ model: rol, as: 'rol', attributes: ['nombre'] }],
+      raw: true,
+      nest: true,
+      transaction: this.ctx.transaccion,
+    };
   }
 
   private async idDelRol(nombre: Rol): Promise<number> {
-    const rol = await this.ctx.modelos.Rol.findOne({ where: { nombre }, transaction: this.ctx.transaccion });
-    return rol!.get('id_rol') as number;
+    const rol = (await this.ctx.modelos.Rol.findOne({
+      attributes: ['id_rol'],
+      where: { nombre },
+      raw: true,
+      transaction: this.ctx.transaccion,
+    })) as { id_rol: number } | null;
+    return rol!.id_rol;
   }
 
   async crear(nuevo: NuevoUsuario): Promise<Usuario> {
@@ -56,7 +68,7 @@ export class AdapSalida_UsuarioSequelize extends PuertoSalidaUsuario {
           contrasena_hash: nuevo.contrasenaHash,
           id_rol: await this.idDelRol(nuevo.rol),
         },
-        { transaction: this.ctx.transaccion },
+        { returning: ['id_usuario'], transaction: this.ctx.transaccion },
       );
       return (await this.buscarPorId(creado.get('id_usuario') as number))!;
     });
@@ -64,22 +76,22 @@ export class AdapSalida_UsuarioSequelize extends PuertoSalidaUsuario {
 
   async buscarPorId(id: number): Promise<Usuario | null> {
     return orm(async () => {
-      const modelo = await this.ctx.modelos.Usuario.findByPk(id, this.opciones);
-      return modelo ? aEntidad(modelo) : null;
+      const fila = (await this.ctx.modelos.Usuario.findByPk(id, this.opciones)) as FilaUsuario | null;
+      return fila ? aEntidad(fila) : null;
     });
   }
 
   async buscarPorCorreo(correo: string): Promise<Usuario | null> {
     return orm(async () => {
-      const modelo = await this.ctx.modelos.Usuario.findOne({ where: { correo: correo.toLowerCase() }, ...this.opciones });
-      return modelo ? aEntidad(modelo) : null;
+      const fila = (await this.ctx.modelos.Usuario.findOne({ where: { correo: correo.toLowerCase() }, ...this.opciones })) as FilaUsuario | null;
+      return fila ? aEntidad(fila) : null;
     });
   }
 
   async listar(): Promise<Usuario[]> {
     return orm(async () => {
-      const modelos = await this.ctx.modelos.Usuario.findAll({ order: [['id_usuario', 'ASC']], ...this.opciones });
-      return modelos.map(aEntidad);
+      const filas = (await this.ctx.modelos.Usuario.findAll({ order: [['id_usuario', 'ASC']], ...this.opciones })) as unknown as FilaUsuario[];
+      return filas.map(aEntidad);
     });
   }
 

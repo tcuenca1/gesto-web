@@ -1,4 +1,3 @@
-import { Model } from 'sequelize';
 import { PuertoSalidaBitacora, EntradaBitacora, NuevaEntradaBitacora, OperacionBitacora } from '../../../aplicacion/puerto/salida/PuertoSalidaBitacora';
 import { ContextoOrm, orm } from '../../base_dato/ConexionSequelize';
 
@@ -12,18 +11,15 @@ interface FilaBitacora {
   usuario: { nombre: string };
 }
 
-const aEntrada = (modelo: Model): EntradaBitacora => {
-  const f = modelo.get({ plain: true }) as FilaBitacora;
-  return {
-    id: Number(f.id_bitacora),
-    idUsuario: f.id_usuario,
-    nombreUsuario: f.usuario.nombre,
-    tablaAfectada: f.tabla_afectada,
-    operacion: f.operacion,
-    detalle: f.detalle,
-    fechaHora: f.fecha_hora,
-  };
-};
+const aEntrada = (f: FilaBitacora): EntradaBitacora => ({
+  id: Number(f.id_bitacora),
+  idUsuario: f.id_usuario,
+  nombreUsuario: f.usuario.nombre,
+  tablaAfectada: f.tabla_afectada,
+  operacion: f.operacion,
+  detalle: f.detalle,
+  fechaHora: f.fecha_hora,
+});
 
 /** Adaptador del puerto PuertoSalidaBitacora con el ORM Sequelize. */
 export class AdapSalida_BitacoraSequelize extends PuertoSalidaBitacora {
@@ -51,14 +47,17 @@ export class AdapSalida_BitacoraSequelize extends PuertoSalidaBitacora {
       const [total, filas] = await Promise.all([
         Bitacora.count({ transaction: this.ctx.transaccion }),
         Bitacora.findAll({
+          attributes: ['id_bitacora', 'id_usuario', 'tabla_afectada', 'operacion', 'detalle', 'fecha_hora'],
           include: [{ model: Usuario, as: 'usuario', attributes: ['nombre'] }],
           order: [['id_bitacora', 'DESC']],
           limit: limite,
           offset: (pagina - 1) * limite,
+          raw: true,
+          nest: true,
           transaction: this.ctx.transaccion,
         }),
       ]);
-      return { total, elementos: filas.map(aEntrada) };
+      return { total, elementos: (filas as unknown as FilaBitacora[]).map(aEntrada) };
     });
   }
 }
