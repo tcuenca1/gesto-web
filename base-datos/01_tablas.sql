@@ -42,6 +42,10 @@ CREATE TABLE usuarios (
     activo           BOOLEAN       NOT NULL DEFAULT TRUE,
     fecha_registro   TIMESTAMP     NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
     ultimo_acceso    TIMESTAMP,
+    -- Sube al cerrar sesión, cambiar la contraseña o desactivar la cuenta:
+    -- los tokens con una versión anterior dejan de valer (RNF-07).
+    version_token    INTEGER       NOT NULL DEFAULT 0,
+    CONSTRAINT ck_usuarios_version_token CHECK (version_token >= 0),
     CONSTRAINT ck_usuarios_nombre CHECK (LENGTH(TRIM(nombre)) > 0),
     CONSTRAINT ck_usuarios_correo CHECK (correo = LOWER(correo) AND correo ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$')
 );
