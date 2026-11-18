@@ -11,6 +11,12 @@ import { crearPool } from './infraestructura/base_dato/ConexionPostgresql';
 import { crearSequelize } from './infraestructura/base_dato/ConexionSequelize';
 import { leerConfiguracion } from './infraestructura/util/entorno';
 
+/** Sequelize a veces trae el mensaje vacío (conexión rechazada): se completa con el error original. */
+function describirError(error: unknown): string {
+  const e = error as { message?: string; name?: string; original?: { code?: string; message?: string } };
+  return e.message || e.original?.message || e.original?.code || e.name || String(error);
+}
+
 async function iniciar(): Promise<void> {
   const config = leerConfiguracion();
   const conexiones: Conexiones = {};
@@ -29,7 +35,7 @@ async function iniciar(): Promise<void> {
   } catch (error) {
     console.error('[ERROR] No se pudo usar la base de datos PostgreSQL.');
     console.error('        Revisa DATABASE_URL en backend/.env y ejecuta "npm run db:crear".');
-    console.error(`        Detalle: ${(error as Error).message}`);
+    console.error(`        Detalle: ${describirError(error)}`);
     console.error('        Con REPOSITORIOS=memoria el backend funciona sin PostgreSQL.');
     process.exit(1);
   }
