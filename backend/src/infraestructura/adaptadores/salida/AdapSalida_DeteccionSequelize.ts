@@ -75,7 +75,7 @@ export class AdapSalida_DeteccionSequelize extends PuertoSalidaDeteccion {
       consultarOrm<{ total: number }>(this.ctx, `SELECT COUNT(*) AS total FROM v_historial ${clausula}`, valores),
       consultarOrm<FilaHistorial>(
         this.ctx,
-        `SELECT * FROM v_historial ${clausula}
+        `SELECT id_deteccion, id_sesion, id_usuario, codigo_gesto, nombre_gesto, codigo_accion, nombre_accion, confianza, mano, fecha_hora FROM v_historial ${clausula}
           ORDER BY fecha_hora DESC, id_deteccion DESC
           LIMIT $${valores.length + 1} OFFSET $${valores.length + 2}`,
         [...valores, filtro.limite, (filtro.pagina - 1) * filtro.limite],
@@ -107,7 +107,7 @@ export class AdapSalida_DeteccionSequelize extends PuertoSalidaDeteccion {
       // Función de la base de datos (SRS §9.3).
       filas = await consultarOrm<Fila>(
         this.ctx,
-        'SELECT * FROM fn_estadisticas_usuario($1, $2::timestamp, $3::timestamp)',
+        'SELECT id_gesto, codigo, nombre, total, confianza_promedio FROM fn_estadisticas_usuario($1, $2::timestamp, $3::timestamp)',
         [idUsuario, rango.desde ?? null, rango.hasta ?? null],
       );
     } else {
@@ -151,7 +151,7 @@ export class AdapSalida_DeteccionSequelize extends PuertoSalidaDeteccion {
     const filas = await consultarOrm<{
       id_gesto: number; codigo: string; nombre: string; activo: boolean;
       total_detecciones: number; confianza_promedio: number; usuarios_distintos: number;
-    }>(this.ctx, 'SELECT * FROM v_estadisticas_generales');
+    }>(this.ctx, 'SELECT id_gesto, codigo, nombre, activo, total_detecciones, confianza_promedio, usuarios_distintos FROM v_estadisticas_generales');
     return filas.map((f) => ({
       idGesto: f.id_gesto,
       codigo: f.codigo,

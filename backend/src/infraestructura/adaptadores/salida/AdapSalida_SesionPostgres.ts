@@ -40,7 +40,7 @@ export class AdapSalida_SesionPostgres extends PuertoSalidaSesion {
   }
 
   async buscarPorId(id: number): Promise<SesionReconocimiento | null> {
-    const { rows } = await consultar<FilaSesion>(this.bd, 'SELECT * FROM sesiones_reconocimiento WHERE id_sesion = $1', [id]);
+    const { rows } = await consultar<FilaSesion>(this.bd, 'SELECT id_sesion, id_usuario, fecha_inicio, fecha_fin, navegador, total_detecciones FROM sesiones_reconocimiento WHERE id_sesion = $1', [id]);
     return rows[0] ? sesionDesdeFila(rows[0]) : null;
   }
 

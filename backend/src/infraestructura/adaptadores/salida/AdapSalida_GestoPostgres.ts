@@ -35,18 +35,18 @@ export class AdapSalida_GestoPostgres extends PuertoSalidaGesto {
   async listar(opciones: { soloActivos?: boolean } = {}): Promise<Gesto[]> {
     const { rows } = await consultar<FilaGesto>(
       this.bd,
-      `SELECT * FROM gestos ${opciones.soloActivos ? 'WHERE activo' : ''} ORDER BY id_gesto`,
+      `SELECT id_gesto, codigo, nombre, descripcion, umbral_confianza, id_accion_predeterminada, activo FROM gestos ${opciones.soloActivos ? 'WHERE activo' : ''} ORDER BY id_gesto`,
     );
     return rows.map(gestoDesdeFila);
   }
 
   async buscarPorId(id: number): Promise<Gesto | null> {
-    const { rows } = await consultar<FilaGesto>(this.bd, 'SELECT * FROM gestos WHERE id_gesto = $1', [id]);
+    const { rows } = await consultar<FilaGesto>(this.bd, 'SELECT id_gesto, codigo, nombre, descripcion, umbral_confianza, id_accion_predeterminada, activo FROM gestos WHERE id_gesto = $1', [id]);
     return rows[0] ? gestoDesdeFila(rows[0]) : null;
   }
 
   async buscarPorCodigo(codigo: string): Promise<Gesto | null> {
-    const { rows } = await consultar<FilaGesto>(this.bd, 'SELECT * FROM gestos WHERE codigo = $1', [codigo]);
+    const { rows } = await consultar<FilaGesto>(this.bd, 'SELECT id_gesto, codigo, nombre, descripcion, umbral_confianza, id_accion_predeterminada, activo FROM gestos WHERE codigo = $1', [codigo]);
     return rows[0] ? gestoDesdeFila(rows[0]) : null;
   }
 

@@ -25,25 +25,25 @@ export class AdapSalida_AccionPostgres extends PuertoSalidaAccion {
   async listar(opciones: { soloActivas?: boolean } = {}): Promise<Accion[]> {
     const { rows } = await consultar<FilaAccion>(
       this.bd,
-      `SELECT * FROM acciones ${opciones.soloActivas ? 'WHERE activa' : ''} ORDER BY id_accion`,
+      `SELECT id_accion, codigo, nombre, descripcion, activa FROM acciones ${opciones.soloActivas ? 'WHERE activa' : ''} ORDER BY id_accion`,
     );
     return rows.map(accionDesdeFila);
   }
 
   async buscarPorId(id: number): Promise<Accion | null> {
-    const { rows } = await consultar<FilaAccion>(this.bd, 'SELECT * FROM acciones WHERE id_accion = $1', [id]);
+    const { rows } = await consultar<FilaAccion>(this.bd, 'SELECT id_accion, codigo, nombre, descripcion, activa FROM acciones WHERE id_accion = $1', [id]);
     return rows[0] ? accionDesdeFila(rows[0]) : null;
   }
 
   async buscarPorCodigo(codigo: string): Promise<Accion | null> {
-    const { rows } = await consultar<FilaAccion>(this.bd, 'SELECT * FROM acciones WHERE codigo = $1', [codigo]);
+    const { rows } = await consultar<FilaAccion>(this.bd, 'SELECT id_accion, codigo, nombre, descripcion, activa FROM acciones WHERE codigo = $1', [codigo]);
     return rows[0] ? accionDesdeFila(rows[0]) : null;
   }
 
   async crear(nueva: NuevaAccion): Promise<Accion> {
     const { rows } = await consultar<FilaAccion>(
       this.bd,
-      'INSERT INTO acciones (codigo, nombre, descripcion) VALUES ($1, $2, $3) RETURNING *',
+      'INSERT INTO acciones (codigo, nombre, descripcion) VALUES ($1, $2, $3) RETURNING id_accion, codigo, nombre, descripcion, activa',
       [nueva.codigo, nueva.nombre, nueva.descripcion],
     );
     return accionDesdeFila(rows[0]);

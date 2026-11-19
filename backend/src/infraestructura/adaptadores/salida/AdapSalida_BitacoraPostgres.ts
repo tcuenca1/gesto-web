@@ -23,7 +23,8 @@ export class AdapSalida_BitacoraPostgres extends PuertoSalidaBitacora {
         operacion: OperacionBitacora; detalle: EntradaBitacora['detalle']; fecha_hora: Date;
       }>(
         this.bd,
-        `SELECT b.*, u.nombre AS nombre_usuario
+        `SELECT b.id_bitacora, b.id_usuario, b.tabla_afectada, b.operacion, b.detalle, b.fecha_hora,
+                u.nombre AS nombre_usuario
            FROM bitacora b JOIN usuarios u ON u.id_usuario = b.id_usuario
           ORDER BY b.id_bitacora DESC LIMIT $1 OFFSET $2`,
         [limite, (pagina - 1) * limite],

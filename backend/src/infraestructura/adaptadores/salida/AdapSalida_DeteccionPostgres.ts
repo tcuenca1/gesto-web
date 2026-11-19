@@ -67,7 +67,7 @@ export class AdapSalida_DeteccionPostgres extends PuertoSalidaDeteccion {
       consultar<{ total: number }>(this.bd, `SELECT COUNT(*) AS total FROM v_historial ${clausula}`, valores),
       consultar<FilaHistorial>(
         this.bd,
-        `SELECT * FROM v_historial ${clausula}
+        `SELECT id_deteccion, id_sesion, id_usuario, codigo_gesto, nombre_gesto, codigo_accion, nombre_accion, confianza, mano, fecha_hora FROM v_historial ${clausula}
           ORDER BY fecha_hora DESC, id_deteccion DESC
           LIMIT $${valores.length + 1} OFFSET $${valores.length + 2}`,
         [...valores, filtro.limite, (filtro.pagina - 1) * filtro.limite],
@@ -99,7 +99,7 @@ export class AdapSalida_DeteccionPostgres extends PuertoSalidaDeteccion {
       // Función de la base de datos (SRS §9.3).
       ({ rows: filas } = await consultar<Fila>(
         this.bd,
-        'SELECT * FROM fn_estadisticas_usuario($1, $2::timestamp, $3::timestamp)',
+        'SELECT id_gesto, codigo, nombre, total, confianza_promedio FROM fn_estadisticas_usuario($1, $2::timestamp, $3::timestamp)',
         [idUsuario, rango.desde ?? null, rango.hasta ?? null],
       ));
     } else {
@@ -109,7 +109,7 @@ export class AdapSalida_DeteccionPostgres extends PuertoSalidaDeteccion {
         `SELECT g.id_gesto, g.codigo, g.nombre, COUNT(d.id_deteccion) AS total,
                 COALESCE(ROUND(AVG(d.confianza), 3), 0) AS confianza_promedio
            FROM gestos g
-           LEFT JOIN (SELECT * FROM detecciones d ${where}) d ON d.id_gesto = g.id_gesto
+           LEFT JOIN (SELECT d.id_deteccion, d.id_gesto, d.confianza FROM detecciones d ${where}) d ON d.id_gesto = g.id_gesto
           GROUP BY g.id_gesto ORDER BY g.id_gesto`,
         valores,
       ));
@@ -143,7 +143,7 @@ export class AdapSalida_DeteccionPostgres extends PuertoSalidaDeteccion {
     const { rows } = await consultar<{
       id_gesto: number; codigo: string; nombre: string; activo: boolean;
       total_detecciones: number; confianza_promedio: number; usuarios_distintos: number;
-    }>(this.bd, 'SELECT * FROM v_estadisticas_generales');
+    }>(this.bd, 'SELECT id_gesto, codigo, nombre, activo, total_detecciones, confianza_promedio, usuarios_distintos FROM v_estadisticas_generales');
     return rows.map((f) => ({
       idGesto: f.id_gesto,
       codigo: f.codigo,
