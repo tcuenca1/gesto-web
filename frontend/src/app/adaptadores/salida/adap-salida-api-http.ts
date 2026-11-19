@@ -23,6 +23,9 @@ export class AdapSalida_ApiHttp extends PuertoSalidaApiGestoWeb {
   registrarse(datos: { nombre: string; correo: string; contrasena: string }) {
     return this.pedir(this.http.post<Usuario>(`${this.base}/auth/registro`, datos));
   }
+  cerrarSesionUsuario() {
+    return this.pedir(this.http.post<void>(`${this.base}/auth/logout`, {}));
+  }
   perfil() {
     return this.pedir(this.http.get<Usuario>(`${this.base}/usuarios/yo`));
   }

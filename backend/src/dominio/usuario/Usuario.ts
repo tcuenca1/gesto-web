@@ -12,6 +12,8 @@ export interface DatosUsuario {
   activo: boolean;
   fechaRegistro: Date;
   ultimoAcceso: Date | null;
+  /** Sube cuando hay que invalidar los tokens ya emitidos (RNF-07). */
+  versionToken: number;
 }
 
 /** Datos para crear un usuario nuevo (todavía sin id). */
@@ -96,6 +98,7 @@ export class Usuario {
   get activo(): boolean { return this.datos.activo; }
   get fechaRegistro(): Date { return this.datos.fechaRegistro; }
   get ultimoAcceso(): Date | null { return this.datos.ultimoAcceso; }
+  get versionToken(): number { return this.datos.versionToken; }
 
   esAdmin(): boolean {
     return this.datos.rol === 'ADMIN';
@@ -104,6 +107,15 @@ export class Usuario {
   /** Un usuario inactivo no puede entrar (SRS §9.2, tabla usuarios). */
   puedeIniciarSesion(): boolean {
     return this.datos.activo;
+  }
+
+  /**
+   * RNF-07 · Un token vale solo si la cuenta sigue activa y su versión es la
+   * vigente. Cerrar sesión, cambiar la contraseña o desactivar la cuenta suben
+   * la versión, así que los tokens anteriores dejan de servir aunque no hayan vencido.
+   */
+  static aceptaToken(cuenta: { activo: boolean; versionToken: number }, versionDelToken: number): boolean {
+    return cuenta.activo && cuenta.versionToken === versionDelToken;
   }
 
   // ---------- Cambios de estado ----------
@@ -129,7 +141,7 @@ export class Usuario {
   }
 
   aPublico(): UsuarioPublico {
-    const { contrasenaHash: _omitido, ...publico } = this.datos;
+    const { contrasenaHash: _omitido, versionToken: _version, ...publico } = this.datos;
     return { ...publico };
   }
 

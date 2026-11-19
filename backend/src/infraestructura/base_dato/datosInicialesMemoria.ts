@@ -47,6 +47,7 @@ export function datosInicialesMemoria(ahora = new Date()): EstadoMemoria {
         activo: true,
         fechaRegistro: ahora,
         ultimoAcceso: null,
+        versionToken: 0,
       },
     ],
     asignaciones: gestos.map((g) => ({ idUsuario: 1, idGesto: g.id, idAccion: g.idAccionPredeterminada, fechaActualizacion: ahora })),

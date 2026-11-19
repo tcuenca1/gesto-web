@@ -39,6 +39,8 @@ npm start                     # abre http://localhost:4200
   **admin@gestoweb.local** / **Admin123!** (cámbiala antes de publicar).
 - Ve a **Reconocer**, pulsa **Encender cámara** y haz un gesto: índice arriba pasa a la siguiente imagen.
 
+> **Persistencia:** por defecto el backend usa el ORM Sequelize (`REPOSITORIOS=orm`). Con `REPOSITORIOS=postgres` usa SQL directo con `pg`; las dos trabajan sobre la misma base.
+>
 > **Sin PostgreSQL:** pon `REPOSITORIOS=memoria` en `backend/.env` y salta `db:crear`. Los datos se pierden al reiniciar.
 > **Sin cámara:** abre `http://localhost:4200/?simulado=1`. La cámara y el modelo se reemplazan por adaptadores de prueba y los gestos se "hacen" con botones o con las teclas 1 a 7. Se desactiva con `?simulado=0`.
 
@@ -50,8 +52,8 @@ npm start                     # abre http://localhost:4200
 |---|---|---|
 | backend | `npm run dev` | Servidor con recarga automática |
 | backend | `npm run build` y `npm start` | Compila a `dist/` y ejecuta (producción) |
-| backend | `npm test` | 51 pruebas: dominio, casos de uso y API (sin base de datos) |
-| backend | `npm run test:pg` | 15 pruebas con PostgreSQL: triggers, P-06, P-07 y P-09 |
+| backend | `npm test` | 59 pruebas: dominio, casos de uso y API (sin base de datos) |
+| backend | `npm run test:pg` | 21 pruebas con PostgreSQL: triggers, P-06, P-07 y P-09 (contrato ORM, SQL directo y memoria) |
 | backend | `npm run db:crear` | Crea/reinicia la base de datos (**borra los datos**) |
 | backend | `npm run db:datos-prueba` | Carga 100 000 detecciones y mide la velocidad (RNF-04) |
 | frontend | `npm start` | Angular en http://localhost:4200 (el proxy envía `/api` al backend) |
@@ -69,7 +71,7 @@ npm start                     # abre http://localhost:4200
 ```
 gestoweb/
 ├── README.md                  este archivo
-├── docker-compose.yml         PostgreSQL con Docker (opcional)
+├── docker-compose.yml         PostgreSQL + Adminer con Docker (opcional)
 ├── docs/                      documentación, capturas, colección de Postman y la SRS
 ├── base-datos/                01_tablas · 02_funciones_triggers · 03_vistas · 04_datos_iniciales
 ├── backend/                   API REST con arquitectura hexagonal
@@ -102,5 +104,5 @@ gestoweb/
 ## Estado frente a la SRS
 
 - **22/22 requisitos funcionales** implementados (los 9 de prioridad alta, los de media y los de baja).
-- **66 pruebas automáticas en el backend y 17 en el frontend**, todas en verde.
+- **80 pruebas automáticas en el backend (59 sin base de datos y 21 con PostgreSQL) y 17 en el frontend**. Las 76 que no necesitan base de datos pasan; las 21 con PostgreSQL se ejecutan con `npm run test:pg`.
 - Pruebas de aceptación **P-04, P-05, P-06, P-07 y P-09 aprobadas** (automáticas o en el recorrido de extremo a extremo `frontend/e2e/recorrido.mjs`). P-01, P-02, P-03, P-08 y P-10 necesitan una cámara y personas reales: el procedimiento está en [docs/pruebas.md](docs/pruebas.md).

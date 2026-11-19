@@ -5,8 +5,8 @@ import { usuarioDe } from '../../util/middlewares';
 
 /**
  * Adaptador de entrada HTTP del módulo Usuario.
- * Cerrar sesión (RF-03) se hace en el navegador borrando el token:
- * con JWT el servidor no guarda sesiones.
+ * Cerrar sesión (RF-03) invalida el token en el servidor (version_token) y el
+ * navegador además lo borra.
  */
 export class AdapEntrada_UsuarioWeb {
   constructor(
@@ -24,6 +24,12 @@ export class AdapEntrada_UsuarioWeb {
   async iniciarSesion(req: Request, res: Response): Promise<void> {
     const { correo, contrasena } = req.body ?? {};
     res.json(await this.cuEscritura.iniciarSesion({ correo, contrasena }));
+  }
+
+  /** POST /api/auth/logout */
+  async cerrarSesion(_req: Request, res: Response): Promise<void> {
+    await this.cuEscritura.cerrarSesion({ idUsuario: usuarioDe(res).id });
+    res.status(204).end();
   }
 
   /** GET /api/usuarios/yo */

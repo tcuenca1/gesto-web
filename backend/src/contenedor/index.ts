@@ -3,7 +3,7 @@
  * casos de uso y los adaptadores concretos. Aquí se decide qué adaptador
  * cumple cada puerto:
  *
- *    PuertoSalidaUsuario  ← AdapSalida_UsuarioPostgres (o AdapSalida_UsuarioMemoria)
+ *    PuertoSalidaUsuario  ← AdapSalida_UsuarioSequelize (o …Postgres, o …Memoria)
  *    PuertoSalidaCifrador ← AdapSalida_CifradorBcrypt
  *    PuertoSalidaTokens   ← AdapSalida_TokensJwt
  *    …
@@ -12,6 +12,7 @@
  * se hace cambiando SOLO esta carpeta.
  */
 import { Pool } from 'pg';
+import { Sequelize } from 'sequelize';
 import { AdapSalida_CifradorBcrypt } from '../infraestructura/adaptadores/salida/AdapSalida_CifradorBcrypt';
 import { AdapSalida_RelojSistema } from '../infraestructura/adaptadores/salida/AdapSalida_RelojSistema';
 import { AdapSalida_TokensJwt } from '../infraestructura/adaptadores/salida/AdapSalida_TokensJwt';
@@ -19,7 +20,7 @@ import { Configuracion } from '../infraestructura/util/entorno';
 import { crearContenedorAccion } from './ContenedorAccion';
 import { crearContenedorAdministracion } from './ContenedorAdministracion';
 import { crearContenedorHistorial } from './ContenedorHistorial';
-import { crearPersistenciaMemoria, crearPersistenciaPostgres, PuertosDeSalida } from './ContenedorPersistencia';
+import { crearPersistenciaMemoria, crearPersistenciaPostgres, crearPersistenciaSequelize, PuertosDeSalida } from './ContenedorPersistencia';
 import { crearContenedorReconocimiento } from './ContenedorReconocimiento';
 import { crearContenedorUsuario } from './ContenedorUsuario';
 
@@ -36,10 +37,21 @@ export function crearContenedores(p: PuertosDeSalida) {
 
 export type Contenedores = ReturnType<typeof crearContenedores>;
 
+/** Conexiones abiertas a la base de datos: una sola según REPOSITORIOS (ninguna con memoria). */
+export interface Conexiones {
+  pool?: Pool;
+  sequelize?: Sequelize;
+}
+
 /** Elige los adaptadores según la configuración y arma todos los contenedores. */
-export function componer(config: Configuracion, pool?: Pool): Contenedores {
+export function componer(config: Configuracion, conexiones: Conexiones = {}): Contenedores {
   const reloj = new AdapSalida_RelojSistema();
-  const persistencia = config.repositorios === 'memoria' ? crearPersistenciaMemoria(reloj) : crearPersistenciaPostgres(pool!);
+  const persistencia =
+    config.repositorios === 'orm'
+      ? crearPersistenciaSequelize(conexiones.sequelize!)
+      : config.repositorios === 'postgres'
+        ? crearPersistenciaPostgres(conexiones.pool!)
+        : crearPersistenciaMemoria(reloj);
   return crearContenedores({
     ...persistencia,
     cifrador: new AdapSalida_CifradorBcrypt(),

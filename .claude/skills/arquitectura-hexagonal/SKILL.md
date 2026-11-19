@@ -33,7 +33,7 @@ backend/src/
 ├── main.ts                                # arranque: lee entorno, crea contenedores, app.listen, apagado limpio
 ├── app.ts                                 # crearApp(contenedores): middlewares + 1 línea por ruta
 ├── contenedor/
-│   ├── ContenedorPersistencia.ts          # crearPersistenciaPostgres(pool) / crearPersistenciaMemoria(reloj)
+│   ├── ContenedorPersistencia.ts          # crearPersistenciaSequelize(sequelize) / …Postgres(pool) / …Memoria(reloj)
 │   ├── ContenedorUsuario.ts               # crearContenedorUsuario(p) → { cuLectura, cuEscritura, adap }
 │   ├── ContenedorReconocimiento.ts
 │   ├── ContenedorAccion.ts
@@ -83,10 +83,10 @@ backend/src/
     │   │   ├── AdapEntrada_HistorialWeb.ts
     │   │   └── AdapEntrada_AdministracionWeb.ts
     │   └── salida/
-    │       ├── AdapSalida_UsuarioPostgres.ts   · AdapSalida_UsuarioMemoria.ts
-    │       ├── AdapSalida_GestoPostgres.ts     · AdapSalida_GestoMemoria.ts
-    │       ├── … (una pareja Postgres/Memoria por puerto de persistencia)
-    │       ├── AdapSalida_UnidadDeTrabajoPostgres.ts · AdapSalida_UnidadDeTrabajoMemoria.ts
+    │       ├── AdapSalida_UsuarioSequelize.ts · AdapSalida_UsuarioPostgres.ts · AdapSalida_UsuarioMemoria.ts
+    │       ├── AdapSalida_GestoSequelize.ts   · AdapSalida_GestoPostgres.ts   · AdapSalida_GestoMemoria.ts
+    │       ├── … (un trío Sequelize/Postgres/Memoria por puerto de persistencia)
+    │       ├── AdapSalida_UnidadDeTrabajoSequelize.ts · …Postgres.ts · …Memoria.ts
     │       ├── AdapSalida_CifradorBcrypt.ts
     │       ├── AdapSalida_TokensJwt.ts
     │       └── AdapSalida_RelojSistema.ts
@@ -213,7 +213,7 @@ De adentro hacia afuera, un paso por capa:
 3. **Puerto de salida:** método `abstract` nuevo en `PuertoSalida<Recurso>`.
 4. **Puerto de entrada:** método `abstract` en `PuertoEntrada<Modulo>Lectura|Escritura`.
 5. **Caso de uso:** implementación en `CasoUso_<Modulo>Lectura|Escritura`.
-6. **Adaptadores de salida:** implementar el método en **los dos**: `AdapSalida_<Recurso>Postgres` y `AdapSalida_<Recurso>Memoria` (si falta el de memoria, las pruebas sin base de datos y la prueba P-09 se rompen).
+6. **Adaptadores de salida:** implementar el método en **los tres**: `AdapSalida_<Recurso>Sequelize`, `AdapSalida_<Recurso>Postgres` y `AdapSalida_<Recurso>Memoria` (si falta el de memoria, las pruebas sin base de datos y la prueba P-09 se rompen).
 7. **SQL:** tabla, función o vista en `base-datos/0X_*.sql`.
 8. **Adaptador de entrada:** método en `AdapEntrada_<Modulo>Web`.
 9. **Contenedor:** solo si hay una dependencia nueva.
@@ -260,7 +260,7 @@ Están justificadas por la SRS de GestoWeb y no hace falta volver a reportarlas:
 | # | Desviación | Motivo |
 |---|---|---|
 | D-01 | TypeScript en lugar de JS | Tipos en los contratos (puertos), exigido por el stack de la SRS |
-| D-02 | `pg` con SQL parametrizado, sin ORM | Triggers, vistas y funciones en `base-datos/` hacen el trabajo pesado (SRS §9) |
+| D-02 | ORM Sequelize por defecto, con `pg` y SQL parametrizado como alternativa | Triggers, vistas y funciones en `base-datos/` hacen el trabajo pesado (SRS §9): los modelos solo describen las tablas, no hay `sync()`, y lo que un ORM no modela se llama con `sequelize.query` |
 | D-03 | Adaptadores en memoria en vez de MongoDB | Permiten probar sin base de datos (prueba P-09) |
 | D-04 | bcrypt + JWT | Contraseñas cifradas y sesión sin estado (RNF-07) |
 | D-05 | Errores centralizados en `manejadorErrores` en vez de `try/catch` en cada adaptador | Una sola tabla de códigos HTTP; evita repetir la traducción 30 veces |

@@ -18,6 +18,11 @@ export interface DtoResultadoInicioSesion {
   usuario: UsuarioPublico;
 }
 
+/** Cerrar la sesión de una cuenta (POST /api/auth/logout). */
+export interface DtoCerrarSesionUsuario {
+  idUsuario: number;
+}
+
 export interface DtoEditarPerfil {
   idUsuario: number;
   nombre?: SinValidar;

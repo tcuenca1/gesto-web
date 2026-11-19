@@ -43,13 +43,15 @@ export function crearApp(c: Contenedores, opciones: OpcionesApp): Express {
     res.json({ estado: 'ok', hora: new Date().toISOString() });
   });
 
+  const conToken = autenticacion(c.usuario.cuLectura);
+
   // ---------------- Visitante: registro e inicio de sesión ----------------
   app.use('/api/auth', limitarIntentos(30, 15 * 60 * 1000));
   app.post('/api/auth/registro', manejar((req, res) => usuario.registrarUsuario(req, res)));
   app.post('/api/auth/login', manejar((req, res) => usuario.iniciarSesion(req, res)));
+  app.post('/api/auth/logout', conToken, manejar((req, res) => usuario.cerrarSesion(req, res)));
 
   // ---------------- Administrador (token + rol ADMIN) ----------------
-  const conToken = autenticacion(c.usuario.cuLectura);
   app.use('/api/admin', conToken, exigirRol('ADMIN'));
   app.get('/api/admin/gestos', manejar((req, res) => accion.listarTodosLosGestos(req, res)));
   app.put('/api/admin/gestos/:id', manejar((req, res) => administracion.editarGesto(req, res)));

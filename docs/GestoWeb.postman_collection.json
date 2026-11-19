@@ -90,6 +90,29 @@
           ]
         },
         {
+          "name": "Cerrar sesión (invalida el token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/auth/logout",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "RF-03 · 204 sin cuerpo. Sube version_token: todos los tokens del usuario dejan de valer."
+          }
+        },
+        {
           "name": "Salud del servidor",
           "request": {
             "method": "GET",

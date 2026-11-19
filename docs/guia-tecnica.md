@@ -80,10 +80,10 @@ backend/src/
 
 Ejemplo: el navegador envía `POST /api/sesiones/12/detecciones` con `{ "codigoGesto": "Thumb_Up", "confianza": 0.91, "mano": "Derecha" }`.
 
-1. **Middleware de token** (`infraestructura/util/middlewares.ts`) lee `Authorization: Bearer …` y llama a `CasoUso_UsuarioLectura.autenticarSolicitud`, que valida el JWT y vuelve a leer al usuario (si un admin lo desactivó, se rechaza al instante).
+1. **Middleware de token** (`infraestructura/util/middlewares.ts`) lee `Authorization: Bearer …` y llama a `CasoUso_UsuarioLectura.autenticarSolicitud`, que valida el JWT y vuelve a leer al usuario: si un admin lo desactivó, o si el token trae una `version_token` anterior a la vigente (cerrar sesión, cambiar la contraseña), se rechaza al instante.
 2. **Adaptador de entrada** (`AdapEntrada_ReconocimientoWeb.registrarDeteccion`) solo traduce la petición a un `DtoRegistrarDeteccion` y llama al caso de uso. La ruta en `app.ts` es una sola línea.
 3. **Caso de uso `CasoUso_ReconocimientoEscritura.registrarDeteccion`** valida el id de la URL, busca la sesión y el gesto por los puertos, calcula la acción del usuario con `resolverAccionEfectiva` y pide a `ReglasDeteccion.crear` que valide: sesión propia y abierta, gesto activo, confianza ≥ umbral, mano válida, hora razonable.
-4. **Adaptador `AdapSalida_DeteccionPostgres`** hace el `INSERT`. En la base, `trg_validar_sesion_abierta` vuelve a comprobar la sesión y `trg_contar_detecciones` suma 1 al total.
+4. **Adaptador `AdapSalida_DeteccionSequelize`** (o `AdapSalida_DeteccionPostgres` con `REPOSITORIOS=postgres`) hace el `INSERT`. En la base, `trg_validar_sesion_abierta` vuelve a comprobar la sesión y `trg_contar_detecciones` suma 1 al total.
 5. Si algo falla en cualquier capa se lanza un `ErrorDominio`; el **manejador de errores** lo convierte a HTTP:
 
 | Tipo de error | HTTP | Ejemplo |
@@ -114,6 +114,7 @@ Base: `/api`. Todas las rutas, salvo `auth` y `salud`, exigen `Authorization: Be
 | GET | `/salud` | Visitante | — | `{ estado: "ok" }` |
 | POST | `/auth/registro` | Visitante | `{ nombre, correo, contrasena }` | 201 · usuario |
 | POST | `/auth/login` | Visitante | `{ correo, contrasena }` | `{ token, expiraEn, usuario }` |
+| POST | `/auth/logout` | Usuario (token) | — | 204. Invalida en el servidor todos los tokens del usuario (sube `version_token`). Cambiar la contraseña o desactivar la cuenta también los invalida |
 | GET | `/usuarios/yo` | Usuario | — | usuario |
 | PUT | `/usuarios/yo` | Usuario | `{ nombre?, contrasenaActual?, contrasenaNueva? }` | usuario |
 | GET | `/gestos` | Usuario | — | gestos activos |
@@ -206,7 +207,7 @@ Otros detalles:
 | Variable | Por defecto | Para qué |
 |---|---|---|
 | `PUERTO` (o `PORT`) | 3000 | Puerto HTTP |
-| `REPOSITORIOS` | `postgres` | `memoria` para usar el backend sin base de datos |
+| `REPOSITORIOS` | `orm` | `orm` (Sequelize), `postgres` (SQL directo con pg) o `memoria` (sin base de datos) |
 | `DATABASE_URL` | `postgres://postgres:postgres@localhost:5432/gestoweb` | Conexión a PostgreSQL |
 | `PGSSL` | `false` | `true` en proveedores que exigen SSL |
 | `JWT_SECRETO` | (solo en desarrollo) | Obligatorio en producción, ≥ 32 caracteres |

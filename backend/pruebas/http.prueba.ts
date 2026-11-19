@@ -31,6 +31,16 @@ describe('API REST', () => {
     expect(yo.body.rol).toBe('USUARIO');
   });
 
+  it('POST /api/auth/logout exige token, responde 204 y el token deja de servir', async () => {
+    const s = app();
+    await request(s).post('/api/auth/logout').expect(401);
+    const t = await token(s, ADMIN);
+    await request(s).post('/api/auth/logout').set('Authorization', `Bearer ${t}`).expect(204);
+    const r = await request(s).get('/api/usuarios/yo').set('Authorization', `Bearer ${t}`).expect(401);
+    expect(r.body.error.codigo).toBe('NO_AUTENTICADO');
+    await request(s).post('/api/auth/logout').set('Authorization', `Bearer ${t}`).expect(401);
+  });
+
   it('errores de validación devuelven 400 con mensaje en español', async () => {
     const r = await request(app()).post('/api/auth/registro').send({ nombre: 'X', correo: 'malo', contrasena: '123' }).expect(400);
     expect(r.body.error).toEqual({ codigo: 'VALIDACION', mensaje: 'El correo no tiene un formato válido' });

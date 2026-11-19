@@ -14,7 +14,7 @@ export class AdapSalida_UsuarioMemoria extends PuertoSalidaUsuario {
     const e = this.almacen.estado;
     if (e.usuarios.some((u) => u.correo === nuevo.correo)) throw new ErrorConflicto('Ya existe una cuenta con ese correo');
     const ahora = this.reloj.ahora();
-    const datos = { ...nuevo, id: this.almacen.siguienteId('usuarios'), activo: true, fechaRegistro: ahora, ultimoAcceso: null };
+    const datos = { ...nuevo, id: this.almacen.siguienteId('usuarios'), activo: true, fechaRegistro: ahora, ultimoAcceso: null, versionToken: 0 };
     e.usuarios.push(datos);
     // Imita el trigger trg_asignaciones_iniciales de PostgreSQL.
     for (const g of e.gestos) {
@@ -40,7 +40,13 @@ export class AdapSalida_UsuarioMemoria extends PuertoSalidaUsuario {
   async actualizar(usuario: Usuario): Promise<void> {
     const lista = this.almacen.estado.usuarios;
     const i = lista.findIndex((u) => u.id === usuario.id);
-    if (i >= 0) lista[i] = usuario.aDatos();
+    // Igual que el SQL: guardar el usuario no cambia la versión de tokens.
+    if (i >= 0) lista[i] = { ...usuario.aDatos(), versionToken: lista[i].versionToken };
+  }
+
+  async invalidarTokens(idUsuario: number): Promise<void> {
+    const datos = this.almacen.estado.usuarios.find((u) => u.id === idUsuario);
+    if (datos) datos.versionToken += 1;
   }
 
   async contar(): Promise<number> {
